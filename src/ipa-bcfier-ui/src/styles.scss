@@ -81,6 +81,7 @@ $ipa-bcfier-ui-dark-theme: mat.define-light-theme((
 @include mat.list-theme($ipa-bcfier-ui-dark-theme);
 @include mat.select-theme($ipa-bcfier-ui-dark-theme);
 @include mat.option-theme($ipa-bcfier-ui-dark-theme);
+@include mat.icon-theme($ipa-bcfier-ui-dark-theme);
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
