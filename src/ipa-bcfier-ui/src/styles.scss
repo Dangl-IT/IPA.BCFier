@@ -43,6 +43,9 @@ $yellow-palette: (
 $ipa-bcfier-ui-primary:mat.define-palette($yellow-palette, 500,600,700);
 $ipa-bcfier-ui-accent: mat.define-palette(mat.$blue-grey-palette, A200, A100, A400);
 
+$ipa-bcfier-ui-primary-dark-theme:mat.define-palette(mat.$gray-palette,900);
+$ipa-bcfier-ui-accent-dark-theme: mat.define-palette(mat.$blue-grey-palette, A200, A100, A400);
+
 // The warn palette is optional (defaults to red).
 $ipa-bcfier-ui-warn: mat.define-palette(mat.$red-palette);
 
@@ -58,11 +61,26 @@ $ipa-bcfier-ui-theme: mat.define-light-theme((
   density: 0
 ));
 
+$ipa-bcfier-ui-dark-theme: mat.define-light-theme((
+  color: (
+    primary: $ipa-bcfier-ui-primary-dark-theme,
+    accent: $ipa-bcfier-ui-accent-dark-theme,
+    warn: $ipa-bcfier-ui-warn,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0
+));
+
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include mat.all-component-themes($ipa-bcfier-ui-theme);
 
+@include mat.form-field-theme($ipa-bcfier-ui-dark-theme);
+@include mat.select-theme($ipa-bcfier-ui-dark-theme);
+@include mat.list-theme($ipa-bcfier-ui-dark-theme);
+@include mat.select-theme($ipa-bcfier-ui-dark-theme);
+@include mat.option-theme($ipa-bcfier-ui-dark-theme);
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
