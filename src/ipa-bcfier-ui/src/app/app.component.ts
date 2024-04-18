@@ -1,6 +1,15 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
-import { Observable, take } from 'rxjs';
+import {
+  Observable,
+  Subject,
+  combineLatest,
+  filter,
+  map,
+  switchMap,
+  take,
+  takeUntil,
+} from 'rxjs';
 
 import { BackendService } from './services/BackendService';
 import { BcfFile } from '../generated/models';
@@ -28,10 +37,10 @@ import { TopMenuComponent } from './components/top-menu/top-menu.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
   bcfFiles: Observable<BcfFile[]>;
   @ViewChild(MatTabGroup) tabGroup: MatTabGroup | undefined;
-
+  private destroyed$ = new Subject<void>();
   constructor(
     private bcfFilesMessengerService: BcfFilesMessengerService,
     private backendService: BackendService,
@@ -39,29 +48,54 @@ export class AppComponent {
   ) {
     this.bcfFiles = bcfFilesMessengerService.bcfFiles;
 
-    bcfFilesMessengerService.bcfFileSaveRequested.subscribe(() => {
-      this.bcfFiles.pipe(take(1)).subscribe((bcfFiles) => {
-        if (!this.tabGroup || this.tabGroup.selectedIndex == null) {
-          return;
-        }
-
-        const selectedIndex = this.tabGroup.selectedIndex;
-        const bcfFileToSave = bcfFiles[selectedIndex];
-        this.backendService.exportBcfFile(bcfFileToSave).subscribe(() => {
+    this.bcfFilesMessengerService.bcfFileSaveRequested
+      .pipe(
+        takeUntil(this.destroyed$),
+        switchMap(() => this.bcfFiles.pipe(take(1))),
+        filter(
+          (bcfFiles) =>
+            !!this.tabGroup &&
+            this.tabGroup.selectedIndex != null &&
+            bcfFiles.length > this.tabGroup.selectedIndex &&
+            !!bcfFiles.length
+        ),
+        map((bcfFiles) => {
+          const selectedIndex = this.tabGroup?.selectedIndex as number;
+          const selectedBcfFile = bcfFiles[selectedIndex];
+          return selectedBcfFile;
+        }),
+        filter((selectedBcfFile) => !!selectedBcfFile),
+        switchMap((selectedBcfFile) => {
+          return this.backendService.exportBcfFile(selectedBcfFile);
+        })
+      )
+      .subscribe({
+        next: () => {
           this.notificationsService.success('BCF file saved successfully.');
-        });
+        },
+        error: (error) => {
+          console.error('Error exporting BCF file:', error);
+          this.notificationsService.error('Failed to save BCF file.');
+        },
       });
-    });
 
-    bcfFilesMessengerService.bcfFileSelected.subscribe((bcfFile) => {
-      bcfFilesMessengerService.bcfFiles.pipe(take(1)).subscribe((bcfFiles) => {
-        if (!this.tabGroup) {
-          return;
-        }
-
-        this.tabGroup.selectedIndex = bcfFiles.indexOf(bcfFile);
-      });
+    combineLatest([
+      bcfFilesMessengerService.bcfFileSelected.pipe(takeUntil(this.destroyed$)),
+      bcfFilesMessengerService.bcfFiles.pipe(take(1)),
+    ]).subscribe(([bcfFile, bcfFiles]) => {
+      this.updateTabIndex(bcfFile, bcfFiles);
     });
+  }
+
+  updateTabIndex(bcfFile: BcfFile, bcfFiles: BcfFile[]): void {
+    if (this.tabGroup) {
+      this.tabGroup.selectedIndex = bcfFiles.indexOf(bcfFile);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 
   closeBcfFile(bcfFile: BcfFile): void {
