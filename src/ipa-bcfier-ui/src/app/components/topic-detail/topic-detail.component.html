@@ -1,5 +1,5 @@
 <div class="wrapper">
-  <mat-form-field class="top-field">
+  <mat-form-field class="top-field dark-theme">
     <mat-label>Title</mat-label>
     <input matInput [(ngModel)]="topic.title" />
   </mat-form-field>
@@ -9,7 +9,7 @@
       <span>{{ topic.creationDate | date : "dd.MM.yyyy HH:mm" }}</span>
     </div>
 
-    <mat-form-field>
+    <mat-form-field class="dark-theme">
       <mat-label>Status</mat-label>
       <mat-select [(value)]="topic.topicStatus">
         @for (status of extensions.topicStatuses; track status) {
@@ -17,11 +17,16 @@
         }
       </mat-select>
     </mat-form-field>
-    <button matSuffix mat-icon-button (click)="addNewStatus()">
+    <button
+      matSuffix
+      mat-icon-button
+      (click)="addNewStatus()"
+      class="dark-theme"
+    >
       <mat-icon color="primary">add</mat-icon>
     </button>
 
-    <mat-form-field>
+    <mat-form-field class="dark-theme">
       <mat-label>Type</mat-label>
       <mat-select [(value)]="topic.topicType">
         @for (type of extensions.topicTypes; track type) {
@@ -29,12 +34,12 @@
         }
       </mat-select>
     </mat-form-field>
-    <button matSuffix mat-icon-button (click)="addNewType()">
+    <button matSuffix mat-icon-button (click)="addNewType()" class="dark-theme">
       <mat-icon color="primary">add</mat-icon>
     </button>
   </div>
 
-  <mat-form-field class="top-field">
+  <mat-form-field class="top-field dark-theme">
     <mat-label>Description</mat-label>
     <input matInput [(ngModel)]="topic.description" />
   </mat-form-field>

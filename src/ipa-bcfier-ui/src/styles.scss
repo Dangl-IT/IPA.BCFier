@@ -66,9 +66,7 @@ $ipa-bcfier-ui-dark-theme: mat.define-light-theme((
     primary: $ipa-bcfier-ui-primary-dark-theme,
     accent: $ipa-bcfier-ui-accent-dark-theme,
     warn: $ipa-bcfier-ui-warn,
-  ),
-  typography: mat.define-typography-config(),
-  density: 0
+  )
 ));
 
 // Include theme styles for core and each component used in your app.
@@ -76,12 +74,9 @@ $ipa-bcfier-ui-dark-theme: mat.define-light-theme((
 // that you are using.
 @include mat.all-component-themes($ipa-bcfier-ui-theme);
 
-@include mat.form-field-theme($ipa-bcfier-ui-dark-theme);
-@include mat.select-theme($ipa-bcfier-ui-dark-theme);
-@include mat.list-theme($ipa-bcfier-ui-dark-theme);
-@include mat.select-theme($ipa-bcfier-ui-dark-theme);
-@include mat.option-theme($ipa-bcfier-ui-dark-theme);
-@include mat.icon-theme($ipa-bcfier-ui-dark-theme);
+.dark-theme {
+  @include mat.all-component-colors($ipa-bcfier-ui-dark-theme);
+}
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
