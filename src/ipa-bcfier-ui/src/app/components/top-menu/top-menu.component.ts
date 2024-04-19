@@ -38,17 +38,6 @@ export class TopMenuComponent {
     });
   }
 
-  openMergeSelection(): void {
-    this.backendService.mergeBcfFile().subscribe({
-      next: (bcfFile: BcfFile) => {
-        this.bcfFilesMessengerService.openBcfFile(bcfFile);
-      },
-      error: () => {
-        this.notificationsService.error('Error during BCF merge.');
-      },
-    });
-  }
-
   newBcfFile(): void {
     this.bcfFilesMessengerService.createNewBcfFile();
   }
