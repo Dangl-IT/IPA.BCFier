@@ -3,6 +3,11 @@ bcfier-top-menu {
   width: 100%;
 }
 
+.logo {
+  height: 48px;
+  margin-bottom: 1rem;
+}
+
 .file-close-button {
   margin-left: 10px;
 }
@@ -13,4 +18,8 @@ mat-tab-group {
   min-width: 100%;
   width: 100%;
   margin: 0px;
+}
+
+::ng-deep .mat-mdc-tab-header {
+  margin: 0 0 1rem;
 }

@@ -1,9 +1,14 @@
 <mat-toolbar color="primary">
-  <h1 class="title"><strong>IPA.</strong>BCFier</h1>
+  <img src="assets/images/ipa-bcfier-logo.png" alt="Logo" class="logo" />
   <bcfier-top-menu></bcfier-top-menu>
 </mat-toolbar>
 
-<mat-tab-group *ngIf="bcfFiles" dynamicHeight #tabGroup>
+<mat-tab-group
+  *ngIf="bcfFiles"
+  dynamicHeight
+  #tabGroup
+  backgroundColor="primary"
+>
   <mat-tab *ngFor="let bcfFile of bcfFiles | async; let index = index">
     <ng-template mat-tab-label>
       {{ bcfFile.fileName }}
@@ -16,9 +21,8 @@
         <mat-icon>close</mat-icon>
       </button>
     </ng-template>
-    <bcfier-bcf-file
-      [bcfFile]="bcfFile"
-      *ngIf="tabGroup.selectedIndex === index"
-    ></bcfier-bcf-file>
+    <ng-template matTabContent>
+      <bcfier-bcf-file [bcfFile]="bcfFile"></bcfier-bcf-file>
+    </ng-template>
   </mat-tab>
 </mat-tab-group>
