@@ -73,6 +73,12 @@ export class AppComponent implements OnDestroy {
             tap((response) => {
               if (response && response.fileName) {
                 selectedBcfFile.fileName = response.fileName;
+                if (selectedBcfFile.bcfFile) {
+                  selectedBcfFile.bcfFile.fileName = response.fileName.replace(
+                    /^.*[\\/]/,
+                    ''
+                  );
+                }
               }
             })
           );
