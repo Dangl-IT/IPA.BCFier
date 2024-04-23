@@ -1,4 +1,4 @@
-﻿using IPA.Bcfier.Ipc;
+using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Bcf;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -25,7 +25,7 @@ namespace IPA.Bcfier.App.Controllers
 
             var hasReceived = false;
             var start = DateTime.Now;
-            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120))
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
             {
                 if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
                 {
@@ -61,7 +61,7 @@ namespace IPA.Bcfier.App.Controllers
 
             var hasReceived = false;
             var start = DateTime.Now;
-            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120))
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
             {
                 if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
                 {
