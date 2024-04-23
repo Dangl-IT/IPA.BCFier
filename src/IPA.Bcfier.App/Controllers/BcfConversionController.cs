@@ -96,7 +96,10 @@ namespace IPA.Bcfier.App.Controllers
 
             using var fs = System.IO.File.Create(fileSaveSelectResult);
             await bcfFileResult.CopyToAsync(fs);
-            return NoContent();
+            return Ok(new
+            {
+              FileName = fileSaveSelectResult
+            });
         }
 
         [HttpPost("save")]

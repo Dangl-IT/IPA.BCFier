@@ -20,7 +20,9 @@ export class BcfFilesMessengerService {
   private bcfFileSelectedSource = new Subject<BcfFileWrapper>();
   bcfFileSelected = this.bcfFileSelectedSource.asObservable();
   createNewBcfFile(): void {
-    const bcfFile: BcfFile = {
+    const bcfFile: BcfFileWrapper = {
+      fileName: '',
+      bcfFile: {
       fileName: 'issues.bcf',
       topics: [],
       fileAttachments: [],
@@ -34,6 +36,7 @@ export class BcfFilesMessengerService {
         topicStatuses: [],
         topicTypes: [],
         users: [],
+        },
       },
     };
     this.currentBcfFiles.push(bcfFile);

@@ -1,3 +1,4 @@
+import { BcfFile, BcfFileWrapper } from '../generated/models';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import {
@@ -10,10 +11,10 @@ import {
   switchMap,
   take,
   takeUntil,
+  tap,
 } from 'rxjs';
 
 import { BackendService } from './services/BackendService';
-import { BcfFile, BcfFileWrapper } from '../generated/models';
 import { BcfFileAutomaticallySaveService } from './services/bcf-file-automaticaly-save.service';
 import { BcfFileComponent } from './components/bcf-file/bcf-file.component';
 import { BcfFilesMessengerService } from './services/bcf-files-messenger.service';
@@ -68,7 +69,13 @@ export class AppComponent implements OnDestroy {
         }),
         filter((selectedBcfFile) => !!selectedBcfFile),
         switchMap((selectedBcfFile) => {
-          return this.backendService.exportBcfFile(selectedBcfFile);
+          return this.backendService.exportBcfFile(selectedBcfFile).pipe(
+            tap((response) => {
+              if (response && response.fileName) {
+                selectedBcfFile.fileName = response.fileName;
+              }
+            })
+          );
         })
       )
       .subscribe({
@@ -99,12 +106,22 @@ export class AppComponent implements OnDestroy {
         }),
         filter((selectedBcfFile) => !!selectedBcfFile),
         switchMap((selectedBcfFile) => {
-          return this.backendService.saveBcfFile(selectedBcfFile);
+          if (selectedBcfFile.fileName) {
+            return this.backendService.saveBcfFile(selectedBcfFile);
+          } else {
+            return of(false);
+          }
         })
       )
       .subscribe({
-        next: () => {
-          this.notificationsService.success('BCF file saved successfully.');
+        next: (value?) => {
+          if (typeof value === 'boolean' && !value) {
+            this.notificationsService.info(
+              'Please use "Save As" to save the BCF file.'
+            );
+          } else {
+            this.notificationsService.success('BCF file saved successfully.');
+          }
         },
         error: (error) => {
           console.error('Error exporting BCF file:', error);
