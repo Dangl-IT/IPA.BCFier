@@ -14,6 +14,7 @@ import {
 
 import { BackendService } from './services/BackendService';
 import { BcfFile } from '../generated/models';
+import { BcfFileAutomaticallySaveService } from './services/bcf-file-automaticaly-save.service';
 import { BcfFileComponent } from './components/bcf-file/bcf-file.component';
 import { BcfFilesMessengerService } from './services/bcf-files-messenger.service';
 import { CommonModule } from '@angular/common';
@@ -22,7 +23,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NotificationsService } from './services/notifications.service';
 import { TopMenuComponent } from './components/top-menu/top-menu.component';
-import { BcfFileAutomaticallySaveService } from './services/bcf-file-automaticaly-save.service';
 
 @Component({
   selector: 'bcfier-root',
@@ -49,7 +49,9 @@ export class AppComponent implements OnDestroy {
     private notificationsService: NotificationsService,
     private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService
   ) {
-    this.bcfFiles = bcfFilesMessengerService.bcfFiles;
+    this.bcfFiles = bcfFilesMessengerService.bcfFiles.pipe(
+      map((w) => w.map((f) => f.bcfFile!))
+    );
 
     this.bcfFilesMessengerService.bcfFileSaveRequested
       .pipe(
@@ -118,7 +120,10 @@ export class AppComponent implements OnDestroy {
       bcfFilesMessengerService.bcfFileSelected.pipe(takeUntil(this.destroyed$)),
       bcfFilesMessengerService.bcfFiles.pipe(take(1)),
     ]).subscribe(([bcfFile, bcfFiles]) => {
-      this.updateTabIndex(bcfFile, bcfFiles);
+      this.updateTabIndex(
+        bcfFile.bcfFile!,
+        bcfFiles.map((f) => f.bcfFile!)
+      );
     });
   }
 

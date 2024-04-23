@@ -1,4 +1,9 @@
-import { BcfFile, BcfViewpoint, Settings } from '../../generated/models';
+import {
+  BcfFile,
+  BcfFileWrapper,
+  BcfViewpoint,
+  Settings,
+} from '../../generated/models';
 import { Observable, Subject, catchError, of, tap } from 'rxjs';
 
 import { AddSnapshotViewpointComponent } from '../components/add-snapshot-viewpoint/add-snapshot-viewpoint.component';
@@ -21,8 +26,8 @@ export class BackendService {
     private notificationsService: NotificationsService
   ) {}
 
-  importBcfFile(): Observable<BcfFile> {
-    return this.http.post<BcfFile>('/api/bcf-conversion/import', null);
+  importBcfFile(): Observable<BcfFileWrapper> {
+    return this.http.post<BcfFileWrapper>('/api/bcf-conversion/import', null);
   }
 
   mergeBcfFile(): Observable<BcfFile> {
@@ -31,6 +36,12 @@ export class BackendService {
 
   exportBcfFile(bcfFile: BcfFile): Observable<void> {
     return this.http.post<void>('/api/bcf-conversion/export', bcfFile);
+  }
+
+  saveBcfFile(bcfFileWrapper: BcfFileWrapper): void {
+    this.http.post('/api/bcf-conversion/save', bcfFileWrapper).subscribe(() => {
+      /* Not doing anything with the result */
+    });
   }
 
   openDocumentation(): void {

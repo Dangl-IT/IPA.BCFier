@@ -49,7 +49,11 @@ namespace IPA.Bcfier.App.Controllers
                 using var bcfFileStream = System.IO.File.OpenRead(fileSelectionResult.First());
                 var bcfFileName = Path.GetFileName(fileSelectionResult.FirstOrDefault());
                 var bcfResult = await new BcfImportService().ImportBcfFileAsync(bcfFileStream, bcfFileName ?? "issue.bcf");
-                return Ok(bcfResult);
+                return Ok(new BcfFileWrapper
+                {
+                    FileName = fileSelectionResult.First(),
+                    BcfFile = bcfResult
+                });
             }
             catch (Exception e)
             {
@@ -91,6 +95,20 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             using var fs = System.IO.File.Create(fileSaveSelectResult);
+            await bcfFileResult.CopyToAsync(fs);
+            return NoContent();
+        }
+
+        [HttpPost("save")]
+        public async Task<IActionResult> SaveBcfFileAsync([FromBody] BcfFileWrapper bcfFileWrapper)
+        {
+            var bcfFileResult = new BcfExportService().ExportBcfFile(bcfFileWrapper.BcfFile);
+            if (bcfFileResult == null)
+            {
+                return BadRequest();
+            }
+
+            using var fs = System.IO.File.Create(bcfFileWrapper.FileName);
             await bcfFileResult.CopyToAsync(fs);
             return NoContent();
         }

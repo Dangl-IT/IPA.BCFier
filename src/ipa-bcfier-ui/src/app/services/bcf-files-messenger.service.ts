@@ -1,6 +1,6 @@
+import { BcfFile, BcfFileWrapper } from '../../generated/models';
 import { ReplaySubject, Subject } from 'rxjs';
 
-import { BcfFile } from '../../generated/models';
 import { Injectable } from '@angular/core';
 import { getNewRandomGuid } from '../functions/uuid';
 
@@ -8,16 +8,16 @@ import { getNewRandomGuid } from '../functions/uuid';
   providedIn: 'root',
 })
 export class BcfFilesMessengerService {
-  private bcfFilesSubject: ReplaySubject<BcfFile[]> = new ReplaySubject<
-    BcfFile[]
+  private bcfFilesSubject: ReplaySubject<BcfFileWrapper[]> = new ReplaySubject<
+    BcfFileWrapper[]
   >(1);
   public bcfFiles = this.bcfFilesSubject.asObservable();
-  private currentBcfFiles: BcfFile[] = [];
+  private currentBcfFiles: BcfFileWrapper[] = [];
 
   private bcfFileSaveRequestedSource = new Subject<void>();
   bcfFileSaveRequested = this.bcfFileSaveRequestedSource.asObservable();
 
-  private bcfFileSelectedSource = new Subject<BcfFile>();
+  private bcfFileSelectedSource = new Subject<BcfFileWrapper>();
   bcfFileSelected = this.bcfFileSelectedSource.asObservable();
   createNewBcfFile(): void {
     const bcfFile: BcfFile = {
@@ -45,10 +45,10 @@ export class BcfFilesMessengerService {
     this.bcfFileSaveRequestedSource.next();
   }
 
-  openBcfFile(bcfFile: BcfFile) {
-    this.currentBcfFiles.push(bcfFile);
+  openBcfFile(bcfFileWrapper: BcfFileWrapper) {
+    this.currentBcfFiles.push(bcfFileWrapper);
     this.bcfFilesSubject.next(this.currentBcfFiles);
-    this.bcfFileSelectedSource.next(bcfFile);
+    this.bcfFileSelectedSource.next(bcfFileWrapper);
   }
 
   closeBcfFile(bcfFile: BcfFile) {

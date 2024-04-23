@@ -1,7 +1,7 @@
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { BackendService } from '../../services/BackendService';
-import { BcfFile } from '../../../generated/models';
+import { BcfFileWrapper } from '../../../generated/models';
 import { BcfFilesMessengerService } from '../../services/bcf-files-messenger.service';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,8 +29,8 @@ export class TopMenuComponent {
 
   openBcf(): void {
     this.backendService.importBcfFile().subscribe({
-      next: (bcfFile: BcfFile) => {
-        this.bcfFilesMessengerService.openBcfFile(bcfFile);
+      next: (bcfFileWrapper: BcfFileWrapper) => {
+        this.bcfFilesMessengerService.openBcfFile(bcfFileWrapper);
       },
       error: (error) => {
         this.notificationsService.error('Error during BCF import.');

@@ -8,6 +8,14 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
+export interface BcfFile {
+    fileName: string;
+    project?: BcfProject | undefined;
+    fileAttachments?: BcfFileAttachment[] | undefined;
+    projectExtensions?: BcfProjectExtensions | undefined;
+    topics: BcfTopic[];
+}
+
 export interface BcfProject {
     id?: string | undefined;
     name?: string | undefined;
@@ -146,12 +154,9 @@ export interface BcfComment {
     viewpointId?: string | undefined;
 }
 
-export interface BcfFile {
+export interface BcfFileWrapper {
     fileName: string;
-    project?: BcfProject | undefined;
-    fileAttachments?: BcfFileAttachment[] | undefined;
-    projectExtensions?: BcfProjectExtensions | undefined;
-    topics: BcfTopic[];
+    bcfFile?: BcfFile | undefined;
 }
 
 export interface FrontendConfig {

@@ -450,8 +450,8 @@ export const version = {{
 
             var document = new OpenApiDocument();
 
-            var bcfFileSchema = JsonSchema.FromType<IPA.Bcfier.Models.Bcf.BcfFile>(jsonSchemaSettings);
-            document.Definitions.Add(nameof(IPA.Bcfier.Models.Bcf.BcfFile), bcfFileSchema);
+            var bcfFileSchema = JsonSchema.FromType<IPA.Bcfier.Models.Bcf.BcfFileWrapper>(jsonSchemaSettings);
+            document.Definitions.Add(nameof(IPA.Bcfier.Models.Bcf.BcfFileWrapper), bcfFileSchema);
             foreach (var typeDef in bcfFileSchema.Definitions)
             {
                 document.Definitions.TryAdd(typeDef.Key, typeDef.Value);
