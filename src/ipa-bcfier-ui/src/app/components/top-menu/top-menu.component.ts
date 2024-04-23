@@ -51,7 +51,6 @@ export class TopMenuComponent {
   }
 
   saveBcf(): void {
-    console.log('Calling save');
     this.bcfFilesMessengerService.saveCurrentActiveBcfFile();
   }
 }
