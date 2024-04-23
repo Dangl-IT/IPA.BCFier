@@ -15,6 +15,7 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
 import { ViewpointImageDirective } from '../../directives/viewpoint-image.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
+import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 
 @Component({
   selector: 'bcfier-comments-detail',
@@ -42,7 +43,8 @@ export class CommentsDetailComponent implements OnInit {
     private settingsMessengerService: SettingsMessengerService,
     private notificationsService: NotificationsService,
     private matDialog: MatDialog,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService
   ) {}
 
   ngOnInit(): void {}
@@ -68,6 +70,7 @@ export class CommentsDetailComponent implements OnInit {
         this.newComment = '';
 
         this.notificationsService.success('Comment added');
+        this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
       });
   }
 

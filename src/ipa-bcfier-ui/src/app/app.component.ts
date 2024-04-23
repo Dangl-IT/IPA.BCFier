@@ -6,6 +6,7 @@ import {
   combineLatest,
   filter,
   map,
+  of,
   switchMap,
   take,
   takeUntil,
@@ -21,6 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NotificationsService } from './services/notifications.service';
 import { TopMenuComponent } from './components/top-menu/top-menu.component';
+import { BcfFileAutomaticallySaveService } from './services/bcf-file-automaticaly-save.service';
 
 @Component({
   selector: 'bcfier-root',
@@ -44,7 +46,8 @@ export class AppComponent implements OnDestroy {
   constructor(
     private bcfFilesMessengerService: BcfFilesMessengerService,
     private backendService: BackendService,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService
   ) {
     this.bcfFiles = bcfFilesMessengerService.bcfFiles;
 
@@ -67,6 +70,38 @@ export class AppComponent implements OnDestroy {
         filter((selectedBcfFile) => !!selectedBcfFile),
         switchMap((selectedBcfFile) => {
           return this.backendService.exportBcfFile(selectedBcfFile);
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.notificationsService.success('BCF file saved successfully.');
+        },
+        error: (error) => {
+          console.error('Error exporting BCF file:', error);
+          this.notificationsService.error('Failed to save BCF file.');
+        },
+      });
+
+    this.bcfFileAutomaticallySaveService.bcfFileSaveAutomaticallyRequested
+      .pipe(
+        takeUntil(this.destroyed$),
+        switchMap(() => this.bcfFiles.pipe(take(1))),
+        filter(
+          (bcfFiles) =>
+            !!this.tabGroup &&
+            this.tabGroup.selectedIndex != null &&
+            bcfFiles.length > this.tabGroup.selectedIndex &&
+            !!bcfFiles.length
+        ),
+        map((bcfFiles) => {
+          const selectedIndex = this.tabGroup?.selectedIndex as number;
+          const selectedBcfFile = bcfFiles[selectedIndex];
+          return selectedBcfFile;
+        }),
+        filter((selectedBcfFile) => !!selectedBcfFile),
+        switchMap((selectedBcfFile) => {
+          //TODO replace to call backend method
+          return of(selectedBcfFile);
         })
       )
       .subscribe({

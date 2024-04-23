@@ -1,7 +1,7 @@
 <div class="wrapper">
   <mat-form-field class="top-field dark-theme">
     <mat-label>Title</mat-label>
-    <input matInput [(ngModel)]="topic.title" />
+    <input matInput [(ngModel)]="topic.title" (change)="changeIssue()" />
   </mat-form-field>
 
   <div class="info-select">
@@ -11,7 +11,10 @@
 
     <mat-form-field class="dark-theme">
       <mat-label>Status</mat-label>
-      <mat-select [(value)]="topic.topicStatus">
+      <mat-select
+        [(value)]="topic.topicStatus"
+        (selectionChange)="changeIssue()"
+      >
         @for (status of (issueStatuses$ | async)?.values(); track status) {
         <mat-option [value]="status">{{ status }}</mat-option>
         }
@@ -20,7 +23,7 @@
 
     <mat-form-field class="dark-theme">
       <mat-label>Type</mat-label>
-      <mat-select [(value)]="topic.topicType">
+      <mat-select [(value)]="topic.topicType" (selectionChange)="changeIssue()">
         @for (type of (issueTypes$ | async)?.values(); track type) {
         <mat-option [value]="type">{{ type }}</mat-option>
         }
@@ -30,7 +33,7 @@
     <!-- TODO connected it with model and saving after choose or maybe get if from topic.users-->
     <mat-form-field class="dark-theme">
       <mat-label>Responsible</mat-label>
-      <mat-select>
+      <mat-select (selectionChange)="changeIssue()">
         @for (user of (users$ | async)?.values(); track user) {
         <mat-option [value]="user">{{ user }}</mat-option>
         }
@@ -39,7 +42,12 @@
 
     <mat-form-field>
       <mat-label>Due Date</mat-label>
-      <input matInput [matDatepicker]="picker" [(ngModel)]="topic.dueDate" />
+      <input
+        matInput
+        [matDatepicker]="picker"
+        [(ngModel)]="topic.dueDate"
+        (ngModelChange)="changeIssue()"
+      />
       <mat-hint>MM/DD/YYYY</mat-hint>
       <mat-datepicker-toggle
         matIconSuffix
@@ -51,7 +59,7 @@
 
   <mat-form-field class="top-field dark-theme">
     <mat-label>Description</mat-label>
-    <input matInput [(ngModel)]="topic.description" />
+    <input matInput [(ngModel)]="topic.description" (change)="changeIssue()" />
   </mat-form-field>
 
   <div>

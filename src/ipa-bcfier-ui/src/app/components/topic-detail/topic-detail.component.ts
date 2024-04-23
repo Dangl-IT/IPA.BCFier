@@ -22,6 +22,7 @@ import { IssueTypesService } from '../../services/issue-types.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { UsersService } from '../../services/users.service';
+import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 
 @Component({
   selector: 'bcfier-topic-detail',
@@ -50,6 +51,7 @@ export class TopicDetailComponent implements OnInit {
   issueStatusesService = inject(IssueStatusesService);
   issueTypesService = inject(IssueTypesService);
   users$ = inject(UsersService).users;
+  bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
   extensions!: BcfProjectExtensions;
   issueStatuses$ = this.issueStatusesService.issueStatuses;
   issueTypes$ = this.issueTypesService.issueTypes;
@@ -124,7 +126,12 @@ export class TopicDetailComponent implements OnInit {
     this.backendService.addViewpoint().subscribe((viewpoint) => {
       if (viewpoint) {
         this.topic.viewpoints.push(viewpoint);
+        this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
       }
     });
+  }
+
+  changeIssue(): void {
+    this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
   }
 }

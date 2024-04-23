@@ -22,6 +22,7 @@ import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
 import { UsersService } from '../../services/users.service';
 import { IssueFilterService } from '../../services/issue-filter.service';
+import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -50,6 +51,7 @@ export class BcfFileComponent {
   issueTypes$ = inject(IssueTypesService).issueTypes;
   users$ = inject(UsersService).users;
   issueFilterService = inject(IssueFilterService);
+  bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
   selectedTopic: BcfTopic | null = null;
   filtredTopics: BcfTopic[] = [];
 
@@ -94,6 +96,8 @@ export class BcfFileComponent {
     };
     this.bcfFile.topics.push(newIssue);
     this.selectedTopic = newIssue;
+    this.filtredTopics = [...this.bcfFile.topics];
+    this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
   }
 
   removeIssue(): void {
@@ -110,6 +114,8 @@ export class BcfFileComponent {
     } else {
       this.selectedTopic = null;
     }
+    this.filtredTopics = [...this.bcfFile.topics];
+    this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
   }
 
   filterIssues(filters: FormGroup<IFilters>): void {
