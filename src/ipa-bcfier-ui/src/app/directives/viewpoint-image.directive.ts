@@ -1,6 +1,6 @@
 import { Directive, ElementRef, Input, SimpleChanges } from '@angular/core';
 
-import { BcfViewpoint } from '../../generated/models';
+import { BcfViewpoint } from '../generated-client/generated-client';
 
 @Directive({
   selector: '[bcfierViewpointImage]',

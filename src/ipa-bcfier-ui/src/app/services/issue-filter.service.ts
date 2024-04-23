@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { BcfTopic } from '../../generated/models';
+
+import { BcfTopic } from '../generated-client/generated-client';
 
 @Injectable({
   providedIn: 'root',

@@ -1,7 +1,7 @@
 import { BackendService } from './BackendService';
 import { Injectable } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
-import { Settings } from '../../generated/models';
+import { Settings } from '../generated-client/generated-client';
 
 @Injectable({
   providedIn: 'root',

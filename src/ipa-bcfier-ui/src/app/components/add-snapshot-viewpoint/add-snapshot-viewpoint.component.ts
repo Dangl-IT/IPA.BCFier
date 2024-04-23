@@ -5,7 +5,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 
-import { BcfViewpoint } from '../../../generated/models';
+import { BcfViewpoint } from '../../generated-client/generated-client';
 import { Component } from '@angular/core';
 import { DropzoneCdkModule } from '@ngx-dropzone/cdk';
 import { DropzoneMaterialModule } from '@ngx-dropzone/material';

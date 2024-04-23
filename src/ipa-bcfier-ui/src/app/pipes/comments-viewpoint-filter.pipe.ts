@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { BcfComment } from '../../generated/models';
+import { BcfComment } from '../generated-client/generated-client';
 
 @Pipe({
   name: 'commentsViewpointFilter',

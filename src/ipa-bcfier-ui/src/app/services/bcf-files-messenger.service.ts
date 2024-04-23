@@ -1,4 +1,4 @@
-import { BcfFile, BcfFileWrapper } from '../../generated/models';
+import { BcfFile, BcfFileWrapper } from '../generated-client/generated-client';
 import { ReplaySubject, Subject } from 'rxjs';
 
 import { Injectable } from '@angular/core';

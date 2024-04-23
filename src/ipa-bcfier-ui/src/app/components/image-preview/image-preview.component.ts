@@ -4,8 +4,8 @@ import {
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { BcfViewpoint } from '../../../generated/models';
 import { ViewpointImageDirective } from '../../directives/viewpoint-image.directive';
+import { BcfViewpoint } from '../../generated-client/generated-client';
 
 @Component({
   selector: 'bcfier-image-preview',

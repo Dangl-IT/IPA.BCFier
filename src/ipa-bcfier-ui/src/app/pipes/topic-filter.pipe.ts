@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { BcfTopic } from '../../generated/models';
+import { BcfTopic } from '../generated-client/generated-client';
 
 @Pipe({
   name: 'topicFilter',

@@ -1,7 +1,7 @@
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { BackendService } from '../../services/BackendService';
-import { BcfFileWrapper } from '../../../generated/models';
+import { BcfFileWrapper } from '../../generated-client/generated-client';
 import { BcfFilesMessengerService } from '../../services/bcf-files-messenger.service';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';

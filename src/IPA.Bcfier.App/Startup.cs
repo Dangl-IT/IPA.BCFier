@@ -23,12 +23,16 @@ namespace IPA.Bcfier.App
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
+
+            services.AddBcfierSwagger();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseStaticFiles();
             app.UseRouting();
+
+            app.UseBcfierSwaggerUi();
 
             app.UseEndpoints(endpoints =>
             {

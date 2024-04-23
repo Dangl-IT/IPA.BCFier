@@ -1,7 +1,12 @@
-import { BcfComment, BcfTopic, BcfViewpoint } from '../../../generated/models';
+import {
+  BcfComment,
+  BcfTopic,
+  BcfViewpoint,
+} from '../../generated-client/generated-client';
 import { Component, Input, OnInit } from '@angular/core';
 
 import { BackendService } from '../../services/BackendService';
+import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ImagePreviewComponent } from '../image-preview/image-preview.component';
@@ -15,7 +20,6 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
 import { ViewpointImageDirective } from '../../directives/viewpoint-image.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
-import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 
 @Component({
   selector: 'bcfier-comments-detail',

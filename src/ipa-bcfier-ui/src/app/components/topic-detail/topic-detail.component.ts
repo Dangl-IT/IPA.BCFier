@@ -2,27 +2,27 @@ import {
   BcfFile,
   BcfProjectExtensions,
   BcfTopic,
-} from '../../../generated/models';
+} from '../../generated-client/generated-client';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { AddStringValueComponent } from '../add-string-value/add-string-value.component';
 import { BackendService } from '../../services/BackendService';
+import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { CommentsDetailComponent } from '../comments-detail/comments-detail.component';
 import { CommentsViewpointFilterPipe } from '../../pipes/comments-viewpoint-filter.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { IssueStatusesService } from '../../services/issue-statuses.service';
+import { IssueTypesService } from '../../services/issue-types.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { IssueStatusesService } from '../../services/issue-statuses.service';
-import { IssueTypesService } from '../../services/issue-types.service';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { UsersService } from '../../services/users.service';
-import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'bcfier-topic-detail',

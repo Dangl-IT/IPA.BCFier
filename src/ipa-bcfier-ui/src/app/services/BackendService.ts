@@ -1,9 +1,8 @@
 import {
-  BcfFile,
   BcfFileWrapper,
   BcfViewpoint,
   Settings,
-} from '../../generated/models';
+} from '../generated-client/generated-client';
 import { Observable, Subject, catchError, of, tap } from 'rxjs';
 
 import { AddSnapshotViewpointComponent } from '../components/add-snapshot-viewpoint/add-snapshot-viewpoint.component';

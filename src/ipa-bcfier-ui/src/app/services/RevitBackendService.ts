@@ -1,4 +1,8 @@
-import { BcfFile, BcfViewpoint, Settings } from '../../generated/models';
+import {
+  BcfFile,
+  BcfViewpoint,
+  Settings,
+} from '../generated-client/generated-client';
 import { NgZone, inject } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 

@@ -1,6 +1,7 @@
 ﻿using IPA.Bcfier.Models.Settings;
 using IPA.Bcfier.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace IPA.Bcfier.App.Controllers
 {
@@ -16,6 +17,7 @@ namespace IPA.Bcfier.App.Controllers
         }
 
         [HttpGet("")]
+        [ProducesResponseType(typeof(Settings), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetSettingsAsync()
         {
             var settings = await _settingsService.LoadSettingsAsync();
@@ -23,6 +25,7 @@ namespace IPA.Bcfier.App.Controllers
         }
 
         [HttpPut("")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> SaveSettingsAsync([FromBody] Settings settings)
         {
             await _settingsService.SaveSettingsAsync(settings);

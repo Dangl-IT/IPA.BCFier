@@ -1,28 +1,28 @@
-import { BcfFile, BcfTopic } from '../../../generated/models';
+import { BcfFile, BcfTopic } from '../../generated-client/generated-client';
 import { Component, Input, inject } from '@angular/core';
-
-import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
+import {
+  IFilters,
+  IssueFiltersComponent,
+} from '../issue-filters/issue-filters.component';
+
+import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
+import { CommonModule } from '@angular/common';
+import { IssueFilterService } from '../../services/issue-filter.service';
+import { IssueStatusesService } from '../../services/issue-statuses.service';
+import { IssueTypesService } from '../../services/issue-types.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { TopicDetailComponent } from '../topic-detail/topic-detail.component';
 import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
-import { getNewRandomGuid } from '../../functions/uuid';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import {
-  IFilters,
-  IssueFiltersComponent,
-} from '../issue-filters/issue-filters.component';
-import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
-import { IssueStatusesService } from '../../services/issue-statuses.service';
-import { IssueTypesService } from '../../services/issue-types.service';
 import { UsersService } from '../../services/users.service';
-import { IssueFilterService } from '../../services/issue-filter.service';
-import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
+import { getNewRandomGuid } from '../../functions/uuid';
 
 @Component({
   selector: 'bcfier-bcf-file',

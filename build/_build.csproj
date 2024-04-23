@@ -17,6 +17,10 @@
     <PackageDownload Include="GitVersion.CommandLine" Version="[5.12.0]" />
     <PackageReference Include="Nuke.Common" Version="8.0.0" />
     <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="14.0.7" />
+    <PackageReference Include="NSwag.MSBuild" Version="14.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="docfx.console" Version="2.59.4">
       <ExcludeAssets>build</ExcludeAssets>
       <PrivateAssets>all</PrivateAssets>

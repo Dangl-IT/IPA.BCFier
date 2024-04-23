@@ -1,4 +1,4 @@
-import { BcfFile, BcfFileWrapper } from '../generated/models';
+import { BcfFile, BcfFileWrapper } from './generated-client/generated-client';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import {
