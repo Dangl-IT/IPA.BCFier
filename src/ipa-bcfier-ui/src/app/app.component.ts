@@ -51,7 +51,7 @@ export class AppComponent implements OnDestroy {
     private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService
   ) {
     this.bcfFiles = bcfFilesMessengerService.bcfFiles;
-    this.bcfFilesMessengerService.bcfFileSaveRequested
+    this.bcfFilesMessengerService.bcfFileSaveAsRequested
       .pipe(
         takeUntil(this.destroyed$),
         switchMap(() => this.bcfFiles.pipe(take(1))),

@@ -14,8 +14,8 @@ export class BcfFilesMessengerService {
   public bcfFiles = this.bcfFilesSubject.asObservable();
   private currentBcfFiles: BcfFileWrapper[] = [];
 
-  private bcfFileSaveRequestedSource = new Subject<void>();
-  bcfFileSaveRequested = this.bcfFileSaveRequestedSource.asObservable();
+  private bcfFileSaveAsRequestedSource = new Subject<void>();
+  bcfFileSaveAsRequested = this.bcfFileSaveAsRequestedSource.asObservable();
 
   private bcfFileSelectedSource = new Subject<BcfFileWrapper>();
   bcfFileSelected = this.bcfFileSelectedSource.asObservable();
@@ -44,8 +44,8 @@ export class BcfFilesMessengerService {
     this.bcfFileSelectedSource.next(bcfFile);
   }
 
-  saveCurrentActiveBcfFile(): void {
-    this.bcfFileSaveRequestedSource.next();
+  saveCurrentActiveBcfFileAs(): void {
+    this.bcfFileSaveAsRequestedSource.next();
   }
 
   openBcfFile(bcfFileWrapper: BcfFileWrapper) {

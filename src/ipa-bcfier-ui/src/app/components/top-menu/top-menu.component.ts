@@ -50,7 +50,7 @@ export class TopMenuComponent {
     this.backendService.openDocumentation();
   }
 
-  saveBcf(): void {
-    this.bcfFilesMessengerService.saveCurrentActiveBcfFile();
+  saveBcfAs(): void {
+    this.bcfFilesMessengerService.saveCurrentActiveBcfFileAs();
   }
 }
