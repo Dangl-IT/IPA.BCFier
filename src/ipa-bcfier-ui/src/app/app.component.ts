@@ -13,7 +13,7 @@ import {
 } from 'rxjs';
 
 import { BackendService } from './services/BackendService';
-import { BcfFile } from '../generated/models';
+import { BcfFile, BcfFileWrapper } from '../generated/models';
 import { BcfFileAutomaticallySaveService } from './services/bcf-file-automaticaly-save.service';
 import { BcfFileComponent } from './components/bcf-file/bcf-file.component';
 import { BcfFilesMessengerService } from './services/bcf-files-messenger.service';
@@ -40,7 +40,7 @@ import { TopMenuComponent } from './components/top-menu/top-menu.component';
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnDestroy {
-  bcfFiles: Observable<BcfFile[]>;
+  bcfFiles: Observable<BcfFileWrapper[]>;
   @ViewChild(MatTabGroup) tabGroup: MatTabGroup | undefined;
   private destroyed$ = new Subject<void>();
   constructor(
@@ -49,10 +49,7 @@ export class AppComponent implements OnDestroy {
     private notificationsService: NotificationsService,
     private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService
   ) {
-    this.bcfFiles = bcfFilesMessengerService.bcfFiles.pipe(
-      map((w) => w.map((f) => f.bcfFile!))
-    );
-
+    this.bcfFiles = bcfFilesMessengerService.bcfFiles;
     this.bcfFilesMessengerService.bcfFileSaveRequested
       .pipe(
         takeUntil(this.destroyed$),
@@ -102,8 +99,7 @@ export class AppComponent implements OnDestroy {
         }),
         filter((selectedBcfFile) => !!selectedBcfFile),
         switchMap((selectedBcfFile) => {
-          //TODO replace to call backend method
-          return of(selectedBcfFile);
+          return this.backendService.saveBcfFile(selectedBcfFile);
         })
       )
       .subscribe({

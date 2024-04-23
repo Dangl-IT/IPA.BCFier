@@ -34,14 +34,12 @@ export class BackendService {
     return this.http.post<BcfFile>('/api/bcf-conversion/merge', null);
   }
 
-  exportBcfFile(bcfFile: BcfFile): Observable<void> {
+  exportBcfFile(bcfFile: BcfFileWrapper): Observable<void> {
     return this.http.post<void>('/api/bcf-conversion/export', bcfFile);
   }
 
-  saveBcfFile(bcfFileWrapper: BcfFileWrapper): void {
-    this.http.post('/api/bcf-conversion/save', bcfFileWrapper).subscribe(() => {
-      /* Not doing anything with the result */
-    });
+  saveBcfFile(bcfFileWrapper: BcfFileWrapper): Observable<any> {
+    return this.http.post('/api/bcf-conversion/save', bcfFileWrapper);
   }
 
   openDocumentation(): void {
