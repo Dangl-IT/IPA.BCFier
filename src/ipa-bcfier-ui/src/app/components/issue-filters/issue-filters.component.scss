@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  height: 99%;
+  &_filters {
+    flex: 1;
+  }
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+button {
+  margin: 5px;
+}

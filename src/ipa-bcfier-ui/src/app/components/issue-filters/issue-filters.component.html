@@ -1,0 +1,57 @@
+<div class="container" [formGroup]="filtersForm">
+  <div class="container_filters">
+    <mat-form-field class="dark-theme">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        @for (status of (issueStatuses$ | async)?.values(); track status) {
+        <mat-option [value]="status">{{ status }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="dark-theme">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="type">
+        @for (type of (issueTypes$ | async)?.values(); track type) {
+        <mat-option [value]="type">{{ type }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="dark-theme">
+      <mat-label>Responsible</mat-label>
+      <mat-select formControlName="users">
+        @for (user of (users$ | async); track user) {
+        <mat-option [value]="user">{{ user }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field formGroupName="issueRange">
+      <mat-label>Due Date</mat-label>
+      <mat-date-range-input [rangePicker]="picker">
+        <input matStartDate formControlName="start" placeholder="Start date" />
+        <input matEndDate formControlName="end" placeholder="End date" />
+      </mat-date-range-input>
+      <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+
+      @if (filtersForm.get('issueRange.start')?.hasError('matStartDateInvalid'))
+      {
+      <mat-error>Invalid start date</mat-error>
+      } @if (filtersForm.get('issueRange.end')?.hasError('matEndDateInvalid')) {
+      <mat-error>Invalid end date</mat-error>
+      }
+    </mat-form-field>
+  </div>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="acceptFilters()"
+    [disabled]="filtersForm.invalid"
+  >
+    Accept
+  </button>
+  <button mat-flat-button color="warn" (click)="clearFilters()">Clear</button>
+</div>

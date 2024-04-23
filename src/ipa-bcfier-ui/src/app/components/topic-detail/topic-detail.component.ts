@@ -3,7 +3,7 @@ import {
   BcfProjectExtensions,
   BcfTopic,
 } from '../../../generated/models';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { AddStringValueComponent } from '../add-string-value/add-string-value.component';
@@ -17,6 +17,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { IssueStatusesService } from '../../services/issue-statuses.service';
+import { IssueTypesService } from '../../services/issue-types.service';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'bcfier-topic-detail',
@@ -33,15 +38,21 @@ import { MatSelectModule } from '@angular/material/select';
     AddStringValueComponent,
     CommentsViewpointFilterPipe,
     CommentsDetailComponent,
+    MatDatepickerModule,
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './topic-detail.component.html',
   styleUrl: './topic-detail.component.scss',
 })
 export class TopicDetailComponent implements OnInit {
   @Input() topic!: BcfTopic;
   @Input() bcfFile!: BcfFile;
-
+  issueStatusesService = inject(IssueStatusesService);
+  issueTypesService = inject(IssueTypesService);
+  users$ = inject(UsersService).users;
   extensions!: BcfProjectExtensions;
+  issueStatuses$ = this.issueStatusesService.issueStatuses;
+  issueTypes$ = this.issueTypesService.issueTypes;
 
   constructor(
     private matDialog: MatDialog,
@@ -49,6 +60,17 @@ export class TopicDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (this.bcfFile?.projectExtensions?.topicStatuses) {
+      this.issueStatusesService.setIssueStatuses(
+        this.bcfFile?.projectExtensions?.topicStatuses
+      );
+    }
+
+    if (this.bcfFile?.projectExtensions?.topicTypes) {
+      this.issueTypesService.setIssueTypes(
+        this.bcfFile?.projectExtensions?.topicTypes
+      );
+    }
     this.extensions = this.bcfFile?.projectExtensions || {
       priorities: [],
       snippetTypes: [],

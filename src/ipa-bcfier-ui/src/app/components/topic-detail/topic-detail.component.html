@@ -12,31 +12,41 @@
     <mat-form-field class="dark-theme">
       <mat-label>Status</mat-label>
       <mat-select [(value)]="topic.topicStatus">
-        @for (status of extensions.topicStatuses; track status) {
+        @for (status of (issueStatuses$ | async)?.values(); track status) {
         <mat-option [value]="status">{{ status }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
-    <button
-      matSuffix
-      mat-icon-button
-      (click)="addNewStatus()"
-      class="dark-theme"
-    >
-      <mat-icon color="primary">add</mat-icon>
-    </button>
 
     <mat-form-field class="dark-theme">
       <mat-label>Type</mat-label>
       <mat-select [(value)]="topic.topicType">
-        @for (type of extensions.topicTypes; track type) {
+        @for (type of (issueTypes$ | async)?.values(); track type) {
         <mat-option [value]="type">{{ type }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
-    <button matSuffix mat-icon-button (click)="addNewType()" class="dark-theme">
-      <mat-icon color="primary">add</mat-icon>
-    </button>
+
+    <!-- TODO connected it with model and saving after choose or maybe get if from topic.users-->
+    <mat-form-field class="dark-theme">
+      <mat-label>Responsible</mat-label>
+      <mat-select>
+        @for (user of (users$ | async)?.values(); track user) {
+        <mat-option [value]="user">{{ user }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Due Date</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="topic.dueDate" />
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
   </div>
 
   <mat-form-field class="top-field dark-theme">

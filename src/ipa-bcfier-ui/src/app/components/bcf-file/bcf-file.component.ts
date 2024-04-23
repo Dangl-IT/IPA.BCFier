@@ -1,8 +1,8 @@
 import { BcfFile, BcfTopic } from '../../../generated/models';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,16 @@ import { TopicDetailComponent } from '../topic-detail/topic-detail.component';
 import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import {
+  IFilters,
+  IssueFiltersComponent,
+} from '../issue-filters/issue-filters.component';
+import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
+import { IssueStatusesService } from '../../services/issue-statuses.service';
+import { IssueTypesService } from '../../services/issue-types.service';
+import { UsersService } from '../../services/users.service';
+import { IssueFilterService } from '../../services/issue-filter.service';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -27,17 +37,25 @@ import { getNewRandomGuid } from '../../functions/uuid';
     TopicFilterPipe,
     MatProgressBarModule,
     TopicDetailComponent,
+    MatSidenavModule,
+    IssueFiltersComponent,
+    SafeUrlPipe,
   ],
   templateUrl: './bcf-file.component.html',
   styleUrl: './bcf-file.component.scss',
 })
 export class BcfFileComponent {
   @Input() bcfFile!: BcfFile;
-
+  issueStatuses$ = inject(IssueStatusesService).issueStatuses;
+  issueTypes$ = inject(IssueTypesService).issueTypes;
+  users$ = inject(UsersService).users;
+  issueFilterService = inject(IssueFilterService);
   selectedTopic: BcfTopic | null = null;
+  filtredTopics: BcfTopic[] = [];
 
   ngOnInit() {
     this.selectedTopic = this.bcfFile.topics[0] || null;
+    this.filtredTopics = [...this.bcfFile.topics];
   }
 
   private _search = '';
@@ -92,5 +110,35 @@ export class BcfFileComponent {
     } else {
       this.selectedTopic = null;
     }
+  }
+
+  filterIssues(filters: FormGroup<IFilters>): void {
+    const { status, type, users, issueRange } = filters.value;
+    if (
+      status === undefined ||
+      type === undefined ||
+      users === undefined ||
+      issueRange === undefined ||
+      issueRange?.start === undefined ||
+      issueRange?.end === undefined
+    ) {
+      return;
+    }
+
+    const isValuePresentInFilters =
+      !!status || !!type || !!users || !!issueRange.start || !!issueRange.end;
+
+    this.filtredTopics = isValuePresentInFilters
+      ? [
+          ...this.issueFilterService.filterIssue(
+            this.bcfFile.topics,
+            status,
+            type,
+            users,
+            issueRange?.start,
+            issueRange?.end
+          ),
+        ]
+      : this.bcfFile.topics;
   }
 }
