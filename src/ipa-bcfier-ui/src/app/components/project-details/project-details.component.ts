@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Observable, of } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { AsyncPipe } from '@angular/common';
+import { ProjectGet } from '../../generated-client/generated-client';
 
 @Component({
   selector: 'bcfier-project-details',
@@ -26,7 +27,7 @@ export class ProjectDetailsComponent {
   constructor(
     public dialogRef: MatDialogRef<ProjectDetailsComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: any //TODO replace type any
+    public data: ProjectGet
   ) {
     this.users$ = this.getProjectUsers(data.id);
   }

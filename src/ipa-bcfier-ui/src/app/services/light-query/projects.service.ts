@@ -4,8 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { PaginationBaseService, PaginationResult } from 'ng-lightquery';
 import { Observable, map, of } from 'rxjs';
-//TODO replace with generated-client
-export interface ProjectGet {}
+import { ProjectGet } from '../../generated-client/generated-client';
 @Injectable({
   providedIn: 'root',
 })

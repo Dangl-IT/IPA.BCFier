@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ProjectDetailsComponent } from '../project-details/project-details.component';
+import { ProjectGet } from '../../generated-client/generated-client';
 import { ProjectsService } from '../../services/light-query/projects.service';
 
 @Component({
@@ -68,7 +69,7 @@ export class ProjectsTableComponent implements AfterViewInit {
   }
 
   //TODO replace type any
-  openProjectDetails(project: any): void {
+  openProjectDetails(project: ProjectGet): void {
     this.matDialog.open(ProjectDetailsComponent, {
       autoFocus: false,
       width: '80%',
