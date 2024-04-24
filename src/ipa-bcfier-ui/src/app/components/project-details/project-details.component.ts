@@ -6,7 +6,11 @@ import { MatInputModule } from '@angular/material/input';
 import { Observable, of } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { AsyncPipe } from '@angular/common';
-import { ProjectGet } from '../../generated-client/generated-client';
+import {
+  ProjectGet,
+  ProjectUserGet,
+  ProjectUsersClient,
+} from '../../generated-client/generated-client';
 
 @Component({
   selector: 'bcfier-project-details',
@@ -23,16 +27,17 @@ import { ProjectGet } from '../../generated-client/generated-client';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectDetailsComponent {
-  users$: Observable<any>;
+  users$: Observable<ProjectUserGet[]>;
   constructor(
     public dialogRef: MatDialogRef<ProjectDetailsComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: ProjectGet
+    public data: ProjectGet,
+    private projectUsersClient: ProjectUsersClient
   ) {
     this.users$ = this.getProjectUsers(data.id);
   }
 
-  getProjectUsers(id: string): Observable<any> {
-    return of([{ identifier: 1 }, { identifier: 2 }]);
+  getProjectUsers(projectId: string): Observable<ProjectUserGet[]> {
+    return this.projectUsersClient.getProjectUsersForProject(projectId);
   }
 }
