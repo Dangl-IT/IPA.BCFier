@@ -8,8 +8,15 @@ namespace IPA.Bcfier.Services
 {
     public class SettingsService
     {
+        private static Settings? _currentSettings;
+
         public async Task<Settings> LoadSettingsAsync()
         {
+            if (_currentSettings != null)
+            {
+                return _currentSettings;
+            }
+
             var settingsPath = GetPathToSettingsFile();
             if (!File.Exists(settingsPath))
             {
@@ -32,11 +39,15 @@ namespace IPA.Bcfier.Services
                 };
             }
 
+            _currentSettings = deserializedSettings;
+
             return deserializedSettings;
         }
 
         public async Task SaveSettingsAsync(Settings settings)
         {
+            _currentSettings = null;
+
             var serializedSettings = JsonConvert.SerializeObject(settings);
             var settingsFilePath = GetPathToSettingsFile();
             if (File.Exists(settingsFilePath))

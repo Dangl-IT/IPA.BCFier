@@ -1,8 +1,10 @@
 using ElectronNET.API;
 using ElectronNET.API.Entities;
 using IPA.Bcfier.App.Configuration;
+using IPA.Bcfier.App.Data;
 using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Ipc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace IPA.Bcfier.App
@@ -33,6 +35,9 @@ namespace IPA.Bcfier.App
                     scope.ServiceProvider.GetRequiredService<ElectronWindowProvider>().SetBrowserWindow(window);
                     hasRevitIntegration = await Electron.App.CommandLine.HasSwitchAsync("revit-integration");
                     scope.ServiceProvider.GetRequiredService<RevitParameters>().IsConnectedToRevit = hasRevitIntegration;
+
+                    var dbContext = scope.ServiceProvider.GetRequiredService<BcfierDbContext>();
+                    await dbContext.Database.MigrateAsync();
                 }
 
                 await Electron.IpcMain.On("closeApp", async (e) =>

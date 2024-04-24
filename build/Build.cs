@@ -64,6 +64,7 @@ class Build : NukeBuild
     [Parameter] readonly string KeyVaultClientSecret;
     [Parameter] readonly string CodeSigningKeyVaultTenantId;
     [Parameter] readonly string CodeSigningCertificateName;
+    [Parameter] readonly string MigrationName;
 
     [Parameter] AbsolutePath ExecutablesToSignFolder;
     [NuGetPackage("Tools.InnoSetup", "tools/ISCC.exe")] readonly Tool InnoSetup;
@@ -271,10 +272,10 @@ export const version = {{
 
             CopyDirectoryRecursively(SourceDirectory / "IPA.Bcfier.Revit" / "InstallerAssets", installerDirectory / "InstallerAssets", DirectoryExistsPolicy.Merge, FileExistsPolicy.Overwrite);
             File.Copy(pluginOutputDirectory / "Dangl.BCF.dll", installerDirectory / "Dangl.BCF.dll");
-            File.Copy(pluginOutputDirectory / "IPA.Bcfier.dll", installerDirectory/ "IPA.Bcfier.dll");
-            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.dll", installerDirectory/ "IPA.Bcfier.Revit.dll");
-            File.Copy(pluginOutputDirectory / "DecimalEx.dll", installerDirectory/ "DecimalEx.dll");
-            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.addin", installerDirectory/ "IPA.Bcfier.Revit.addin");
+            File.Copy(pluginOutputDirectory / "IPA.Bcfier.dll", installerDirectory / "IPA.Bcfier.dll");
+            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.dll", installerDirectory / "IPA.Bcfier.Revit.dll");
+            File.Copy(pluginOutputDirectory / "DecimalEx.dll", installerDirectory / "DecimalEx.dll");
+            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.addin", installerDirectory / "IPA.Bcfier.Revit.addin");
 
             InnoSetup($"/dAppVersion=\"{GitVersion.AssemblySemVer}\" {pluginOutputDirectory / "Installer.iss"}");
 
@@ -298,7 +299,6 @@ export const version = {{
                            .SetAssetFilePaths(assets)
                            .SetSkipForVersionConflicts(true));
         });
-
 
     Target BuildElectronApp => _ => _
         .DependsOn(BuildFrontend)
@@ -358,7 +358,7 @@ export const version = {{
         }
     }
 
-    void BuildElectronAppInternal(params string[][] electronOptions)
+    private void BuildElectronAppInternal(params string[][] electronOptions)
     {
         foreach (var electronOption in electronOptions)
         {
@@ -439,6 +439,23 @@ export const version = {{
                 .SetToken(GitHubAuthenticationToken));
         });
 
+    Target CreateMigration => _ => _
+        .Requires(() => MigrationName)
+        .Executes(() =>
+        {
+            // We'll get all the current environment variables and place them in a string dictionary
+            var environmentVariables = new Dictionary<string, string>();
+            foreach (var environmentVariable in Environment.GetEnvironmentVariables().Cast<System.Collections.DictionaryEntry>())
+            {
+                environmentVariables.Add(environmentVariable.Key.ToString(), environmentVariable.Value.ToString());
+            }
+
+            // Then we'll also set a special one to instruct the app to use the design time SQLite
+            // context options
+            environmentVariables.Add("BCFIER_USE_SQLITE_DESIGN_TIME_CONTEXT", "true");
+            DotNet($"ef migrations add {MigrationName}", workingDirectory: SourceDirectory / "IPA.Bcfier.App", environmentVariables: environmentVariables);
+        });
+
     Target BuildFrontendSwaggerClient => _ => _
         .DependsOn(Restore)
         .Executes(() =>
@@ -448,6 +465,7 @@ export const version = {{
             DotNetRun(x => x
                 .SetProcessToolPath(nSwagToolPath)
                 .SetProcessWorkingDirectory(SourceDirectory / "ipa-bcfier-ui" / "src")
+                .AddProcessEnvironmentVariable("BCFIER_USE_SQLITE_DESIGN_TIME_CONTEXT", "true")
                 .SetProcessArgumentConfigurator(y => y
                     .Add($"/Input:\"{nSwagConfigPath}\"")));
         });

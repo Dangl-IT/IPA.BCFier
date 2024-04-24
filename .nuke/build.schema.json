@@ -70,6 +70,9 @@
         "KeyVaultClientSecret": {
           "type": "string"
         },
+        "MigrationName": {
+          "type": "string"
+        },
         "NoLogo": {
           "type": "boolean",
           "description": "Disables displaying the NUKE logo"
@@ -107,6 +110,7 @@
               "BuildRevitPlugin",
               "Clean",
               "Compile",
+              "CreateMigration",
               "FrontEndRestore",
               "GenerateFrontendVersion",
               "PublishGitHubRelease",
@@ -137,6 +141,7 @@
               "BuildRevitPlugin",
               "Clean",
               "Compile",
+              "CreateMigration",
               "FrontEndRestore",
               "GenerateFrontendVersion",
               "PublishGitHubRelease",

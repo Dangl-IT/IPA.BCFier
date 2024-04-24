@@ -1,6 +1,5 @@
 ﻿using CefSharp.Handler;
 using CefSharp;
-using System.Net.Http;
 
 namespace IPA.Bcfier.Revit
 {
