@@ -452,6 +452,7 @@ export class FrontendConfigClient implements IFrontendConfigClient {
 export interface IProjectsClient {
     getAllProjects(filter: string | null | undefined): Observable<PaginationResultOfProjectGet>;
     createProject(model: ProjectPost): Observable<ProjectGet>;
+    editProject(projectId: string, model: ProjectPut): Observable<ProjectGet>;
     deleteProject(projectId: string): Observable<void>;
 }
 
@@ -559,6 +560,66 @@ export class ProjectsClient implements IProjectsClient {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ProjectGet;
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    editProject(projectId: string, model: ProjectPut): Observable<ProjectGet> {
+        let url_ = this.baseUrl + "/api/projects/{projectId}";
+        if (projectId === undefined || projectId === null)
+            throw new Error("The parameter 'projectId' must be defined.");
+        url_ = url_.replace("{projectId}", encodeURIComponent("" + projectId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditProject(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditProject(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ProjectGet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ProjectGet>;
+        }));
+    }
+
+    protected processEditProject(response: HttpResponseBase): Observable<ProjectGet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ProjectGet;
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            result400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ApiError;
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1283,6 +1344,13 @@ export interface ProjectGet {
 }
 
 export interface ProjectPost {
+    name: string;
+    revitIdentifier?: string | null;
+    teamsWebhook?: string | null;
+}
+
+export interface ProjectPut {
+    id: string;
     name: string;
     revitIdentifier?: string | null;
     teamsWebhook?: string | null;

@@ -69,6 +69,33 @@ namespace IPA.Bcfier.App.Controllers
             });
         }
 
+        [HttpPut("{projectId}")]
+        [ProducesResponseType(typeof(ProjectGet), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> EditProjectAsync(Guid projectId, ProjectPut model)
+        {
+            var dbProject = await _context
+                .Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+            if (dbProject == null)
+            {
+                return BadRequest(new ApiError("There is no project with the given id."));
+            }
+
+            dbProject.Name = model.Name;
+            dbProject.RevitIdentifer = model.RevitIdentifier ?? string.Empty;
+            dbProject.TeamsWebhook = model.TeamsWebhook;
+
+            await _context.SaveChangesAsync();
+            return Ok(new ProjectGet
+            {
+                Id = dbProject.Id,
+                Name = dbProject.Name,
+                RevitIdentifier = dbProject.RevitIdentifer,
+                TeamsWebhook = dbProject.TeamsWebhook,
+                CreatedAtUtc = dbProject.CreatedAtUtc
+            });
+        }
+
         [HttpDelete("{projectId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
