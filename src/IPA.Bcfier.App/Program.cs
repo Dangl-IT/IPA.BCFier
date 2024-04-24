@@ -36,8 +36,16 @@ namespace IPA.Bcfier.App
                     hasRevitIntegration = await Electron.App.CommandLine.HasSwitchAsync("revit-integration");
                     scope.ServiceProvider.GetRequiredService<RevitParameters>().IsConnectedToRevit = hasRevitIntegration;
 
-                    var dbContext = scope.ServiceProvider.GetRequiredService<BcfierDbContext>();
-                    await dbContext.Database.MigrateAsync();
+                    try
+                    {
+                        var dbContext = scope.ServiceProvider.GetRequiredService<BcfierDbContext>();
+                        await dbContext.Database.MigrateAsync();
+                    }
+                    catch
+                    {
+                        // Ignoring here, it's likely a problem since we're still using the InMemory db if no real
+                        // database is configured
+                    }
                 }
 
                 await Electron.IpcMain.On("closeApp", async (e) =>
