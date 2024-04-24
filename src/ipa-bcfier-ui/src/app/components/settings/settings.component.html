@@ -1,10 +1,9 @@
 <mat-tab-group mat-stretch-tabs="false" backgroundColor="primary" dynamicHeight>
-  <mat-tab label="Projects"
+  <mat-tab
+    label="Projects"
+    *ngIf="(settingsMessengerService.settings | async)?.mainDatabaseLocation"
     ><bcfier-projects-table></bcfier-projects-table
   ></mat-tab>
-  <mat-tab label="Configuration">
-    <bcfier-configuration></bcfier-configuration>
-  </mat-tab>
   <mat-tab label="User Settings">
     <h2 mat-dialog-title>Settings</h2>
     <mat-dialog-content>
@@ -12,6 +11,13 @@
         <mat-label>Username</mat-label>
         <input matInput [(ngModel)]="username" />
       </mat-form-field>
+      <mat-form-field class="dark-theme">
+        <mat-label>Database Location</mat-label>
+        <input matInput disabled [(ngModel)]="mainDatabaseSaveLocation" />
+      </mat-form-field>
+      <button mat-raised-button (click)="changeMainDatabaseSaveLocation()">
+        Select Database
+      </button>
     </mat-dialog-content>
     <mat-dialog-actions>
       <button mat-raised-button (click)="save()">Save</button>

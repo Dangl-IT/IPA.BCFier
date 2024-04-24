@@ -1,8 +1,12 @@
-﻿using IPA.Bcfier.App.Data;
+﻿using ElectronNET.API;
+using ElectronNET.API.Entities;
+using IPA.Bcfier.App.Data;
+using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Models.Settings;
 using IPA.Bcfier.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing.Text;
 using System.Net;
 
 namespace IPA.Bcfier.App.Controllers
@@ -13,13 +17,16 @@ namespace IPA.Bcfier.App.Controllers
     {
         private readonly SettingsService _settingsService;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ElectronWindowProvider _electronWindowProvider;
         private static string? _lastInitializedDatabaseLocation;
 
         public SettingsController(SettingsService settingsService,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            ElectronWindowProvider electronWindowProvider)
         {
             _settingsService = settingsService;
             _serviceProvider = serviceProvider;
+            _electronWindowProvider = electronWindowProvider;
         }
 
         [HttpGet("")]
@@ -36,6 +43,39 @@ namespace IPA.Bcfier.App.Controllers
 
             return Ok(settings);
         }
+
+        [HttpGet("database-location")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        public async Task<IActionResult> ChoseMainDatabaseLocationAsync()
+        {
+            var electronWindow = _electronWindowProvider.BrowserWindow;
+            if (electronWindow == null)
+            {
+                return BadRequest();
+            }
+            var fileSaveSelectResult = await Electron.Dialog.ShowSaveDialogAsync(electronWindow, new SaveDialogOptions
+            {
+                DefaultPath = "IPA.bcfierdb",
+                Filters = new[]
+                {
+                    new FileFilter
+                    {
+                        Name = "BCFier DB",
+                        Extensions = new string[] { "bcfierdb" }
+                    }
+                }
+            });
+
+            if (fileSaveSelectResult != null && !string.IsNullOrWhiteSpace(fileSaveSelectResult))
+            {
+                var currentSettings = await _settingsService.LoadSettingsAsync();
+                currentSettings.MainDatabaseLocation = fileSaveSelectResult;
+                await _settingsService.SaveSettingsAsync(currentSettings);
+            }
+
+            return NoContent();
+        }
+
 
         [HttpPut("")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

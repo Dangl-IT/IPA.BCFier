@@ -21,4 +21,10 @@ export class SettingsMessengerService {
       this.settingsSource.next(settings);
     });
   }
+
+  refreshSettings(): void {
+    this.backendService.getSettings().subscribe((settings) => {
+      this.settingsSource.next(settings);
+    });
+  }
 }
