@@ -10,6 +10,9 @@ namespace IPA.Bcfier.App.Models.Controllers.Projects
         [Required]
         public string Name { get; set; } = string.Empty;
 
+        [Required]
+        public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+
         public string? RevitIdentifier { get; set; }
 
         public string? TeamsWebhook { get; set; }

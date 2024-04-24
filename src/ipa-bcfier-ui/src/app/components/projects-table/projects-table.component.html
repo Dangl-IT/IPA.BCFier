@@ -13,7 +13,7 @@
     <ng-container matColumnDef="created">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
       <td mat-cell *matCellDef="let row">
-        {{ row.created | date : "dd.MM.yyyy HH:mm" }}
+        {{ row.createdAtUtc | date : "dd.MM.yyyy HH:mm" }}
       </td>
     </ng-container>
 

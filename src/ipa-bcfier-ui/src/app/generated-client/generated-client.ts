@@ -1277,6 +1277,7 @@ export interface PaginationResultOfProjectGet {
 export interface ProjectGet {
     id: string;
     name: string;
+    createdAtUtc: Date;
     revitIdentifier?: string | null;
     teamsWebhook?: string | null;
 }

@@ -9,5 +9,7 @@
         public string RevitIdentifer { get; set; } = string.Empty;
 
         public string? TeamsWebhook { get; set; }
+
+        public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
     }
 }

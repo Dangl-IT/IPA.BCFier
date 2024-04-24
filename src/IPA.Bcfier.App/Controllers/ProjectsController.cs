@@ -42,7 +42,8 @@ namespace IPA.Bcfier.App.Controllers
                 Id = p.Id,
                 Name = p.Name,
                 RevitIdentifier = p.RevitIdentifer,
-                TeamsWebhook = p.TeamsWebhook
+                TeamsWebhook = p.TeamsWebhook,
+                CreatedAtUtc = p.CreatedAtUtc
             }));
         }
 
@@ -63,7 +64,8 @@ namespace IPA.Bcfier.App.Controllers
                 Id = project.Id,
                 Name = project.Name,
                 RevitIdentifier = project.RevitIdentifer,
-                TeamsWebhook = project.TeamsWebhook
+                TeamsWebhook = project.TeamsWebhook,
+                CreatedAtUtc = project.CreatedAtUtc
             });
         }
 
