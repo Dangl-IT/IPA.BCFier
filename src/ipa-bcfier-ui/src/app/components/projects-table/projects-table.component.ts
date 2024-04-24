@@ -5,19 +5,22 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
+import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { ProjectsService } from '../../services/light-query/projects.service';
-import { AsyncPipe, DatePipe } from '@angular/common';
+
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ProjectDetailsComponent } from '../project-details/project-details.component';
+import { ProjectsService } from '../../services/light-query/projects.service';
+
 @Component({
   selector: 'bcfier-projects-table',
   standalone: true,
   imports: [
+    CommonModule,
     MatFormFieldModule,
     MatInputModule,
     MatTableModule,
