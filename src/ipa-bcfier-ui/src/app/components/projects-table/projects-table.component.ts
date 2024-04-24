@@ -46,12 +46,16 @@ export class ProjectsTableComponent implements AfterViewInit {
   constructor() {
     this.projectsService.connect().subscribe((projects) => {
       this.dataSource = new MatTableDataSource(projects);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
     });
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    if (this.dataSource) {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }
   }
 
   applyFilter(event: Event) {
