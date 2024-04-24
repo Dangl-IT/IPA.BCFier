@@ -1,0 +1,24 @@
+<div class="field-container">
+  <mat-form-field class="dark-theme">
+    <mat-label>Project name</mat-label>
+    <input matInput [(ngModel)]="data.name" />
+  </mat-form-field>
+  <mat-form-field class="dark-theme">
+    <mat-label>Teams webhook</mat-label>
+    <input matInput [(ngModel)]="data.teamsWebhook" />
+  </mat-form-field>
+  <mat-form-field class="dark-theme">
+    <mat-label>Revit project</mat-label>
+    <input matInput [(ngModel)]="data.revitIdentifier" />
+  </mat-form-field>
+  <mat-list role="list">
+    @for(user of (users$ | async); track user.id) {
+    <mat-list-item role="listitem">
+      <mat-form-field class="dark-theme">
+        <mat-label>User identifier</mat-label>
+        <input matInput [(ngModel)]="user.identifier" />
+      </mat-form-field>
+    </mat-list-item>
+    }
+  </mat-list>
+</div>

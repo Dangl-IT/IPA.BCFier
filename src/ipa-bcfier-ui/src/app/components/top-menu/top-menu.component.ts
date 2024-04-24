@@ -43,7 +43,11 @@ export class TopMenuComponent {
   }
 
   openSettings(): void {
-    this.matDialog.open(SettingsComponent);
+    this.matDialog.open(SettingsComponent, {
+      autoFocus: false,
+      width: '80%',
+      maxHeight: '70vh',
+    });
   }
 
   openDocumentation(): void {

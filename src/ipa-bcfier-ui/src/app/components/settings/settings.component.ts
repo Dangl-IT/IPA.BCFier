@@ -6,11 +6,22 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
+import { MatTabsModule } from '@angular/material/tabs';
+import { ProjectsTableComponent } from '../projects-table/projects-table.component';
+import { ConfigurationComponent } from '../configuration/configuration.component';
 
 @Component({
   selector: 'bcfier-settings',
   standalone: true,
-  imports: [MatDialogModule, FormsModule, MatInputModule, MatButtonModule],
+  imports: [
+    MatDialogModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatTabsModule,
+    ProjectsTableComponent,
+    ConfigurationComponent,
+  ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })
