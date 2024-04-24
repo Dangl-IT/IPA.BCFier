@@ -22,20 +22,8 @@ export class ProjectsService
   }
 
   connect(): Observable<ProjectGet[]> {
-    //TODO replace with paginationResult
-    const projects = Array.from({ length: 100 }, (_, k) =>
-      createNewProjects(k + 1)
+    return this.paginationResult.pipe(
+      map((r: PaginationResult<ProjectGet>) => r.data)
     );
-    return of(projects);
-    // return this.paginationResult.pipe(
-    //   map((r: PaginationResult<ProjectGet>) => r.data)
-    // );
   }
-}
-
-function createNewProjects(id: number): any {
-  return {
-    name: `qwerty${id}`,
-    created: new Date(Math.round(Math.random() * 100000)),
-  };
 }
