@@ -19,23 +19,24 @@ export class BcfFilesMessengerService {
 
   private bcfFileSelectedSource = new Subject<BcfFileWrapper>();
   bcfFileSelected = this.bcfFileSelectedSource.asObservable();
+
   createNewBcfFile(): void {
     const bcfFile: BcfFileWrapper = {
       fileName: '',
       bcfFile: {
-      fileName: 'issues.bcf',
-      topics: [],
-      fileAttachments: [],
-      project: {
-        id: getNewRandomGuid(),
-      },
-      projectExtensions: {
-        priorities: [],
-        snippetTypes: [],
-        topicLabels: [],
-        topicStatuses: [],
-        topicTypes: [],
-        users: [],
+        fileName: 'issues.bcf',
+        topics: [],
+        fileAttachments: [],
+        project: {
+          id: getNewRandomGuid(),
+        },
+        projectExtensions: {
+          priorities: [],
+          snippetTypes: [],
+          topicLabels: [],
+          topicStatuses: [],
+          topicTypes: [],
+          users: [],
         },
       },
     };
@@ -55,7 +56,9 @@ export class BcfFilesMessengerService {
   }
 
   closeBcfFile(bcfFile: BcfFile) {
-    this.currentBcfFiles = this.currentBcfFiles.filter((f) => f !== bcfFile);
+    this.currentBcfFiles = this.currentBcfFiles.filter(
+      (f) => f.bcfFile !== bcfFile
+    );
     this.bcfFilesSubject.next(this.currentBcfFiles);
   }
 }

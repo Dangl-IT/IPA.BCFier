@@ -1,5 +1,5 @@
 import { BcfFile, BcfTopic } from '../../generated-client/generated-client';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, inject } from '@angular/core';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
 import {
   IFilters,
@@ -52,11 +52,13 @@ export class BcfFileComponent {
   users$ = inject(UsersService).users;
   issueFilterService = inject(IssueFilterService);
   bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
+  cdr = inject(ChangeDetectorRef);
   selectedTopic: BcfTopic | null = null;
   filtredTopics: BcfTopic[] = [];
 
   ngOnInit() {
     this.selectedTopic = this.bcfFile.topics[0] || null;
+    this.cdr.detectChanges();
     this.filtredTopics = [...this.bcfFile.topics];
   }
 
