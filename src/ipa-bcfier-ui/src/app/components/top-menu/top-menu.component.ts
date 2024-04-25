@@ -47,6 +47,7 @@ export class TopMenuComponent {
       autoFocus: false,
       width: '80%',
       maxHeight: '70vh',
+      restoreFocus: false,
     });
   }
 

@@ -53,7 +53,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    this.settingsMessengerService.saveSettings({ username: this.username });
+    this.settingsMessengerService.saveSettings({
+      username: this.username,
+      mainDatabaseLocation: this.mainDatabaseSaveLocation,
+    });
     this.close();
   }
 
