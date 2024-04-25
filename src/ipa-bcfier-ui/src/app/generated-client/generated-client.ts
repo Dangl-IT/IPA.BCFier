@@ -686,7 +686,7 @@ export class ProjectsClient implements IProjectsClient {
 export interface IProjectUsersClient {
     getProjectUsersForProject(projectId: string): Observable<ProjectUserGet[]>;
     addUserToProject(projectId: string, model: ProjectUserPost): Observable<ProjectUserGet[]>;
-    deleteProjectUser(projectId: string, projectUserId: string): Observable<void>;
+    deleteProjectUser(projectId: string, projectUserId: string): Observable<ProjectUserGet[]>;
 }
 
 @Injectable({
@@ -824,7 +824,7 @@ export class ProjectUsersClient implements IProjectUsersClient {
         return _observableOf(null as any);
     }
 
-    deleteProjectUser(projectId: string, projectUserId: string): Observable<void> {
+    deleteProjectUser(projectId: string, projectUserId: string): Observable<ProjectUserGet[]> {
         let url_ = this.baseUrl + "/api/projects/{projectId}/{projectUserId}";
         if (projectId === undefined || projectId === null)
             throw new Error("The parameter 'projectId' must be defined.");
@@ -838,6 +838,7 @@ export class ProjectUsersClient implements IProjectUsersClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Accept": "application/json"
             })
         };
 
@@ -848,23 +849,25 @@ export class ProjectUsersClient implements IProjectUsersClient {
                 try {
                     return this.processDeleteProjectUser(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<ProjectUserGet[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<ProjectUserGet[]>;
         }));
     }
 
-    protected processDeleteProjectUser(response: HttpResponseBase): Observable<void> {
+    protected processDeleteProjectUser(response: HttpResponseBase): Observable<ProjectUserGet[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 204) {
+        if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ProjectUserGet[];
+            return _observableOf(result200);
             }));
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {

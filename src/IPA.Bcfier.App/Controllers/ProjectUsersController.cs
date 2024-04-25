@@ -81,7 +81,7 @@ namespace IPA.Bcfier.App.Controllers
         }
 
         [HttpDelete("{projectUserId}")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(List<ProjectUserGet>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteProjectUserAsync(Guid projectId, Guid projectUserId)
         {
@@ -94,9 +94,17 @@ namespace IPA.Bcfier.App.Controllers
 
             _context.ProjectUsers.Remove(dbProjectUser);
             await _context.SaveChangesAsync();
-            return NoContent();
 
-
+            var projectUsers = await _context
+                .ProjectUsers
+                .Where(pu => pu.ProjectId == projectId)
+                .Select(p => new ProjectUserGet
+                {
+                    Id = p.Id,
+                    Identifier = p.Identifier
+                })
+                .ToListAsync();
+            return Ok(projectUsers);
         }
     }
 }
