@@ -10,11 +10,6 @@ import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { ProjectDetailsComponent } from '../project-details/project-details.component';
 import {
   ProjectGet,
   ProjectPost,
@@ -22,14 +17,19 @@ import {
   ProjectUsersClient,
   ProjectsClient,
 } from '../../generated-client/generated-client';
-import { ProjectsService } from '../../services/light-query/projects.service';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { combineLatestWith, filter, switchMap } from 'rxjs';
-import { SettingsMessengerService } from '../../services/settings-messenger.service';
-import { NotificationsService } from '../../services/notifications.service';
+
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { NotificationsService } from '../../services/notifications.service';
+import { ProjectDetailsComponent } from '../project-details/project-details.component';
+import { ProjectsService } from '../../services/light-query/projects.service';
+import { SettingsMessengerService } from '../../services/settings-messenger.service';
 
 @Component({
   selector: 'bcfier-projects-table',
@@ -160,7 +160,7 @@ export class ProjectsTableComponent implements AfterViewInit {
       .open(ConfirmDialogComponent, {
         autoFocus: false,
         restoreFocus: false,
-        data: 'delete',
+        data: 'delete this project',
       })
       .afterClosed()
       .pipe(
