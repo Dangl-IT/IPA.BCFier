@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ViewChild,
   inject,
@@ -14,8 +15,21 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ProjectDetailsComponent } from '../project-details/project-details.component';
-import { ProjectGet } from '../../generated-client/generated-client';
+import {
+  ProjectGet,
+  ProjectPost,
+  ProjectPut,
+  ProjectUsersClient,
+  ProjectsClient,
+} from '../../generated-client/generated-client';
 import { ProjectsService } from '../../services/light-query/projects.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { combineLatestWith, filter, switchMap } from 'rxjs';
+import { SettingsMessengerService } from '../../services/settings-messenger.service';
+import { NotificationsService } from '../../services/notifications.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'bcfier-projects-table',
@@ -29,6 +43,9 @@ import { ProjectsService } from '../../services/light-query/projects.service';
     MatPaginatorModule,
     DatePipe,
     AsyncPipe,
+    MatIconModule,
+    MatButtonModule,
+    FormsModule,
   ],
   templateUrl: './projects-table.component.html',
   styleUrl: './projects-table.component.scss',
@@ -38,11 +55,15 @@ export class ProjectsTableComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   projectsService = inject(ProjectsService);
+  settingsMessengerService = inject(SettingsMessengerService);
+  notificationsService = inject(NotificationsService);
+  projectsClient = inject(ProjectsClient);
+  projectUsersClient = inject(ProjectUsersClient);
   matDialog = inject(MatDialog);
-  //TODO replace type any
-  dataSource!: MatTableDataSource<any>;
-  //TODO show more columns
-  displayedColumns: string[] = ['name', 'created'];
+  cdr = inject(ChangeDetectorRef);
+  dataSource!: MatTableDataSource<ProjectGet>;
+  displayedColumns = ['name', 'created', 'actions'];
+  filter = '';
 
   constructor() {
     this.projectsService.connect().subscribe((projects) => {
@@ -59,22 +80,101 @@ export class ProjectsTableComponent implements AfterViewInit {
     }
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
+  applyFilter(filter: string) {
+    this.projectsService.setQueryParameter(
+      'filter',
+      filter.trim().toLowerCase()
+    );
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
   }
 
-  //TODO replace type any
   openProjectDetails(project: ProjectGet): void {
-    this.matDialog.open(ProjectDetailsComponent, {
-      autoFocus: false,
-      width: '80%',
-      maxHeight: '70vh',
-      data: project,
-    });
+    this.matDialog
+      .open(ProjectDetailsComponent, {
+        autoFocus: false,
+        width: '80%',
+        maxHeight: '70vh',
+        data: project,
+      })
+      .afterClosed()
+      .pipe(
+        filter((newProject) => !!newProject),
+        switchMap((editedProject: ProjectPut) => {
+          return this.projectsClient.editProject(project.id, {
+            ...editedProject,
+            id: project.id,
+          });
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.projectsService.forceRefresh();
+          if (this.filter) {
+            this.applyFilter(this.filter);
+          }
+          this.notificationsService.success('Project updated');
+        },
+        error: () => {},
+      });
+  }
+
+  createProject(): void {
+    this.matDialog
+      .open(ProjectDetailsComponent, {
+        autoFocus: false,
+        restoreFocus: false,
+        width: '80%',
+        maxHeight: '70vh',
+      })
+      .afterClosed()
+      .pipe(
+        filter((newProject) => !!newProject),
+        switchMap((newProject: ProjectPost) => {
+          return this.projectsClient
+            .createProject(newProject)
+            .pipe(combineLatestWith(this.settingsMessengerService.settings));
+        }),
+        switchMap(([p, s]) =>
+          this.projectUsersClient.addUserToProject(p.id, {
+            identifier: s.username,
+          })
+        )
+      )
+      .subscribe({
+        next: () => {
+          this.projectsService.forceRefresh();
+
+          if (this.filter) {
+            this.applyFilter(this.filter);
+          }
+          this.notificationsService.success('Project created');
+        },
+        error: () => {},
+      });
+  }
+
+  deleteProject(projectId: string): void {
+    this.matDialog
+      .open(ConfirmDialogComponent, {
+        autoFocus: false,
+        restoreFocus: false,
+        data: 'delete',
+      })
+      .afterClosed()
+      .pipe(
+        filter((confirm) => !!confirm),
+        switchMap(() => this.projectsClient.deleteProject(projectId))
+      )
+      .subscribe({
+        next: () => {
+          this.projectsService.forceRefresh();
+          if (this.filter) {
+            this.applyFilter(this.filter);
+          }
+        },
+        error: () => {},
+      });
   }
 }

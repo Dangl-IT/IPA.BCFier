@@ -1,24 +1,88 @@
-<div class="field-container">
-  <mat-form-field class="dark-theme">
-    <mat-label>Project name</mat-label>
-    <input matInput [(ngModel)]="data.name" />
-  </mat-form-field>
-  <mat-form-field class="dark-theme">
-    <mat-label>Teams webhook</mat-label>
-    <input matInput [(ngModel)]="data.teamsWebhook" />
-  </mat-form-field>
-  <mat-form-field class="dark-theme">
-    <mat-label>Revit project</mat-label>
-    <input matInput [(ngModel)]="data.revitIdentifier" />
-  </mat-form-field>
+<h2 mat-dialog-title>{{ data ? "Edite" : "Create" }} Project</h2>
+<mat-dialog-content>
+  <ng-container [formGroup]="projectDetailsForm">
+    <div class="field-container">
+      <mat-form-field class="dark-theme">
+        <mat-label>Project name</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+      <mat-form-field class="dark-theme">
+        <mat-label>Teams webhook</mat-label>
+        <input matInput formControlName="teamsWebhook" />
+      </mat-form-field>
+      <mat-form-field class="dark-theme">
+        <mat-label>Revit project</mat-label>
+        <input matInput formControlName="revitIdentifier" />
+      </mat-form-field>
+    </div>
+  </ng-container>
+
+  @if(data) {
+
+  <mat-expansion-panel
+    hideToggle
+    #panel="matExpansionPanel"
+    (opened)="panelOpenState = true"
+    (closed)="panelOpenState = false"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <span><strong>Add user</strong> </span>
+      </mat-panel-title>
+      @if(panelOpenState) {
+      <mat-icon>remove</mat-icon>
+      } @else {
+      <mat-icon>add</mat-icon>
+      }
+    </mat-expansion-panel-header>
+    <mat-form-field class="dark-theme">
+      <mat-label>User identifier</mat-label>
+      <input matInput [(ngModel)]="identifier" />
+    </mat-form-field>
+    <button
+      type="button"
+      class="add-user-btn"
+      mat-mini-fab
+      color="primary"
+      (click)="addUserToProject()"
+      [disabled]="!identifier"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </mat-expansion-panel>
+
   <mat-list role="list">
-    @for(user of (users$ | async); track user.id) {
+    @for(user of (users$ | async); track user.id; let count = $count) {
     <mat-list-item role="listitem">
       <mat-form-field class="dark-theme">
         <mat-label>User identifier</mat-label>
-        <input matInput [(ngModel)]="user.identifier" />
+        <input matInput [(ngModel)]="user.identifier" readonly />
       </mat-form-field>
+      @if(count > 1) {
+      <mat-icon color="warn" (click)="deleteProjectUser(user.id)"
+        >delete</mat-icon
+      >
+      }
     </mat-list-item>
     }
   </mat-list>
-</div>
+  }
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button
+    color="primary"
+    mat-flat-button
+    (click)="updateProjectDetails(true)"
+    [disabled]="projectDetailsForm.invalid"
+  >
+    {{ data ? "Save" : "Create" }}
+  </button>
+  <button
+    color="warn"
+    mat-button
+    (click)="updateProjectDetails(false)"
+    color="warn"
+  >
+    Cancel
+  </button>
+</mat-dialog-actions>

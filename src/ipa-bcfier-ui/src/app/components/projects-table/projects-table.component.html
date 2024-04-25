@@ -1,7 +1,12 @@
-<mat-form-field class="dark-theme">
-  <mat-label>Filter</mat-label>
-  <input matInput (keyup)="applyFilter($event)" #input />
-</mat-form-field>
+<div class="top-part">
+  <mat-form-field class="dark-theme">
+    <mat-label>Filter</mat-label>
+    <input matInput (keyup)="applyFilter(filter)" [(ngModel)]="filter" />
+  </mat-form-field>
+  <button mat-mini-fab color="primary" (click)="createProject()">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
 
 <div class="table-wrap mat-elevation-z8">
   <table mat-table [dataSource]="dataSource" matSort>
@@ -17,8 +22,20 @@
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <mat-icon
+          color="warn"
+          (click)="$event.stopPropagation(); deleteProject(row.id)"
+          >delete</mat-icon
+        >
+      </td>
+    </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr
+      class="project-row"
       mat-row
       *matRowDef="let row; columns: displayedColumns"
       (click)="openProjectDetails(row)"
@@ -26,9 +43,11 @@
 
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell" colspan="2">
-        <ng-container *ngIf="input.value">
-          No data matching the filter "{{ input.value }}"
+        @if(filter) {
+        <ng-container>
+          No data matching the filter "{{ filter }}"
         </ng-container>
+        }
       </td>
     </tr>
   </table>

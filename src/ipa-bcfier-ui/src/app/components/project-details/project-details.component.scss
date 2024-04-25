@@ -7,3 +7,50 @@
 mat-list-item {
   height: 100% !important;
 }
+
+.mat-expansion-panel .mat-expansion-panel-header-title {
+  color: black;
+  align-items: center;
+}
+
+.mat-expansion-panel .mat-expansion-panel-header-description {
+  font-weight: lighter;
+  color: black;
+}
+
+.mat-expansion-panel-header {
+  color: black;
+  background-color: var(--primary-color);
+}
+
+mat-expansion-panel-header.mat-expanded,
+mat-expansion-panel-header.mat-expanded:focus {
+  background-color: var(--primary-color);
+}
+
+.mat-expansion-panel:not(.mat-expanded)
+  .mat-expansion-panel-header:hover:not([aria-disabled="true"]) {
+  background-color: var(--primary-color);
+}
+
+.mat-expansion-panel.mat-expanded
+  .mat-expansion-panel-header:hover:not([aria-disabled="true"]) {
+  background-color: var(--primary-color);
+}
+
+.mat-expansion-panel:not(.mat-expanded) {
+  border-radius: 8px !important;
+  margin: 16px 0;
+}
+
+.mat-expansion-panel.mat-expanded .mat-expansion-panel-header {
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.add-user-btn {
+  margin-left:10px;
+}
+
+mat-icon {
+  cursor: pointer;
+}

@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>Confirmation</h1>
+<div mat-dialog-content>
+  Are you sure you want to perform {{ action }} this ?
+</div>
+<div mat-dialog-actions>
+  <button mat-flat-button (click)="close(false)">Cancel</button>
+  <button mat-flat-button color="warn" (click)="close(true)">Confirm</button>
+</div>
