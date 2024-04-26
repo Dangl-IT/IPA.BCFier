@@ -1,24 +1,38 @@
 import { Injectable } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { BehaviorSubject, ReplaySubject, filter, switchMap } from 'rxjs';
+import {
+  ProjectUserGet,
+  ProjectUsersClient,
+} from '../generated-client/generated-client';
+import { SelectedProjectMessengerService } from './selected-project-messenger.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UsersService {
-  //TODO replace type any
-  private usersSource = new ReplaySubject<any[]>(1);
+  private usersSource = new BehaviorSubject<ProjectUserGet[]>([]);
   users = this.usersSource.asObservable();
-  constructor() {
+  constructor(
+    private selectedProjectMessengerService: SelectedProjectMessengerService,
+    private projectUsersClient: ProjectUsersClient
+  ) {
     this.getAllUsers();
   }
 
-  //TODO replace type any
-  setUsers(users: any[]): void {
+  setUsers(users: ProjectUserGet[]): void {
     this.usersSource.next(users);
   }
 
   getAllUsers(): void {
-    //TODO update, after add backend for getting users
-    this.setUsers(['Borys', 'Georg']);
+    this.selectedProjectMessengerService.selectedProject
+      .pipe(
+        filter((p) => !!p),
+        switchMap((p) => {
+          return this.projectUsersClient.getProjectUsersForProject(p?.id || '');
+        })
+      )
+      .subscribe((users) => {
+        this.setUsers(users);
+      });
   }
 }

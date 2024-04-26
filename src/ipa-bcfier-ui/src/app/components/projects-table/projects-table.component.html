@@ -25,11 +25,22 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
-        <mat-icon
-          color="warn"
-          (click)="$event.stopPropagation(); deleteProject(row.id)"
-          >delete</mat-icon
-        >
+        <div class="action-btn-container">
+          <mat-icon
+            [color]="row.id === selectedProject?.id ? 'primary' : 'accent'"
+            (click)="$event.stopPropagation(); setSelectedProject(row)"
+          >
+            @if(row.id === selectedProject?.id) { bookmark } @else {
+            bookmark_border }
+          </mat-icon>
+
+          <mat-icon
+            color="warn"
+            (click)="$event.stopPropagation(); deleteProject(row.id)"
+          >
+            delete
+          </mat-icon>
+        </div>
       </td>
     </ng-container>
 

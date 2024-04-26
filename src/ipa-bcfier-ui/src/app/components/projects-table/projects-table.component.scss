@@ -26,3 +26,9 @@ mat-icon {
 tr.project-row:hover {
   background: whitesmoke;
 }
+
+.action-btn-container {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}

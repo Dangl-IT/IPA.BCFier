@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  OnDestroy,
+  OnInit,
   ViewChild,
   inject,
 } from '@angular/core';
@@ -17,7 +19,14 @@ import {
   ProjectUsersClient,
   ProjectsClient,
 } from '../../generated-client/generated-client';
-import { combineLatestWith, filter, switchMap } from 'rxjs';
+import {
+  Subject,
+  combineLatestWith,
+  filter,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
 
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { FormsModule } from '@angular/forms';
@@ -30,6 +39,7 @@ import { NotificationsService } from '../../services/notifications.service';
 import { ProjectDetailsComponent } from '../project-details/project-details.component';
 import { ProjectsService } from '../../services/light-query/projects.service';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
+import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
 
 @Component({
   selector: 'bcfier-projects-table',
@@ -51,26 +61,49 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
   styleUrl: './projects-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProjectsTableComponent implements AfterViewInit {
+export class ProjectsTableComponent
+  implements AfterViewInit, OnDestroy, OnInit
+{
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
   projectsService = inject(ProjectsService);
   settingsMessengerService = inject(SettingsMessengerService);
   notificationsService = inject(NotificationsService);
+  selectedProjectMessengerService = inject(SelectedProjectMessengerService);
   projectsClient = inject(ProjectsClient);
   projectUsersClient = inject(ProjectUsersClient);
   matDialog = inject(MatDialog);
   cdr = inject(ChangeDetectorRef);
+
+  private destroyed$ = new Subject<void>();
   dataSource!: MatTableDataSource<ProjectGet>;
   displayedColumns = ['name', 'created', 'actions'];
   filter = '';
+  selectedProject: ProjectGet | null = null;
 
   constructor() {
-    this.projectsService.connect().subscribe((projects) => {
-      this.dataSource = new MatTableDataSource(projects);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    });
+    this.projectsService
+      .connect()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((projects) => {
+        this.dataSource = new MatTableDataSource(projects);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      });
+  }
+
+  ngOnInit(): void {
+    this.selectedProjectMessengerService.selectedProject
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((p) => {
+        this.selectedProject = p;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 
   ngAfterViewInit() {
@@ -109,7 +142,8 @@ export class ProjectsTableComponent implements AfterViewInit {
         })
       )
       .subscribe({
-        next: () => {
+        next: (p) => {
+          this.selectedProjectMessengerService.setSelectedProject(p);
           this.projectsService.forceRefresh();
           if (this.filter) {
             this.applyFilter(this.filter);
@@ -136,11 +170,18 @@ export class ProjectsTableComponent implements AfterViewInit {
             .createProject(newProject)
             .pipe(combineLatestWith(this.settingsMessengerService.settings));
         }),
-        switchMap(([p, s]) =>
-          this.projectUsersClient.addUserToProject(p.id, {
-            identifier: s.username,
-          })
-        )
+
+        switchMap(([p, s]) => {
+          return this.projectUsersClient
+            .addUserToProject(p.id, {
+              identifier: s.username,
+            })
+            .pipe(
+              tap(() => {
+                this.selectedProjectMessengerService.setSelectedProject(p);
+              })
+            );
+        })
       )
       .subscribe({
         next: () => {
@@ -176,5 +217,13 @@ export class ProjectsTableComponent implements AfterViewInit {
         },
         error: () => {},
       });
+  }
+
+  setSelectedProject(p: ProjectGet): void {
+    if (p.id === this.selectedProject?.id) {
+      this.selectedProjectMessengerService.setSelectedProject(null);
+      return;
+    }
+    this.selectedProjectMessengerService.setSelectedProject(p);
   }
 }

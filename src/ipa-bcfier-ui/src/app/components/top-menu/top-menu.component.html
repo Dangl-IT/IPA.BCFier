@@ -21,6 +21,9 @@
       Help
     </button>
   </div>
+  <div class="project-name">
+    <span>{{ (selectedProject$ | async)?.name | uppercase }}</span>
+  </div>
   <div>
     <span class="version-label">
       <strong>IPA.</strong>BCFier v{{ version }}

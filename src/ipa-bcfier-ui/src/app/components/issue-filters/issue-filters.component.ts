@@ -21,11 +21,12 @@ import {
 } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { ProjectUserGet } from '../../generated-client/generated-client';
 
 export interface IFilters {
   status: FormControl<string>;
   type: FormControl<string>;
-  users: FormControl<string>;
+  users: FormControl<string[]>;
   issueRange: FormGroup<{
     start: FormControl<Date | null>;
     end: FormControl<Date | null>;
@@ -69,11 +70,10 @@ export class IssueFiltersComponent {
   })
   issueTypes$!: Observable<Set<string>>;
 
-  //TODO replace type any
   @Input({
     required: true,
   })
-  users$!: Observable<any>;
+  users$!: Observable<ProjectUserGet[]>;
 
   @Output()
   acceptedFilters = new EventEmitter<FormGroup<IFilters>>();
@@ -85,7 +85,7 @@ export class IssueFiltersComponent {
     this.filtersForm = this.fb.group({
       status: new FormControl<string>('', { nonNullable: true }),
       type: new FormControl<string>('', { nonNullable: true }),
-      users: new FormControl<string>('', { nonNullable: true }),
+      users: new FormControl<string[]>([], { nonNullable: true }),
       issueRange: new FormGroup({
         start: new FormControl<Date | null>(null),
         end: new FormControl<Date | null>(null),
@@ -98,7 +98,7 @@ export class IssueFiltersComponent {
   }
 
   clearFilters(): void {
-    this.filtersForm.reset()
+    this.filtersForm.reset();
     this.acceptedFilters.emit(this.filtersForm);
   }
 }

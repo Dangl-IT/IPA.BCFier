@@ -15,3 +15,16 @@ mat-form-field {
 button {
   margin: 5px;
 }
+
+::ng-deep .panel-bg.mat-mdc-select-panel {
+  background: black;
+  opacity: 0.85;
+}
+
+::ng-deep .mat-pseudo-checkbox-full {
+  border-color: var(--primary-color) !important;
+}
+
+mat-option {
+  color: var(--primary-color);
+}

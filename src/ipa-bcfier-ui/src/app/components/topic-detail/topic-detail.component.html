@@ -30,12 +30,14 @@
       </mat-select>
     </mat-form-field>
 
-    <!-- TODO connected it with model and saving after choose or maybe get if from topic.users-->
     <mat-form-field class="dark-theme">
       <mat-label>Responsible</mat-label>
-      <mat-select (selectionChange)="changeIssue()">
-        @for (user of (users$ | async)?.values(); track user) {
-        <mat-option [value]="user">{{ user }}</mat-option>
+      <mat-select
+        [(value)]="topic.assignedTo"
+        (selectionChange)="changeIssue()"
+      >
+        @for (user of (users$ | async)?.values(); track user.id) {
+        <mat-option [value]="user.identifier">{{ user.identifier }}</mat-option>
         }
       </mat-select>
     </mat-form-field>

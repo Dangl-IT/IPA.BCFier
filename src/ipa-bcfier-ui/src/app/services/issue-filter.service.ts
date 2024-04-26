@@ -10,7 +10,7 @@ export class IssueFilterService {
     issues: BcfTopic[],
     status: string,
     type: string,
-    users: any,
+    users: string[],
     dateStart: Date | null,
     dateEnd: Date | null
   ): BcfTopic[] {
@@ -31,10 +31,15 @@ export class IssueFilterService {
         passesType = false;
       }
 
-      //TODO add filter by user
-      // if (users && users.length > 0 && !users.includes(issue.user)) {
-      //   passesUsers = false;
-      // }
+      if (
+        (users &&
+          users.length > 0 &&
+          issue.assignedTo &&
+          !users.includes(issue.assignedTo)) ||
+        (users.length > 0 && !issue.assignedTo)
+      ) {
+        passesUsers = false;
+      }
 
       if (
         !!issue.dueDate &&

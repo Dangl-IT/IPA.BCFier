@@ -30,6 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { UsersService } from '../../services/users.service';
 @Component({
   selector: 'bcfier-project-details',
   standalone: true,
@@ -65,7 +66,8 @@ export class ProjectDetailsComponent {
     private projectUsersClient: ProjectUsersClient,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
-    private matDialog: MatDialog
+    private matDialog: MatDialog,
+    private usersService: UsersService
   ) {
     if (data) {
       this.projectDetailsForm.patchValue({
@@ -95,7 +97,8 @@ export class ProjectDetailsComponent {
         identifier: this.identifier,
       })
       .pipe(
-        tap(() => {
+        tap((u) => {
+          this.usersService.setUsers(u);
           this.identifier = '';
           this.cdr.detectChanges();
         })
@@ -112,10 +115,9 @@ export class ProjectDetailsComponent {
       .afterClosed()
       .subscribe((confirm) => {
         if (confirm) {
-          this.users$ = this.projectUsersClient.deleteProjectUser(
-            this.data.id,
-            userId
-          );
+          this.users$ = this.projectUsersClient
+            .deleteProjectUser(this.data.id, userId)
+            .pipe(tap((u) => this.usersService.setUsers(u)));
           this.cdr.detectChanges();
         }
       });
