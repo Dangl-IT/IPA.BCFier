@@ -8,6 +8,7 @@
   dynamicHeight
   #tabGroup
   backgroundColor="primary"
+  (selectedIndexChange)="changeSelectedTabIndex($event)"
 >
   <mat-tab *ngFor="let bcfFile of bcfFiles | async; let index = index">
     <ng-template mat-tab-label *ngIf="bcfFile.bcfFile">

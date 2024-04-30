@@ -50,6 +50,7 @@ export class AppComponent implements OnDestroy {
     private notificationsService: NotificationsService,
     private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService
   ) {
+    this.changeSelectedTabIndex(0);
     this.bcfFiles = bcfFilesMessengerService.bcfFiles;
     this.bcfFilesMessengerService.bcfFileSaveAsRequested
       .pipe(
@@ -134,16 +135,6 @@ export class AppComponent implements OnDestroy {
           this.notificationsService.error('Failed to save BCF file.');
         },
       });
-
-    combineLatest([
-      bcfFilesMessengerService.bcfFileSelected.pipe(takeUntil(this.destroyed$)),
-      bcfFilesMessengerService.bcfFiles.pipe(take(1)),
-    ]).subscribe(([bcfFile, bcfFiles]) => {
-      this.updateTabIndex(
-        bcfFile.bcfFile!,
-        bcfFiles.map((f) => f.bcfFile!)
-      );
-    });
   }
 
   updateTabIndex(bcfFile: BcfFile, bcfFiles: BcfFile[]): void {
@@ -159,5 +150,15 @@ export class AppComponent implements OnDestroy {
 
   closeBcfFile(bcfFile: BcfFile): void {
     this.bcfFilesMessengerService.closeBcfFile(bcfFile);
+  }
+
+  changeSelectedTabIndex(index: number): void {
+    this.bcfFilesMessengerService.bcfFiles
+      .pipe(take(1))
+      .subscribe((bcfFiles) => {
+        if (bcfFiles.length) {
+          this.bcfFilesMessengerService.setBcfFileSelected(bcfFiles[index]);
+        }
+      });
   }
 }
