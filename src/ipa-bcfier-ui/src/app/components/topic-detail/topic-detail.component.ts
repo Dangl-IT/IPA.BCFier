@@ -23,6 +23,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UsersService } from '../../services/users.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import {
+  MessageType,
+  TeamsMessengerService,
+} from '../../services/teams-messenger.service';
 
 @Component({
   selector: 'bcfier-topic-detail',
@@ -52,10 +56,12 @@ export class TopicDetailComponent implements OnInit {
   issueTypesService = inject(IssueTypesService);
   users$ = inject(UsersService).users;
   bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
+  teamsMessengerService = inject(TeamsMessengerService);
   extensions!: BcfProjectExtensions;
   issueStatuses$ = this.issueStatusesService.issueStatuses;
   issueTypes$ = this.issueTypesService.issueTypes;
-
+  isTitleChangeFirstTime = false;
+  defaultTopicTitle = 'New Issue';
   constructor(
     private matDialog: MatDialog,
     private backendService: BackendService
@@ -126,6 +132,7 @@ export class TopicDetailComponent implements OnInit {
     this.backendService.addViewpoint().subscribe((viewpoint) => {
       if (viewpoint) {
         this.topic.viewpoints.push(viewpoint);
+        this.teamsMessengerService.sendMessageToTeams(MessageType.AddViewpoint);
         this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
       }
     });
@@ -133,5 +140,15 @@ export class TopicDetailComponent implements OnInit {
 
   changeIssue(): void {
     this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
+    if (this.isTitleChangeFirstTime) {
+      this.teamsMessengerService.sendMessageToTeams(MessageType.ChangeTitle);
+    }
+    this.isTitleChangeFirstTime = false;
+  }
+
+  checkIsTitleChangeFirstTime(e: string = ''): void {
+    if (e === this.defaultTopicTitle) {
+      this.isTitleChangeFirstTime = true;
+    }
   }
 }

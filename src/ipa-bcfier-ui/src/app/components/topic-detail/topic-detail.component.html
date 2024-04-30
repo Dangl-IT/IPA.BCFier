@@ -1,7 +1,12 @@
 <div class="wrapper">
   <mat-form-field class="top-field dark-theme">
     <mat-label>Title</mat-label>
-    <input matInput [(ngModel)]="topic.title" (change)="changeIssue()" />
+    <input
+      matInput
+      [(ngModel)]="topic.title"
+      (change)="changeIssue()"
+      (keydown)="checkIsTitleChangeFirstTime(topic.title)"
+    />
   </mat-form-field>
 
   <div class="info-select">

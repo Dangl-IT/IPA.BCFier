@@ -1,6 +1,6 @@
 import { BcfFile, BcfTopic } from '../../generated-client/generated-client';
 import { ChangeDetectorRef, Component, Input, inject } from '@angular/core';
-import { FormControl, FormGroup, FormsModule } from '@angular/forms';
+import { FormGroup, FormsModule } from '@angular/forms';
 import {
   IFilters,
   IssueFiltersComponent,
@@ -23,6 +23,10 @@ import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { UsersService } from '../../services/users.service';
 import { getNewRandomGuid } from '../../functions/uuid';
+import { TeamsMessengerService } from '../../services/teams-messenger.service';
+import { TopicMessengerService } from '../../services/topic-messenger.service';
+import { SettingsMessengerService } from '../../services/settings-messenger.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -52,12 +56,16 @@ export class BcfFileComponent {
   users$ = inject(UsersService).users;
   issueFilterService = inject(IssueFilterService);
   bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
+  teamsMessengerService = inject(TeamsMessengerService);
+  topicMessengerService = inject(TopicMessengerService);
+  settingsMessengerService = inject(SettingsMessengerService);
   cdr = inject(ChangeDetectorRef);
   selectedTopic: BcfTopic | null = null;
   filtredTopics: BcfTopic[] = [];
 
   ngOnInit() {
     this.selectedTopic = this.bcfFile.topics[0] || null;
+    this.topicMessengerService.setSelectedTopic(this.selectedTopic);
     this.cdr.detectChanges();
     this.filtredTopics = [...this.bcfFile.topics];
   }
@@ -72,34 +80,38 @@ export class BcfFileComponent {
 
   selectTopic(topic: BcfTopic) {
     this.selectedTopic = topic;
+    this.topicMessengerService.setSelectedTopic(this.selectedTopic);
   }
 
   addIssue(): void {
-    const newIssue: BcfTopic = {
-      comments: [],
-      id: getNewRandomGuid(),
-      files: [],
-      labels: [],
-      referenceLinks: [],
-      documentReferences: [],
-      relatedTopicIds: [],
-      viewpoints: [],
-      assignedTo: '',
-      creationAuthor: '',
-      description: '',
-      priority: '',
-      title: 'New Issue',
-      topicStatus: '',
-      stage: '',
-      topicType: '',
-      serverAssignedId: '',
-      modifiedAuthor: '',
-      creationDate: new Date(),
-    };
-    this.bcfFile.topics.push(newIssue);
-    this.selectedTopic = newIssue;
-    this.filtredTopics = [...this.bcfFile.topics];
-    this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
+    this.settingsMessengerService.settings.pipe(take(1)).subscribe((s) => {
+      const newIssue: BcfTopic = {
+        comments: [],
+        id: getNewRandomGuid(),
+        files: [],
+        labels: [],
+        referenceLinks: [],
+        documentReferences: [],
+        relatedTopicIds: [],
+        viewpoints: [],
+        assignedTo: '',
+        creationAuthor: s.username,
+        description: '',
+        priority: '',
+        title: 'New Issue',
+        topicStatus: '',
+        stage: '',
+        topicType: '',
+        serverAssignedId: '',
+        modifiedAuthor: '',
+        creationDate: new Date(),
+      };
+      this.bcfFile.topics.push(newIssue);
+      this.selectedTopic = newIssue;
+      this.topicMessengerService.setSelectedTopic(this.selectedTopic);
+      this.filtredTopics = [...this.bcfFile.topics];
+      this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
+    });
   }
 
   removeIssue(): void {
@@ -116,6 +128,7 @@ export class BcfFileComponent {
     } else {
       this.selectedTopic = null;
     }
+    this.topicMessengerService.setSelectedTopic(this.selectedTopic);
     this.filtredTopics = [...this.bcfFile.topics];
     this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
   }

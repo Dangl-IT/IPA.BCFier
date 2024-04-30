@@ -20,6 +20,10 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
 import { ViewpointImageDirective } from '../../directives/viewpoint-image.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
+import {
+  MessageType,
+  TeamsMessengerService,
+} from '../../services/teams-messenger.service';
 
 @Component({
   selector: 'bcfier-comments-detail',
@@ -48,7 +52,8 @@ export class CommentsDetailComponent implements OnInit {
     private notificationsService: NotificationsService,
     private matDialog: MatDialog,
     private backendService: BackendService,
-    private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService
+    private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService,
+    private teamsMessengerService: TeamsMessengerService
   ) {}
 
   ngOnInit(): void {}
@@ -70,11 +75,11 @@ export class CommentsDetailComponent implements OnInit {
         };
         this.comments.push(newComment);
         this.topic.comments.push(newComment);
-
         this.newComment = '';
 
         this.notificationsService.success('Comment added');
         this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
+        this.teamsMessengerService.sendMessageToTeams(MessageType.AddComment);
       });
   }
 

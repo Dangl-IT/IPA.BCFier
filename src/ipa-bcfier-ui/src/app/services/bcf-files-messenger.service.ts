@@ -17,8 +17,14 @@ export class BcfFilesMessengerService {
   private bcfFileSaveAsRequestedSource = new Subject<void>();
   bcfFileSaveAsRequested = this.bcfFileSaveAsRequestedSource.asObservable();
 
-  private bcfFileSelectedSource = new Subject<BcfFileWrapper>();
+  private bcfFileSelectedSource = new ReplaySubject<BcfFileWrapper>(1);
   bcfFileSelected = this.bcfFileSelectedSource.asObservable();
+
+  constructor() {}
+
+  setBcfFileSelected(bcfFileSelected: BcfFileWrapper): void {
+    this.bcfFileSelectedSource.next(bcfFileSelected);
+  }
 
   createNewBcfFile(): void {
     const bcfFile: BcfFileWrapper = {
