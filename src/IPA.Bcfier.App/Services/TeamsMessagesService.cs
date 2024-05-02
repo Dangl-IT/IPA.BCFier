@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
+using System.Drawing.Text;
 using System.Text;
 
 namespace IPA.Bcfier.App.Services
@@ -12,10 +13,13 @@ namespace IPA.Bcfier.App.Services
     public class TeamsMessagesService
     {
         private readonly BcfierDbContext _context;
+        private readonly HttpClient _httpClient;
 
-        public TeamsMessagesService(BcfierDbContext context)
+        public TeamsMessagesService(BcfierDbContext context,
+            HttpClient httpClient)
         {
             _context = context;
+            _httpClient = httpClient;
         }
 
         public async Task AnnounceNewCommentInProjectTopicAsync(Guid projectId,
@@ -59,6 +63,8 @@ namespace IPA.Bcfier.App.Services
             };
             teamsMessage.Sections = new List<TeamsSection> { mainSection };
 
+            teamsMessage.Summary = "Update via BCFier";
+
             if (!string.IsNullOrWhiteSpace(message.ViewpointBase64))
             {
                 teamsMessage.Sections.Add(new TeamsSection
@@ -81,19 +87,20 @@ namespace IPA.Bcfier.App.Services
         {
             // Apparently, the max message size for Teams webhooks is 28.000 characters
             // so we're ensuring we resize images to fit in there
-            var messageJson = GetTeamsMessageWithMaxSizeInBytes(message, 28_000);
+            // Also, we seemed to have problems with a max size of 28.000, so we've lowered it
+            // to 25.000
+            var messageJson = GetTeamsMessageWithMaxSizeInBytes(message, 25_000);
             if (string.IsNullOrWhiteSpace(messageJson))
             {
                 // Looks like the message was too large for the webhook
                 return;
             }
 
-            using var httpClient = new HttpClient();
             var body = new StringContent(messageJson, Encoding.Default, "application/json");
             var request = new HttpRequestMessage(HttpMethod.Post, teamsWebhookUrl);
             request.Content = body;
 
-            await httpClient.SendAsync(request);
+            await _httpClient.SendAsync(request);
         }
 
         private static string? GetTeamsMessageWithMaxSizeInBytes(TeamsMessage message,
