@@ -94,7 +94,7 @@
     <h3>Comments</h3>
     <div>
       <bcfier-comments-detail
-        [comments]="topic.comments | commentsViewpointFilter"
+        [comments]="topic.comments | commentsViewpointFilter : undefined : true"
         [topic]="topic"
       ></bcfier-comments-detail>
     </div>
