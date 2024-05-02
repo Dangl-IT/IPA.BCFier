@@ -135,6 +135,26 @@ export class AppComponent implements OnDestroy {
           this.notificationsService.error('Failed to save BCF file.');
         },
       });
+
+    this.bcfFilesMessengerService.bcfFileSelected
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((selectedBcfFile) => {
+        this.bcfFilesMessengerService.bcfFiles
+          .pipe(take(1))
+          .subscribe((bcfFiles) => {
+            if (
+              bcfFiles &&
+              bcfFiles.length &&
+              selectedBcfFile &&
+              selectedBcfFile.bcfFile
+            ) {
+              this.updateTabIndex(
+                selectedBcfFile.bcfFile,
+                bcfFiles.map((f) => f.bcfFile!)
+              );
+            }
+          });
+      });
   }
 
   updateTabIndex(bcfFile: BcfFile, bcfFiles: BcfFile[]): void {
