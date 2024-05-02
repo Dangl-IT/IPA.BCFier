@@ -16,6 +16,17 @@
       <mat-icon>settings</mat-icon>
       Settings
     </button>
+    <div #lastFilesBtn>
+      <button
+        mat-raised-button
+        [matMenuTriggerFor]="menu"
+        (onMenuOpen)="showLastOpenedFiles()"
+        (onMenuClose)="lastFileMenuOpened = false"
+      >
+        <mat-icon>cloud_circle</mat-icon>
+        Last opened files
+      </button>
+    </div>
     <button mat-raised-button (click)="openDocumentation()">
       <mat-icon>support</mat-icon>
       Help
@@ -30,3 +41,10 @@
     </span>
   </div>
 </div>
+<mat-menu #menu="matMenu">
+  <bcfier-last-opened-files
+    [lastOpenedFiles]="lastOpenedFiles"
+    [btnWidth]="lastFilesBtn.offsetWidth"
+    [isOpen]="lastFileMenuOpened"
+  ></bcfier-last-opened-files>
+</mat-menu>

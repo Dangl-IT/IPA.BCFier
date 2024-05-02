@@ -16,7 +16,7 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IBcfConversionClient {
-    importBcfFile(): Observable<BcfFileWrapper>;
+    importBcfFile(filePath: string | null | undefined): Observable<BcfFileWrapper>;
     exportBcfFile(bcfFile: BcfFile): Observable<BcfFileWrapper>;
     saveBcfFile(bcfFileWrapper: BcfFileWrapper): Observable<void>;
     mergeBcfFiles(): Observable<BcfFile>;
@@ -35,8 +35,10 @@ export class BcfConversionClient implements IBcfConversionClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    importBcfFile(): Observable<BcfFileWrapper> {
-        let url_ = this.baseUrl + "/api/bcf-conversion/import";
+    importBcfFile(filePath: string | null | undefined): Observable<BcfFileWrapper> {
+        let url_ = this.baseUrl + "/api/bcf-conversion/import?";
+        if (filePath !== undefined && filePath !== null)
+            url_ += "filePath=" + encodeURIComponent("" + filePath) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -439,6 +441,124 @@ export class FrontendConfigClient implements IFrontendConfigClient {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as FrontendConfig;
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+export interface ILastOpenedFilesClient {
+    getLastOpenedFiles(projectId: string | null | undefined): Observable<LastOpenedFilesWrapperGet>;
+    setFileAsLastOpened(projectId: string | null | undefined, filePath: string | undefined): Observable<void>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class LastOpenedFilesClient implements ILastOpenedFilesClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getLastOpenedFiles(projectId: string | null | undefined): Observable<LastOpenedFilesWrapperGet> {
+        let url_ = this.baseUrl + "/api/last-opened-files?";
+        if (projectId !== undefined && projectId !== null)
+            url_ += "projectId=" + encodeURIComponent("" + projectId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetLastOpenedFiles(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetLastOpenedFiles(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LastOpenedFilesWrapperGet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LastOpenedFilesWrapperGet>;
+        }));
+    }
+
+    protected processGetLastOpenedFiles(response: HttpResponseBase): Observable<LastOpenedFilesWrapperGet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as LastOpenedFilesWrapperGet;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    setFileAsLastOpened(projectId: string | null | undefined, filePath: string | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/last-opened-files?";
+        if (projectId !== undefined && projectId !== null)
+            url_ += "projectId=" + encodeURIComponent("" + projectId) + "&";
+        if (filePath === null)
+            throw new Error("The parameter 'filePath' cannot be null.");
+        else if (filePath !== undefined)
+            url_ += "filePath=" + encodeURIComponent("" + filePath) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSetFileAsLastOpened(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSetFileAsLastOpened(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSetFileAsLastOpened(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1401,6 +1521,15 @@ export interface BcfComment {
 export interface FrontendConfig {
     isInElectronMode: boolean;
     isConnectedToRevit: boolean;
+}
+
+export interface LastOpenedFilesWrapperGet {
+    lastOpenedFiles: LastOpenedFileGet[];
+}
+
+export interface LastOpenedFileGet {
+    fileName: string;
+    openedAtUtc: Date;
 }
 
 export interface PaginationResultOfProjectGet {

@@ -170,13 +170,16 @@ export class AppComponent implements OnDestroy {
 
   closeBcfFile(bcfFile: BcfFile): void {
     this.bcfFilesMessengerService.closeBcfFile(bcfFile);
+    if (this.tabGroup && this.tabGroup.selectedIndex !== null) {
+      this.changeSelectedTabIndex(this.tabGroup.selectedIndex);
+    }
   }
 
   changeSelectedTabIndex(index: number): void {
     this.bcfFilesMessengerService.bcfFiles
       .pipe(take(1))
       .subscribe((bcfFiles) => {
-        if (bcfFiles.length) {
+        if (bcfFiles.length && bcfFiles[index] !== undefined) {
           this.bcfFilesMessengerService.setBcfFileSelected(bcfFiles[index]);
         }
       });

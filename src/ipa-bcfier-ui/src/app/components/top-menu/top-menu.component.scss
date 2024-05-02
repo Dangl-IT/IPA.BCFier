@@ -16,3 +16,7 @@
 .project-name {
   font-size: 16px;
 }
+
+::ng-deep .mat-mdc-menu-content {
+  padding: 0 !important;
+}
