@@ -14,7 +14,7 @@
       </button>
     </div>
   </mat-card-title>
-  <mat-card-content>
+  <mat-card-content *ngIf="!viewpoint">
     <div *ngFor="let comment of comments">
       <span class="comment-header">
         <strong class="comment-author">{{ comment.author }}</strong>
@@ -27,7 +27,7 @@
       <p>{{ comment.text }}</p>
     </div>
   </mat-card-content>
-  <mat-card-actions>
+  <mat-card-actions *ngIf="!viewpoint">
     <mat-form-field class="comment-field dark-theme">
       <mat-label>Add comment</mat-label>
       <input matInput [(ngModel)]="newComment" />

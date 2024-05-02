@@ -1,4 +1,4 @@
-import { FrontendConfig } from '../../generated/models';
+import { FrontendConfig } from '../generated-client/generated-client';
 import { Injectable } from '@angular/core';
 
 @Injectable({

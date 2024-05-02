@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using IPA.Bcfier.App.Configuration;
+using System.Net;
 
 namespace IPA.Bcfier.App.Controllers
 {
@@ -33,6 +34,30 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             return GetContentResultForFrontendConfig();
+        }
+
+        [HttpGet("json")]
+        [ProducesResponseType(typeof(FrontendConfig), (int)HttpStatusCode.OK)]
+        public IActionResult GetFrontendConfig([FromQuery] string? timestamp)
+        {
+            if (!string.IsNullOrWhiteSpace(timestamp))
+            {
+                HttpContext.Response
+                    .GetTypedHeaders()
+                    .CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue
+                    {
+                        Public = true,
+                        MaxAge = TimeSpan.FromDays(365)
+                    };
+            }
+
+
+            if (_frontendConfig == null)
+            {
+                InitializeFrontendConfig();
+            }
+
+            return Ok(_frontendConfig);
         }
 
         private ContentResult GetContentResultForFrontendConfig()

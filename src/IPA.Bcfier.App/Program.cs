@@ -1,8 +1,10 @@
 using ElectronNET.API;
 using ElectronNET.API.Entities;
 using IPA.Bcfier.App.Configuration;
+using IPA.Bcfier.App.Data;
 using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Ipc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace IPA.Bcfier.App
@@ -33,6 +35,17 @@ namespace IPA.Bcfier.App
                     scope.ServiceProvider.GetRequiredService<ElectronWindowProvider>().SetBrowserWindow(window);
                     hasRevitIntegration = await Electron.App.CommandLine.HasSwitchAsync("revit-integration");
                     scope.ServiceProvider.GetRequiredService<RevitParameters>().IsConnectedToRevit = hasRevitIntegration;
+
+                    try
+                    {
+                        var dbContext = scope.ServiceProvider.GetRequiredService<BcfierDbContext>();
+                        await dbContext.Database.MigrateAsync();
+                    }
+                    catch
+                    {
+                        // Ignoring here, it's likely a problem since we're still using the InMemory db if no real
+                        // database is configured
+                    }
                 }
 
                 await Electron.IpcMain.On("closeApp", async (e) =>

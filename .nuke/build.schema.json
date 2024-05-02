@@ -70,6 +70,9 @@
         "KeyVaultClientSecret": {
           "type": "string"
         },
+        "MigrationName": {
+          "type": "string"
+        },
         "NoLogo": {
           "type": "boolean",
           "description": "Disables displaying the NUKE logo"
@@ -103,11 +106,12 @@
               "BuildDocumentation",
               "BuildElectronApp",
               "BuildFrontend",
+              "BuildFrontendSwaggerClient",
               "BuildRevitPlugin",
               "Clean",
               "Compile",
+              "CreateMigration",
               "FrontEndRestore",
-              "GenerateFrontendModels",
               "GenerateFrontendVersion",
               "PublishGitHubRelease",
               "Restore",
@@ -133,11 +137,12 @@
               "BuildDocumentation",
               "BuildElectronApp",
               "BuildFrontend",
+              "BuildFrontendSwaggerClient",
               "BuildRevitPlugin",
               "Clean",
               "Compile",
+              "CreateMigration",
               "FrontEndRestore",
-              "GenerateFrontendModels",
               "GenerateFrontendVersion",
               "PublishGitHubRelease",
               "Restore",

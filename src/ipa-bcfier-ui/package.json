@@ -23,10 +23,11 @@
     "@angular/router": "^17.3.0",
     "@ngx-dropzone/cdk": "^17.2.0",
     "@ngx-dropzone/material": "^17.2.0",
+    "ng-lightquery": "^2.4.0",
     "ngx-toastr": "18.0.0",
-    "uuid": "9.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "uuid": "9.0.1",
     "zone.js": "~0.14.3"
   },
   "devDependencies": {

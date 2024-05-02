@@ -1,4 +1,8 @@
-import { BcfFile, BcfViewpoint, Settings } from '../../generated/models';
+import {
+  BcfFile,
+  BcfViewpoint,
+  Settings,
+} from '../generated-client/generated-client';
 import { NgZone, inject } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 
@@ -25,10 +29,6 @@ export class RevitBackendService {
 
   importBcfFile(): Observable<BcfFile> {
     return this.sendCommand<BcfFile>('importBcfFile', null);
-  }
-
-  mergeBcfFile(): Observable<BcfFile> {
-    throw new Error('Method not implemented.');
   }
 
   exportBcfFile(bcfFile: BcfFile): Observable<void> {

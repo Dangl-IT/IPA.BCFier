@@ -1,3 +1,8 @@
+import {
+  MAT_DATE_LOCALE,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
+
 import { AppConfigService } from './services/AppConfigService';
 import { ApplicationConfig } from '@angular/core';
 import { BackendService } from './services/BackendService';
@@ -34,5 +39,7 @@ export const appConfig: ApplicationConfig = {
       preventDuplicates: true,
       closeButton: true,
     }),
+    { provide: MAT_DATE_LOCALE, useValue: 'en-UK' },
+    provideNativeDateAdapter(),
   ],
 };

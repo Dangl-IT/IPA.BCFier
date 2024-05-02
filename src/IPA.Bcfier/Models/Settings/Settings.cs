@@ -6,5 +6,7 @@ namespace IPA.Bcfier.Models.Settings
     {
         [Required]
         public string Username { get; set; } = string.Empty;
+
+        public string? MainDatabaseLocation { get; set; }
     }
 }

@@ -1,4 +1,3 @@
-import { BcfFile, BcfTopic } from '../../generated/models';
 import {
   Directive,
   ElementRef,
@@ -7,6 +6,8 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
+
+import { BcfTopic } from '../generated-client/generated-client';
 
 @Directive({
   selector: '[bcfierTopicPreviewImage]',

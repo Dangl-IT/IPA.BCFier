@@ -9,7 +9,6 @@
   margin-top: 4px;
   margin-left: 4px;
   display: flex;
-  flex-direction: column;
   width: 30%;
   height: 100%;
   overflow: auto;
@@ -30,6 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow: auto;
 }
 
 mat-form-field {
@@ -52,4 +52,29 @@ mat-card-content {
   padding-left: 12px;
   width: 70%;
   overflow: auto;
+}
+
+.filter-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+mat-drawer-container {
+  width: 100%;
+}
+
+mat-drawer {
+  width: 90%;
+  padding: 5px;
+}
+
+mat-drawer-content {
+  padding: 10px;
+  overflow: hidden;
+}
+
+.filter-container {
+  height: inherit;
 }

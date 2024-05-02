@@ -64,6 +64,7 @@ class Build : NukeBuild
     [Parameter] readonly string KeyVaultClientSecret;
     [Parameter] readonly string CodeSigningKeyVaultTenantId;
     [Parameter] readonly string CodeSigningCertificateName;
+    [Parameter] readonly string MigrationName;
 
     [Parameter] AbsolutePath ExecutablesToSignFolder;
     [NuGetPackage("Tools.InnoSetup", "tools/ISCC.exe")] readonly Tool InnoSetup;
@@ -271,10 +272,10 @@ export const version = {{
 
             CopyDirectoryRecursively(SourceDirectory / "IPA.Bcfier.Revit" / "InstallerAssets", installerDirectory / "InstallerAssets", DirectoryExistsPolicy.Merge, FileExistsPolicy.Overwrite);
             File.Copy(pluginOutputDirectory / "Dangl.BCF.dll", installerDirectory / "Dangl.BCF.dll");
-            File.Copy(pluginOutputDirectory / "IPA.Bcfier.dll", installerDirectory/ "IPA.Bcfier.dll");
-            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.dll", installerDirectory/ "IPA.Bcfier.Revit.dll");
-            File.Copy(pluginOutputDirectory / "DecimalEx.dll", installerDirectory/ "DecimalEx.dll");
-            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.addin", installerDirectory/ "IPA.Bcfier.Revit.addin");
+            File.Copy(pluginOutputDirectory / "IPA.Bcfier.dll", installerDirectory / "IPA.Bcfier.dll");
+            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.dll", installerDirectory / "IPA.Bcfier.Revit.dll");
+            File.Copy(pluginOutputDirectory / "DecimalEx.dll", installerDirectory / "DecimalEx.dll");
+            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.addin", installerDirectory / "IPA.Bcfier.Revit.addin");
 
             InnoSetup($"/dAppVersion=\"{GitVersion.AssemblySemVer}\" {pluginOutputDirectory / "Installer.iss"}");
 
@@ -298,7 +299,6 @@ export const version = {{
                            .SetAssetFilePaths(assets)
                            .SetSkipForVersionConflicts(true));
         });
-
 
     Target BuildElectronApp => _ => _
         .DependsOn(BuildFrontend)
@@ -358,7 +358,7 @@ export const version = {{
         }
     }
 
-    void BuildElectronAppInternal(params string[][] electronOptions)
+    private void BuildElectronAppInternal(params string[][] electronOptions)
     {
         foreach (var electronOption in electronOptions)
         {
@@ -439,70 +439,35 @@ export const version = {{
                 .SetToken(GitHubAuthenticationToken));
         });
 
-    Target GenerateFrontendModels => _ => _
+    Target CreateMigration => _ => _
+        .Requires(() => MigrationName)
         .Executes(() =>
         {
-            var jsonSchemaSettings = new SystemTextJsonSchemaGeneratorSettings();
-            jsonSchemaSettings.SerializerOptions = new System.Text.Json.JsonSerializerOptions
+            // We'll get all the current environment variables and place them in a string dictionary
+            var environmentVariables = new Dictionary<string, string>();
+            foreach (var environmentVariable in Environment.GetEnvironmentVariables().Cast<System.Collections.DictionaryEntry>())
             {
-                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-            };
-
-            var document = new OpenApiDocument();
-
-            var bcfFileSchema = JsonSchema.FromType<IPA.Bcfier.Models.Bcf.BcfFile>(jsonSchemaSettings);
-            document.Definitions.Add(nameof(IPA.Bcfier.Models.Bcf.BcfFile), bcfFileSchema);
-            foreach (var typeDef in bcfFileSchema.Definitions)
-            {
-                document.Definitions.TryAdd(typeDef.Key, typeDef.Value);
+                environmentVariables.Add(environmentVariable.Key.ToString(), environmentVariable.Value.ToString());
             }
 
-            var frontendConfigSchema = JsonSchema.FromType<IPA.Bcfier.Models.Config.FrontendConfig>(jsonSchemaSettings);
-            document.Definitions.Add(nameof(IPA.Bcfier.Models.Config.FrontendConfig), frontendConfigSchema);
+            // Then we'll also set a special one to instruct the app to use the design time SQLite
+            // context options
+            environmentVariables.Add("BCFIER_USE_SQLITE_DESIGN_TIME_CONTEXT", "true");
+            DotNet($"ef migrations add {MigrationName}", workingDirectory: SourceDirectory / "IPA.Bcfier.App", environmentVariables: environmentVariables);
+        });
 
-            var settingsSchema = JsonSchema.FromType<IPA.Bcfier.Models.Settings.Settings>(jsonSchemaSettings);
-            document.Definitions.Add(nameof(IPA.Bcfier.Models.Settings.Settings), settingsSchema);
-
-            var typeScriptClientGeneratorSettings = new TypeScriptClientGeneratorSettings
-            {
-                Template = NSwag.CodeGeneration.TypeScript.TypeScriptTemplate.Angular,
-                RxJsVersion = 7.0m,
-            };
-            typeScriptClientGeneratorSettings.TypeScriptGeneratorSettings.TypeStyle = NJsonSchema.CodeGeneration.TypeScript.TypeScriptTypeStyle.Interface;
-            typeScriptClientGeneratorSettings.TypeScriptGeneratorSettings.EnumStyle = NJsonSchema.CodeGeneration.TypeScript.TypeScriptEnumStyle.Enum;
-            typeScriptClientGeneratorSettings.TypeScriptGeneratorSettings.TypeScriptVersion = 4.3m;
-
-            var typeScriptPropertyNameGenerator = new TypeScriptPropertyNameGenerator();
-            typeScriptClientGeneratorSettings.TypeScriptGeneratorSettings.PropertyNameGenerator = typeScriptPropertyNameGenerator;
-
-            var generator = new TypeScriptClientGenerator(document, typeScriptClientGeneratorSettings);
-
-            var typeScriptFile = generator.GenerateFile();
-
-            var typeScriptCode = string.Empty;
-            var lastLineWasEmpty = false;
-            foreach (var line in Regex.Split(typeScriptFile, "\r\n?|\n"))
-            {
-                if (!line.StartsWith("import")
-                    && !line.StartsWith("export const API_BASE_URL"))
-                {
-                    if (string.IsNullOrWhiteSpace(line))
-                    {
-                        if (!lastLineWasEmpty)
-                        {
-                            typeScriptCode += line + Environment.NewLine;
-                        }
-                        lastLineWasEmpty = true;
-                    }
-                    else
-                    {
-                        lastLineWasEmpty = false;
-                        typeScriptCode += line + Environment.NewLine;
-                    }
-                }
-            }
-
-            (SourceDirectory / "ipa-bcfier-ui" / "src" / "generated" / "models.ts").WriteAllText(typeScriptCode);
+    Target BuildFrontendSwaggerClient => _ => _
+        .DependsOn(Restore)
+        .Executes(() =>
+        {
+            var nSwagConfigPath = SourceDirectory / "ipa-bcfier-ui" / "src" / "nswag.json";
+            var nSwagToolPath = NuGetToolPathResolver.GetPackageExecutable("NSwag.MSBuild", "tools/Net80/dotnet-nswag.dll");
+            DotNetRun(x => x
+                .SetProcessToolPath(nSwagToolPath)
+                .SetProcessWorkingDirectory(SourceDirectory / "ipa-bcfier-ui" / "src")
+                .AddProcessEnvironmentVariable("BCFIER_USE_SQLITE_DESIGN_TIME_CONTEXT", "true")
+                .SetProcessArgumentConfigurator(y => y
+                    .Add($"/Input:\"{nSwagConfigPath}\"")));
         });
 
     private bool IsOnBranch(string branchName)

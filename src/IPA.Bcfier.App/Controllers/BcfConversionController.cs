@@ -1,9 +1,11 @@
-﻿using ElectronNET.API;
+﻿using Dangl.Data.Shared;
+using ElectronNET.API;
 using ElectronNET.API.Entities;
 using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace IPA.Bcfier.App.Controllers
 {
@@ -19,6 +21,9 @@ namespace IPA.Bcfier.App.Controllers
         }
 
         [HttpPost("import")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BcfFileWrapper), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ImportBcfFileAsync()
         {
             var electronWindow = _electronWindowProvider.BrowserWindow;
@@ -49,7 +54,11 @@ namespace IPA.Bcfier.App.Controllers
                 using var bcfFileStream = System.IO.File.OpenRead(fileSelectionResult.First());
                 var bcfFileName = Path.GetFileName(fileSelectionResult.FirstOrDefault());
                 var bcfResult = await new BcfImportService().ImportBcfFileAsync(bcfFileStream, bcfFileName ?? "issue.bcf");
-                return Ok(bcfResult);
+                return Ok(new BcfFileWrapper
+                {
+                    FileName = fileSelectionResult.First(),
+                    BcfFile = bcfResult
+                });
             }
             catch (Exception e)
             {
@@ -58,6 +67,9 @@ namespace IPA.Bcfier.App.Controllers
         }
 
         [HttpPost("export")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BcfFileWrapper), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ExportBcfFileAsync([FromBody] BcfFile bcfFile)
         {
             var bcfFileResult = new BcfExportService().ExportBcfFile(bcfFile);
@@ -92,10 +104,33 @@ namespace IPA.Bcfier.App.Controllers
 
             using var fs = System.IO.File.Create(fileSaveSelectResult);
             await bcfFileResult.CopyToAsync(fs);
+            return Ok(new BcfFileWrapper
+            {
+              FileName = fileSaveSelectResult,
+              BcfFile = bcfFile
+            });
+        }
+
+        [HttpPost("save")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> SaveBcfFileAsync([FromBody] BcfFileWrapper bcfFileWrapper)
+        {
+            var bcfFileResult = new BcfExportService().ExportBcfFile(bcfFileWrapper.BcfFile);
+            if (bcfFileResult == null)
+            {
+                return BadRequest();
+            }
+
+            using var fs = System.IO.File.Create(bcfFileWrapper.FileName);
+            await bcfFileResult.CopyToAsync(fs);
             return NoContent();
         }
 
         [HttpPost("merge")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BcfFile), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> MergeBcfFilesAsync()
         {
             var electronWindow = _electronWindowProvider.BrowserWindow;

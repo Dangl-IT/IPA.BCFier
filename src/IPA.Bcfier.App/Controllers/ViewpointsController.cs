@@ -1,7 +1,9 @@
-﻿using IPA.Bcfier.Ipc;
+﻿using Dangl.Data.Shared;
+using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Bcf;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace IPA.Bcfier.App.Controllers
 {
@@ -10,6 +12,8 @@ namespace IPA.Bcfier.App.Controllers
     public class ViewpointsController : ControllerBase
     {
         [HttpPost("visualization")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ShowViewpointAsync([FromBody] BcfViewpoint viewpoint)
         {
             using var ipcHandler = new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit");
@@ -25,7 +29,7 @@ namespace IPA.Bcfier.App.Controllers
 
             var hasReceived = false;
             var start = DateTime.Now;
-            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120))
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
             {
                 if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
                 {
@@ -46,6 +50,8 @@ namespace IPA.Bcfier.App.Controllers
         }
 
         [HttpPost("")]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BcfViewpoint), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateViewpointAsync()
         {
             using var ipcHandler = new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit");
@@ -61,7 +67,7 @@ namespace IPA.Bcfier.App.Controllers
 
             var hasReceived = false;
             var start = DateTime.Now;
-            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120))
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
             {
                 if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
                 {

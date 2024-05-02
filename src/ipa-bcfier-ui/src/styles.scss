@@ -12,6 +12,7 @@
 @include mat.core();
 
 
+
 $yellow-palette: (
   50: #fdfce5,
   100: #faf8bf,
@@ -78,6 +79,10 @@ $ipa-bcfier-ui-dark-theme: mat.define-light-theme((
   @include mat.all-component-colors($ipa-bcfier-ui-dark-theme);
 }
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --primary-color:#{map-get($ipa-bcfier-ui-primary, 500)};
+}
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

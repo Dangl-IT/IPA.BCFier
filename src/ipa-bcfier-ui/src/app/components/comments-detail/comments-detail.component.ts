@@ -1,7 +1,16 @@
-import { BcfComment, BcfTopic, BcfViewpoint } from '../../../generated/models';
+import {
+  BcfComment,
+  BcfTopic,
+  BcfViewpoint,
+} from '../../generated-client/generated-client';
 import { Component, Input, OnInit } from '@angular/core';
+import {
+  MessageType,
+  TeamsMessengerService,
+} from '../../services/teams-messenger.service';
 
 import { BackendService } from '../../services/BackendService';
+import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ImagePreviewComponent } from '../image-preview/image-preview.component';
@@ -42,7 +51,9 @@ export class CommentsDetailComponent implements OnInit {
     private settingsMessengerService: SettingsMessengerService,
     private notificationsService: NotificationsService,
     private matDialog: MatDialog,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService,
+    private teamsMessengerService: TeamsMessengerService
   ) {}
 
   ngOnInit(): void {}
@@ -62,21 +73,22 @@ export class CommentsDetailComponent implements OnInit {
           viewpointId: this.viewpoint?.id,
           text: this.newComment,
         };
-        this.comments.push(newComment);
-        this.topic.comments.push(newComment);
 
+        this.topic.comments.push(newComment);
         this.newComment = '';
 
         this.notificationsService.success('Comment added');
+        this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
+        this.teamsMessengerService.sendMessageToTeams(MessageType.AddComment);
       });
   }
 
   removeComment(comment: BcfComment): void {
-    this.comments = this.comments.filter((c) => c.id !== comment.id);
     this.topic.comments = this.topic.comments.filter(
       (c) => c.id !== comment.id
     );
 
+    this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
     this.notificationsService.success('Comment removed');
   }
 
@@ -96,6 +108,7 @@ export class CommentsDetailComponent implements OnInit {
     // since comments that originally belonged to the viewpoint
     // are moved to general comments now
     this.topic.comments = [...this.topic.comments];
+    this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
   }
 
   showImageFullScreen(viewpoint: BcfViewpoint): void {

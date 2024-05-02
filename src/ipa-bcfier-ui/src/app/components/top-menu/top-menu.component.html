@@ -4,17 +4,13 @@
       <mat-icon>edit_document</mat-icon>
       New BCF
     </button>
-    <button mat-raised-button (click)="saveBcf()">
+    <button mat-raised-button (click)="saveBcfAs()">
       <mat-icon>save</mat-icon>
       Save as...
     </button>
     <button mat-raised-button (click)="openBcf()">
       <mat-icon>folder_open</mat-icon>
       Open BCF
-    </button>
-    <button mat-raised-button (click)="openMergeSelection()">
-      <mat-icon>file_copy</mat-icon>
-      Merge...
     </button>
     <button mat-raised-button (click)="openSettings()">
       <mat-icon>settings</mat-icon>
@@ -24,6 +20,9 @@
       <mat-icon>support</mat-icon>
       Help
     </button>
+  </div>
+  <div class="project-name">
+    <span>{{ (selectedProject$ | async)?.name | uppercase }}</span>
   </div>
   <div>
     <span class="version-label">

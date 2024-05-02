@@ -8,21 +8,25 @@
   dynamicHeight
   #tabGroup
   backgroundColor="primary"
+  (selectedIndexChange)="changeSelectedTabIndex($event)"
 >
   <mat-tab *ngFor="let bcfFile of bcfFiles | async; let index = index">
-    <ng-template mat-tab-label>
-      {{ bcfFile.fileName }}
+    <ng-template mat-tab-label *ngIf="bcfFile.bcfFile">
+      {{ bcfFile.bcfFile.fileName }}
       <button
         class="file-close-button"
         color="warn"
         mat-icon-button
-        (click)="closeBcfFile(bcfFile)"
+        (click)="closeBcfFile(bcfFile.bcfFile)"
       >
         <mat-icon>close</mat-icon>
       </button>
     </ng-template>
     <ng-template matTabContent>
-      <bcfier-bcf-file [bcfFile]="bcfFile"></bcfier-bcf-file>
+      <bcfier-bcf-file
+        *ngIf="bcfFile.bcfFile"
+        [bcfFile]="bcfFile.bcfFile"
+      ></bcfier-bcf-file>
     </ng-template>
   </mat-tab>
 </mat-tab-group>

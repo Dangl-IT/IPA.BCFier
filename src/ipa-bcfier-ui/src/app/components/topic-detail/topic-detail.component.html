@@ -1,7 +1,12 @@
 <div class="wrapper">
   <mat-form-field class="top-field dark-theme">
     <mat-label>Title</mat-label>
-    <input matInput [(ngModel)]="topic.title" />
+    <input
+      matInput
+      [(ngModel)]="topic.title"
+      (change)="changeIssue()"
+      (keydown)="checkIsTitleChangeFirstTime(topic.title)"
+    />
   </mat-form-field>
 
   <div class="info-select">
@@ -11,37 +16,57 @@
 
     <mat-form-field class="dark-theme">
       <mat-label>Status</mat-label>
-      <mat-select [(value)]="topic.topicStatus">
-        @for (status of extensions.topicStatuses; track status) {
+      <mat-select
+        [(value)]="topic.topicStatus"
+        (selectionChange)="changeIssue()"
+      >
+        @for (status of (issueStatuses$ | async)?.values(); track status) {
         <mat-option [value]="status">{{ status }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
-    <button
-      matSuffix
-      mat-icon-button
-      (click)="addNewStatus()"
-      class="dark-theme"
-    >
-      <mat-icon color="primary">add</mat-icon>
-    </button>
 
     <mat-form-field class="dark-theme">
       <mat-label>Type</mat-label>
-      <mat-select [(value)]="topic.topicType">
-        @for (type of extensions.topicTypes; track type) {
+      <mat-select [(value)]="topic.topicType" (selectionChange)="changeIssue()">
+        @for (type of (issueTypes$ | async)?.values(); track type) {
         <mat-option [value]="type">{{ type }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
-    <button matSuffix mat-icon-button (click)="addNewType()" class="dark-theme">
-      <mat-icon color="primary">add</mat-icon>
-    </button>
+
+    <mat-form-field class="dark-theme">
+      <mat-label>Responsible</mat-label>
+      <mat-select
+        [(value)]="topic.assignedTo"
+        (selectionChange)="changeIssue()"
+      >
+        @for (user of (users$ | async)?.values(); track user.id) {
+        <mat-option [value]="user.identifier">{{ user.identifier }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Due Date</mat-label>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        [(ngModel)]="topic.dueDate"
+        (ngModelChange)="changeIssue()"
+      />
+      <mat-hint>DD/MM/YYYY</mat-hint>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
   </div>
 
   <mat-form-field class="top-field dark-theme">
     <mat-label>Description</mat-label>
-    <input matInput [(ngModel)]="topic.description" />
+    <input matInput [(ngModel)]="topic.description" (change)="changeIssue()" />
   </mat-form-field>
 
   <div>
@@ -69,7 +94,7 @@
     <h3>Comments</h3>
     <div>
       <bcfier-comments-detail
-        [comments]="topic.comments | commentsViewpointFilter"
+        [comments]="topic.comments | commentsViewpointFilter : undefined : true"
         [topic]="topic"
       ></bcfier-comments-detail>
     </div>

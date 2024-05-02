@@ -1,9 +1,16 @@
-import { BcfFile, BcfViewpoint, Settings } from '../../generated/models';
+import {
+  BcfConversionClient,
+  BcfFileWrapper,
+  BcfViewpoint,
+  DocumentationClient,
+  Settings,
+  SettingsClient,
+  ViewpointsClient,
+} from '../generated-client/generated-client';
 import { Observable, Subject, catchError, of, tap } from 'rxjs';
 
 import { AddSnapshotViewpointComponent } from '../components/add-snapshot-viewpoint/add-snapshot-viewpoint.component';
 import { AppConfigService } from './AppConfigService';
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { LoadingService } from './loading.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,51 +21,47 @@ import { NotificationsService } from './notifications.service';
 })
 export class BackendService {
   constructor(
-    private http: HttpClient,
     private matDialog: MatDialog,
     private appConfigService: AppConfigService,
     private loadingService: LoadingService,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private bcfConversionClient: BcfConversionClient,
+    private documentationClient: DocumentationClient,
+    private settingsClient: SettingsClient,
+    private viewpointsClient: ViewpointsClient
   ) {}
 
-  importBcfFile(): Observable<BcfFile> {
-    return this.http.post<BcfFile>('/api/bcf-conversion/import', null);
+  importBcfFile(): Observable<BcfFileWrapper> {
+    return this.bcfConversionClient.importBcfFile();
   }
 
-  mergeBcfFile(): Observable<BcfFile> {
-    return this.http.post<BcfFile>('/api/bcf-conversion/merge', null);
+  exportBcfFile(bcfFile: BcfFileWrapper): Observable<BcfFileWrapper> {
+    return this.bcfConversionClient.exportBcfFile(bcfFile.bcfFile!);
   }
 
-  exportBcfFile(bcfFile: BcfFile): Observable<void> {
-    return this.http.post<void>('/api/bcf-conversion/export', bcfFile);
+  saveBcfFile(bcfFileWrapper: BcfFileWrapper): Observable<any> {
+    return this.bcfConversionClient.saveBcfFile(bcfFileWrapper);
   }
 
   openDocumentation(): void {
-    this.http.post('/api/documentation', null).subscribe(() => {
+    this.documentationClient.openDocumentation().subscribe(() => {
       /* Not doing anything with the result */
     });
   }
 
   getSettings(): Observable<Settings> {
-    return this.http.get<Settings>('/api/settings');
+    return this.settingsClient.getSettings();
   }
 
   saveSettings(settings: Settings): Observable<void> {
-    const subject = new Subject<void>();
-    this.http.put('/api/settings', settings).subscribe(() => {
-      subject.next();
-      setTimeout(() => {
-        subject.complete();
-      }, 0);
-    });
-
-    return subject.asObservable();
+    return this.settingsClient.saveSettings(settings);
   }
 
   addViewpoint(): Observable<BcfViewpoint | null> {
     if (this.appConfigService.getFrontendConfig().isConnectedToRevit) {
       this.loadingService.showLoadingScreen();
-      return this.http.post<BcfViewpoint>('/api/viewpoints', null).pipe(
+
+      return this.viewpointsClient.createViewpoint().pipe(
         tap(() => this.loadingService.hideLoadingScreen()),
         catchError(() => {
           this.loadingService.hideLoadingScreen();
@@ -89,7 +92,7 @@ export class BackendService {
   selectViewpoint(viewpoint: BcfViewpoint): void {
     if (this.appConfigService.getFrontendConfig().isConnectedToRevit) {
       this.loadingService.showLoadingScreen();
-      this.http.post('/api/viewpoints/visualization', viewpoint).subscribe({
+      this.viewpointsClient.showViewpoint(viewpoint).subscribe({
         next: () => this.loadingService.hideLoadingScreen(),
         error: () => {
           this.loadingService.hideLoadingScreen();

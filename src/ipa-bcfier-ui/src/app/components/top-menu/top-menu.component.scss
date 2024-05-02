@@ -7,7 +7,12 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 }
 .version-label {
   font-size: small;
+}
+
+.project-name {
+  font-size: 16px;
 }

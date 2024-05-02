@@ -1,0 +1,34 @@
+.top-part {
+  display:flex;
+  justify-content: space-between;
+  align-items: top;
+  gap:20px;
+}
+
+.table-wrap {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.mat-column-actions {
+  width: 100px;
+  text-align: end;
+}
+
+mat-icon {
+  cursor: pointer;
+}
+
+tr.project-row:hover {
+  background: whitesmoke;
+}
+
+.action-btn-container {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
