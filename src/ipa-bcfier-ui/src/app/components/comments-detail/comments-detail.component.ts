@@ -4,6 +4,10 @@ import {
   BcfViewpoint,
 } from '../../generated-client/generated-client';
 import { Component, Input, OnInit } from '@angular/core';
+import {
+  MessageType,
+  TeamsMessengerService,
+} from '../../services/teams-messenger.service';
 
 import { BackendService } from '../../services/BackendService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
@@ -20,10 +24,6 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
 import { ViewpointImageDirective } from '../../directives/viewpoint-image.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
-import {
-  MessageType,
-  TeamsMessengerService,
-} from '../../services/teams-messenger.service';
 
 @Component({
   selector: 'bcfier-comments-detail',
@@ -73,7 +73,7 @@ export class CommentsDetailComponent implements OnInit {
           viewpointId: this.viewpoint?.id,
           text: this.newComment,
         };
-        this.comments.push(newComment);
+
         this.topic.comments.push(newComment);
         this.newComment = '';
 
@@ -84,11 +84,11 @@ export class CommentsDetailComponent implements OnInit {
   }
 
   removeComment(comment: BcfComment): void {
-    this.comments = this.comments.filter((c) => c.id !== comment.id);
     this.topic.comments = this.topic.comments.filter(
       (c) => c.id !== comment.id
     );
 
+    this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
     this.notificationsService.success('Comment removed');
   }
 
@@ -108,6 +108,7 @@ export class CommentsDetailComponent implements OnInit {
     // since comments that originally belonged to the viewpoint
     // are moved to general comments now
     this.topic.comments = [...this.topic.comments];
+    this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
   }
 
   showImageFullScreen(viewpoint: BcfViewpoint): void {
