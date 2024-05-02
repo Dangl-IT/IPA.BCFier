@@ -31,8 +31,8 @@ export class BackendService {
     private viewpointsClient: ViewpointsClient
   ) {}
 
-  importBcfFile(): Observable<BcfFileWrapper> {
-    return this.bcfConversionClient.importBcfFile();
+  importBcfFile(fileName?: string): Observable<BcfFileWrapper> {
+    return this.bcfConversionClient.importBcfFile(fileName);
   }
 
   exportBcfFile(bcfFile: BcfFileWrapper): Observable<BcfFileWrapper> {

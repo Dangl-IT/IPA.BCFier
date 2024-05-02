@@ -3,6 +3,7 @@ using System;
 using IPA.Bcfier.App.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IPA.Bcfier.App.Migrations
 {
     [DbContext(typeof(BcfierDbContext))]
-    partial class BcfierDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240502190902_LastOpenedFiles")]
+    partial class LastOpenedFiles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.4");

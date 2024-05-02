@@ -1,3 +1,5 @@
-@for(file of lastOpenedFiles() ;track file.id) {
-<button mat-menu-item>{{ file }}</button>
+@for(file of lastOpenedFiles() ;track file.fileName) {
+<button mat-menu-item [matTooltip]="file.fileName" (click)="openFile(file)">
+  {{ file.fileName | fileName }}
+</button>
 }

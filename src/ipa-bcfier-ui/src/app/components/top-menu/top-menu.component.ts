@@ -1,18 +1,11 @@
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-
-import { BackendService } from '../../services/BackendService';
-import { BcfFileWrapper } from '../../generated-client/generated-client';
-import { BcfFilesMessengerService } from '../../services/bcf-files-messenger.service';
-import { Component, OnDestroy, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { NotificationsService } from '../../services/notifications.service';
-import { SettingsComponent } from '../settings/settings.component';
-import { version } from '../../version';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
-import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
-import { MatMenuModule } from '@angular/material/menu';
-import { LastOpenedFilesComponent } from '../last-opened-files/last-opened-files.component';
+import {
+  BcfFileWrapper,
+  LastOpenedFileGet,
+  LastOpenedFilesClient,
+} from '../../generated-client/generated-client';
+import { Component, OnDestroy, inject } from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   Subject,
   combineLatestWith,
@@ -22,6 +15,18 @@ import {
   take,
   takeUntil,
 } from 'rxjs';
+
+import { BackendService } from '../../services/BackendService';
+import { BcfFilesMessengerService } from '../../services/bcf-files-messenger.service';
+import { LastOpenedFilesComponent } from '../last-opened-files/last-opened-files.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { NotificationsService } from '../../services/notifications.service';
+import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
+import { SettingsComponent } from '../settings/settings.component';
+import { version } from '../../version';
+
 @Component({
   selector: 'bcfier-top-menu',
   standalone: true,
@@ -42,12 +47,13 @@ export class TopMenuComponent implements OnDestroy {
   version = version.version;
   selectedProject$ = inject(SelectedProjectMessengerService).selectedProject;
   lastFileMenuOpened = false;
-  lastOpenedFiles: any[] = [];
+  lastOpenedFiles: LastOpenedFileGet[] = [];
   constructor(
     private backendService: BackendService,
     private notificationsService: NotificationsService,
     private bcfFilesMessengerService: BcfFilesMessengerService,
-    private matDialog: MatDialog
+    private matDialog: MatDialog,
+    private lastOpenedFilesClient: LastOpenedFilesClient
   ) {
     this.checkOpenedFileAndSendInfo();
   }
@@ -96,9 +102,13 @@ export class TopMenuComponent implements OnDestroy {
         combineLatestWith(this.selectedProject$)
       )
       .subscribe(([f, p]) => {
-        //TODO add new backend method to send data
-        console.log(f.fileName);
-        console.log(p?.id || null);
+        if (f.fileName) {
+          this.lastOpenedFilesClient
+            .setFileAsLastOpened(p?.id, f.fileName)
+            .subscribe(() => {
+              // Not doing anything with the response
+            });
+        }
       });
   }
 
@@ -108,13 +118,14 @@ export class TopMenuComponent implements OnDestroy {
       .pipe(
         take(1),
         switchMap((p) => {
-          console.log(p?.id || null);
-          //TODO add new backend method to get data
-          return of([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).pipe(delay(1000));
+          return this.lastOpenedFilesClient.getLastOpenedFiles(p?.id);
         })
       )
       .subscribe((f) => {
-        this.lastOpenedFiles = [...f];
+        if (f.lastOpenedFiles.length === 0) {
+          this.notificationsService.info('No last opened files found.');
+        }
+        this.lastOpenedFiles = [...f.lastOpenedFiles];
       });
   }
 }

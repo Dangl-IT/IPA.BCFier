@@ -24,39 +24,44 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BcfFileWrapper), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> ImportBcfFileAsync()
+        public async Task<IActionResult> ImportBcfFileAsync([FromQuery] string? filePath)
         {
-            var electronWindow = _electronWindowProvider.BrowserWindow;
-            if (electronWindow == null)
+            if (string.IsNullOrWhiteSpace(filePath))
             {
-                return BadRequest();
-            }
-
-            var fileSelectionResult = await Electron.Dialog.ShowOpenDialogAsync(electronWindow, new OpenDialogOptions
-            {
-                Filters = new []
+                var electronWindow = _electronWindowProvider.BrowserWindow;
+                if (electronWindow == null)
                 {
+                    return BadRequest();
+                }
+
+                var fileSelectionResult = await Electron.Dialog.ShowOpenDialogAsync(electronWindow, new OpenDialogOptions
+                {
+                    Filters = new[]
+                    {
                     new FileFilter
                     {
                         Name = "BCF File",
                         Extensions = new string[] { "bcf", "bcfzip" }
                     }
                 }
-            });
+                });
 
-            if (fileSelectionResult == null)
-            {
-                return NoContent();
+                if (fileSelectionResult == null)
+                {
+                    return NoContent();
+                }
+
+                filePath = fileSelectionResult.First();
             }
 
             try
             {
-                using var bcfFileStream = System.IO.File.OpenRead(fileSelectionResult.First());
-                var bcfFileName = Path.GetFileName(fileSelectionResult.FirstOrDefault());
+                using var bcfFileStream = System.IO.File.OpenRead(filePath);
+                var bcfFileName = Path.GetFileName(filePath);
                 var bcfResult = await new BcfImportService().ImportBcfFileAsync(bcfFileStream, bcfFileName ?? "issue.bcf");
                 return Ok(new BcfFileWrapper
                 {
-                    FileName = fileSelectionResult.First(),
+                    FileName = filePath,
                     BcfFile = bcfResult
                 });
             }
