@@ -20,7 +20,6 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { ProjectUserGet } from '../../generated-client/generated-client';
 
 export interface IFilters {
@@ -43,17 +42,6 @@ export interface IFilters {
     AsyncPipe,
     ReactiveFormsModule,
     MatDatepickerModule,
-  ],
-  providers: [
-    provideNativeDateAdapter({
-      parse: { dateInput: { month: 'short', year: 'numeric', day: 'numeric' } },
-      display: {
-        dateInput: 'input',
-        monthYearLabel: { year: 'numeric', month: 'short' },
-        dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric' },
-        monthYearA11yLabel: { year: 'numeric', month: 'long' },
-      },
-    }),
   ],
   styleUrl: './issue-filters.component.scss',
   templateUrl: './issue-filters.component.html',

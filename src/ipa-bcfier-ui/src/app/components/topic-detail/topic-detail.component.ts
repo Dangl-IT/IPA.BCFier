@@ -22,7 +22,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UsersService } from '../../services/users.service';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import {
   MessageType,
   TeamsMessengerService,
@@ -45,7 +44,6 @@ import {
     CommentsDetailComponent,
     MatDatepickerModule,
   ],
-  providers: [provideNativeDateAdapter()],
   templateUrl: './topic-detail.component.html',
   styleUrl: './topic-detail.component.scss',
 })

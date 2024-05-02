@@ -8,6 +8,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideToastr } from 'ngx-toastr';
 import { routes } from './app.routes';
+import {
+  MAT_DATE_LOCALE,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
 
 const frontendConfigService = new AppConfigService();
 
@@ -34,5 +38,7 @@ export const appConfig: ApplicationConfig = {
       preventDuplicates: true,
       closeButton: true,
     }),
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
+    provideNativeDateAdapter(),
   ],
 };
