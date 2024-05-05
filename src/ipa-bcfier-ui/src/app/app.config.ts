@@ -7,7 +7,6 @@ import { AppConfigService } from './services/AppConfigService';
 import { ApplicationConfig } from '@angular/core';
 import { BackendService } from './services/BackendService';
 import { IMAGE_CONFIG } from '@angular/common';
-import { RevitBackendService } from './services/RevitBackendService';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -23,9 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     {
       provide: BackendService,
-      useClass: frontendConfigService.getFrontendConfig().isInElectronMode
-        ? BackendService
-        : RevitBackendService,
+      useClass: BackendService,
     },
     {
       provide: IMAGE_CONFIG,
