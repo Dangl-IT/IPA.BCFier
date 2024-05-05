@@ -153,7 +153,7 @@ namespace IPA.Bcfier.Revit.Services
                     {
                         OriginatingSystem = versionName,
                         IfcGuid = ExportUtils.GetExportId(doc, x).ToIfcGuid(),
-#if REVIT_2021 || REVIT_2022 || REVIT_2023
+#if (REVIT_2021 || REVIT_2022 || REVIT_2023)
                         AuthoringToolId = x.IntegerValue.ToString()
 #else
                         AuthoringToolId = x.Value.ToString()
@@ -168,7 +168,7 @@ namespace IPA.Bcfier.Revit.Services
                     {
                         OriginatingSystem = versionName,
                         IfcGuid = ExportUtils.GetExportId(doc, x).ToIfcGuid(),
-#if REVIT_2021 || REVIT_2022 || REVIT_2023
+#if (REVIT_2021 || REVIT_2022 || REVIT_2023)
                         AuthoringToolId = x.IntegerValue.ToString()
 #else
                         AuthoringToolId = x.Value.ToString()
@@ -181,7 +181,7 @@ namespace IPA.Bcfier.Revit.Services
                 {
                     OriginatingSystem = versionName,
                     IfcGuid = IfcGuidExtensions.ToIfcGuid(ExportUtils.GetExportId(doc, x)),
-#if REVIT_2021 || REVIT_2022 || REVIT_2023
+#if (REVIT_2021 || REVIT_2022 || REVIT_2023)
                     AuthoringToolId = x.IntegerValue.ToString()
 #else
                     AuthoringToolId = x.Value.ToString()

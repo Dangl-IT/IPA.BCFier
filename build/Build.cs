@@ -34,6 +34,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.IO.Compression;
 using Nuke.Common.Utilities;
+using System.Configuration;
 
 class Build : NukeBuild
 {
@@ -250,17 +251,30 @@ export const version = {{
         .DependsOn(BuildElectronApp)
         .Executes(() =>
         {
-            CopyDirectoryRecursively(SourceDirectory / "ipa-bcfier-ui" / "dist" / "ipa-bcfier-ui" / "browser", SourceDirectory / "IPA.Bcfier.Revit" / "Resources" / "Browser", DirectoryExistsPolicy.Merge, FileExistsPolicy.Overwrite);
+            CopyDirectoryRecursively(SourceDirectory / "ipa-bcfier-ui" / "dist" / "ipa-bcfier-ui" / "browser",
+                SourceDirectory / "IPA.Bcfier.Revit" / "Resources" / "Browser",
+                DirectoryExistsPolicy.Merge,
+                FileExistsPolicy.Overwrite);
             var pluginOutputDirectory = OutputDirectory / "RevitPlugin";
 
-            DotNetBuild(c => c.SetProjectFile(SourceDirectory / "IPA.Bcfier.Revit" / "IPA.Bcfier.Revit.csproj")
-                            .SetConfiguration("Release")
-                            .SetOutputDirectory(pluginOutputDirectory)
-                            .SetAssemblyVersion(GitVersion.AssemblySemVer)
-                            .SetFileVersion(GitVersion.AssemblySemVer)
-                            .SetInformationalVersion(GitVersion.InformationalVersion)
-                            .EnableNoRestore());
-            SignExecutablesInFolder(pluginOutputDirectory, includeDll: true);
+            var configurations = new[]
+            {
+                "Release-2024",
+                "Release-2023",
+                "Release-2022",
+                "Release-2021"
+            };
+            foreach (var configuration in configurations)
+            {
+                var outputDirectory = pluginOutputDirectory / configuration;
+                DotNetBuild(c => c.SetProjectFile(SourceDirectory / "IPA.Bcfier.Revit" / "IPA.Bcfier.Revit.csproj")
+                                .SetConfiguration(configuration)
+                                .SetOutputDirectory(outputDirectory)
+                                .SetAssemblyVersion(GitVersion.AssemblySemVer)
+                                .SetFileVersion(GitVersion.AssemblySemVer)
+                                .SetInformationalVersion(GitVersion.InformationalVersion));
+                SignExecutablesInFolder(outputDirectory, includeDll: true);
+            }
 
             File.Copy(SourceDirectory / "IPA.Bcfier.Revit" / "Installer.iss", pluginOutputDirectory / "Installer.iss", overwrite: true);
 
@@ -271,11 +285,15 @@ export const version = {{
             ZipFile.ExtractToDirectory(zipStream, installerDirectory / "bcfier-app");
 
             CopyDirectoryRecursively(SourceDirectory / "IPA.Bcfier.Revit" / "InstallerAssets", installerDirectory / "InstallerAssets", DirectoryExistsPolicy.Merge, FileExistsPolicy.Overwrite);
-            File.Copy(pluginOutputDirectory / "Dangl.BCF.dll", installerDirectory / "Dangl.BCF.dll");
-            File.Copy(pluginOutputDirectory / "IPA.Bcfier.dll", installerDirectory / "IPA.Bcfier.dll");
-            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.dll", installerDirectory / "IPA.Bcfier.Revit.dll");
-            File.Copy(pluginOutputDirectory / "DecimalEx.dll", installerDirectory / "DecimalEx.dll");
-            File.Copy(pluginOutputDirectory / "IPA.Bcfier.Revit.addin", installerDirectory / "IPA.Bcfier.Revit.addin");
+            foreach (var configuration in configurations)
+            {
+                (installerDirectory / configuration).CreateOrCleanDirectory();
+                File.Copy(pluginOutputDirectory / configuration / "Dangl.BCF.dll", installerDirectory / configuration / "Dangl.BCF.dll");
+                File.Copy(pluginOutputDirectory / configuration / "IPA.Bcfier.dll", installerDirectory / configuration / "IPA.Bcfier.dll");
+                File.Copy(pluginOutputDirectory / configuration / "IPA.Bcfier.Revit.dll", installerDirectory / configuration / "IPA.Bcfier.Revit.dll");
+                File.Copy(pluginOutputDirectory / configuration / "DecimalEx.dll", installerDirectory / configuration / "DecimalEx.dll");
+                File.Copy(pluginOutputDirectory / configuration / "IPA.Bcfier.Revit.addin", installerDirectory / configuration / "IPA.Bcfier.Revit.addin");
+            }
 
             InnoSetup($"/dAppVersion=\"{GitVersion.AssemblySemVer}\" {pluginOutputDirectory / "Installer.iss"}");
 

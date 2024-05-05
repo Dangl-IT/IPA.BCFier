@@ -13,7 +13,6 @@ namespace IPA.Bcfier.Revit
     public class RevitTaskQueueHandler
     {
         public Queue<Func<string, Task>> OpenBcfFileCallbacks { get; } = new Queue<Func<string, Task>>();
-        public Queue<SaveBcfFileQueueItem> SaveBcfFileCallbacks { get; } = new Queue<SaveBcfFileQueueItem>();
         public Queue<Func<string, Task>> CreateRevitViewpointCallbacks { get; } = new Queue<Func<string, Task>>();
         public Queue<ShowViewpointQueueItem> ShowViewpointQueueItems { get; } = new Queue<ShowViewpointQueueItem>();
         private Queue<ViewContinuationInstructions> AfterViewCreationCallbackQueue { get; } = new Queue<ViewContinuationInstructions>();
@@ -36,12 +35,6 @@ namespace IPA.Bcfier.Revit
             {
                 var callback = OpenBcfFileCallbacks.Dequeue();
                 HandleOpenBcfFileCallback(callback);
-            }
-
-            if (SaveBcfFileCallbacks.Count > 0)
-            {
-                var saveBcfFileQueueItem = SaveBcfFileCallbacks.Dequeue();
-                HandleSaveBcfFileCallback(saveBcfFileQueueItem);
             }
 
             if (CreateRevitViewpointCallbacks.Count > 0)
@@ -133,34 +126,6 @@ namespace IPA.Bcfier.Revit
                 };
 
                 await callback(JsonConvert.SerializeObject(bcfResult, serializerSettings));
-            });
-        }
-
-        private void HandleSaveBcfFileCallback(SaveBcfFileQueueItem saveBcfFileQueueItem)
-        {
-            if (saveBcfFileQueueItem.BcfFile == null || saveBcfFileQueueItem.Callback == null)
-            {
-                return;
-            }
-
-            var saveFileDialog = new SaveFileDialog
-            {
-                Filter = "BCF Files (*.bcf)|*.bcf"
-            };
-
-            if (!saveFileDialog.ShowDialog() ?? false || saveFileDialog.FileName == null)
-            {
-                return;
-            }
-
-            var bcfFilePath = saveFileDialog.FileName;
-            Task.Run(async () =>
-            {
-                var bcfFileResult = new BcfExportService().ExportBcfFile(saveBcfFileQueueItem.BcfFile);
-                using var fs = File.Create(bcfFilePath);
-                await bcfFileResult.CopyToAsync(fs);
-
-                await saveBcfFileQueueItem.Callback.ExecuteAsync();
             });
         }
 
