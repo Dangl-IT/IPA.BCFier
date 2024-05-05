@@ -64,16 +64,6 @@ namespace IPA.Bcfier.Revit.Services
                                 orthoView.DisableTemporaryViewMode(TemporaryViewMode.TemporaryHideIsolate);
                             }
 
-                            var baseViewTemplate = new FilteredElementCollector(doc)
-                                .OfClass(typeof(View))
-                                .Cast<View>()
-                                .Where(view => view.IsTemplate && view.Name.Contains("3D") && view.Name.Contains("IPA BCF"))
-                                .FirstOrDefault();
-                            if (baseViewTemplate != null)
-                            {
-                                doc.ActiveView.ApplyViewTemplateParameters(baseViewTemplate);
-                            }
-
                             orthoView.SetOrientation(orient3D);
                             trans.Commit();
                         }
@@ -129,16 +119,6 @@ namespace IPA.Bcfier.Revit.Services
                                 perspView.DisableTemporaryViewMode(TemporaryViewMode.TemporaryHideIsolate);
                             }
 
-                            var baseViewTemplate = new FilteredElementCollector(doc)
-                                .OfClass(typeof(View))
-                                .Cast<View>()
-                                .Where(view => view.IsTemplate && view.Name.Contains("3D") && view.Name.Contains("IPA BCF"))
-                                .FirstOrDefault();
-                            if (baseViewTemplate != null)
-                            {
-                                doc.ActiveView.ApplyViewTemplateParameters(baseViewTemplate);
-                            }
-
                             perspView.SetOrientation(orient3D);
 
                             // turn off the far clip plane
@@ -168,6 +148,16 @@ namespace IPA.Bcfier.Revit.Services
                     if (bcfViewpoint.ViewpointComponents == null)
                     {
                         return;
+                    }
+
+                    var baseViewTemplate = new FilteredElementCollector(doc)
+                        .OfClass(typeof(View))
+                        .Cast<View>()
+                        .Where(view => view.IsTemplate && view.Name.Contains("3D") && view.Name.Contains("IPA BCF"))
+                        .FirstOrDefault();
+                    if (baseViewTemplate != null)
+                    {
+                        doc.ActiveView.ApplyViewTemplateParameters(baseViewTemplate);
                     }
 
                     var elementsToSelect = new List<ElementId>();
