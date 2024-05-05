@@ -39,22 +39,13 @@ namespace IPA.Bcfier.Revit.Services
                     var orient3D = RevitUtilities.ConvertBasePoint(doc, cameraViewPoint, cameraDirection, cameraUpVector, true);
 
                     View3D? orthoView = null;
-                    //if active view is 3d ortho use it
-                    if (doc.ActiveView.ViewType == ViewType.ThreeD)
+                    //try to use an existing 3D view
+                    IEnumerable<View3D> viewcollector3D = Get3DViews(doc);
+                    if (viewcollector3D.Any(o => o.Name == "BCF Coordination View"))
                     {
-                        var activeView3D = doc.ActiveView as View3D;
-                        if (activeView3D != null && !activeView3D.IsPerspective)
-                        {
-                            orthoView = activeView3D;
-                        }
+                        orthoView = viewcollector3D.First(o => o.Name == "BCF Coordination View");
                     }
-                    if (orthoView == null)
-                    {
-                        //try to use an existing 3D view
-                        IEnumerable<View3D> viewcollector3D = Get3DViews(doc);
-                        if (viewcollector3D.Any(o => o.Name == "IPA.BCFier Ortho"))
-                            orthoView = viewcollector3D.First(o => o.Name == "IPA.BCFier Ortho");
-                    }
+
                     using (var trans = new Transaction(_uiDocument.Document))
                     {
                         if (trans.Start("Open orthogonal view") == TransactionStatus.Started)
@@ -64,7 +55,7 @@ namespace IPA.Bcfier.Revit.Services
                             if (orthoView == null || uniqueView)
                             {
                                 orthoView = View3D.CreateIsometric(doc, GetFamilyViews(doc).First().Id);
-                                orthoView.Name = "IPA.BCFier Ortho";
+                                orthoView.Name = "BCF Coordination View";
                             }
                             else
                             {
@@ -72,6 +63,17 @@ namespace IPA.Bcfier.Revit.Services
                                 //placed this here because if set afterwards it doesn't work
                                 orthoView.DisableTemporaryViewMode(TemporaryViewMode.TemporaryHideIsolate);
                             }
+
+                            var baseViewTemplate = new FilteredElementCollector(doc)
+                                .OfClass(typeof(View))
+                                .Cast<View>()
+                                .Where(view => view.IsTemplate && view.Name.Contains("3D") && view.Name.Contains("IPA BCF"))
+                                .FirstOrDefault();
+                            if (baseViewTemplate != null)
+                            {
+                                doc.ActiveView.ApplyViewTemplateParameters(baseViewTemplate);
+                            }
+
                             orthoView.SetOrientation(orient3D);
                             trans.Commit();
                         }
@@ -108,8 +110,8 @@ namespace IPA.Bcfier.Revit.Services
                     View3D perspView = null;
                     //try to use an existing 3D view
                     IEnumerable<View3D> viewcollector3D = Get3DViews(doc);
-                    if (viewcollector3D.Any(o => o.Name == "IPA.BCFier Perspective"))
-                        perspView = viewcollector3D.First(o => o.Name == "IPA.BCFier Perspective");
+                    if (viewcollector3D.Any(o => o.Name == "BCF Coordination View Perspective"))
+                        perspView = viewcollector3D.First(o => o.Name == "BCF Coordination View Perspective");
 
                     using (var trans = new Transaction(_uiDocument.Document))
                     {
@@ -118,13 +120,23 @@ namespace IPA.Bcfier.Revit.Services
                             if (null == perspView || uniqueView)
                             {
                                 perspView = View3D.CreatePerspective(doc, GetFamilyViews(doc).First().Id);
-                                perspView.Name = "IPA.BCFier Perspective";
+                                perspView.Name = "BCF Coordination View Perspective";
                             }
                             else
                             {
                                 //reusing an existing view, I net to reset the visibility
                                 //placed this here because if set afterwards it doesn't work
                                 perspView.DisableTemporaryViewMode(TemporaryViewMode.TemporaryHideIsolate);
+                            }
+
+                            var baseViewTemplate = new FilteredElementCollector(doc)
+                                .OfClass(typeof(View))
+                                .Cast<View>()
+                                .Where(view => view.IsTemplate && view.Name.Contains("3D") && view.Name.Contains("IPA BCF"))
+                                .FirstOrDefault();
+                            if (baseViewTemplate != null)
+                            {
+                                doc.ActiveView.ApplyViewTemplateParameters(baseViewTemplate);
                             }
 
                             perspView.SetOrientation(orient3D);
