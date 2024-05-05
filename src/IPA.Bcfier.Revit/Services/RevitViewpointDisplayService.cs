@@ -20,11 +20,9 @@ namespace IPA.Bcfier.Revit.Services
             try
             {
                 Document doc = _uiDocument.Document;
-                // We might later want to change this so it can also optionally show the viewpoint
-                // in the current view
-                var uniqueView = true;
+                var uniqueView = false;
 
-                ElementId viewId = null;
+                ElementId? viewId = null;
                 // IS ORTHOGONAL
                 if (bcfViewpoint.OrthogonalCamera != null)
                 {
@@ -40,20 +38,22 @@ namespace IPA.Bcfier.Revit.Services
                     var cameraViewPoint = RevitUtilities.GetRevitXYZ(bcfViewpoint.OrthogonalCamera.ViewPoint);
                     var orient3D = RevitUtilities.ConvertBasePoint(doc, cameraViewPoint, cameraDirection, cameraUpVector, true);
 
-                    View3D orthoView = null;
+                    View3D? orthoView = null;
                     //if active view is 3d ortho use it
                     if (doc.ActiveView.ViewType == ViewType.ThreeD)
                     {
                         var activeView3D = doc.ActiveView as View3D;
-                        if (!activeView3D.IsPerspective)
+                        if (activeView3D != null && !activeView3D.IsPerspective)
+                        {
                             orthoView = activeView3D;
+                        }
                     }
                     if (orthoView == null)
                     {
                         //try to use an existing 3D view
                         IEnumerable<View3D> viewcollector3D = Get3DViews(doc);
-                        if (viewcollector3D.Any(o => o.Name == "{3D}" || o.Name == "BCFortho"))
-                            orthoView = viewcollector3D.First(o => o.Name == "{3D}" || o.Name == "BCFortho");
+                        if (viewcollector3D.Any(o => o.Name == "IPA.BCFier Ortho"))
+                            orthoView = viewcollector3D.First(o => o.Name == "IPA.BCFier Ortho");
                     }
                     using (var trans = new Transaction(_uiDocument.Document))
                     {
@@ -64,7 +64,7 @@ namespace IPA.Bcfier.Revit.Services
                             if (orthoView == null || uniqueView)
                             {
                                 orthoView = View3D.CreateIsometric(doc, GetFamilyViews(doc).First().Id);
-                                orthoView.Name = (uniqueView) ? "BCFortho" + DateTime.Now.ToString("yyyyMMddTHHmmss") : "BCFortho";
+                                orthoView.Name = "IPA.BCFier Ortho";
                             }
                             else
                             {
@@ -108,8 +108,8 @@ namespace IPA.Bcfier.Revit.Services
                     View3D perspView = null;
                     //try to use an existing 3D view
                     IEnumerable<View3D> viewcollector3D = Get3DViews(doc);
-                    if (viewcollector3D.Any(o => o.Name == "BCFpersp"))
-                        perspView = viewcollector3D.First(o => o.Name == "BCFpersp");
+                    if (viewcollector3D.Any(o => o.Name == "IPA.BCFier Perspective"))
+                        perspView = viewcollector3D.First(o => o.Name == "IPA.BCFier Perspective");
 
                     using (var trans = new Transaction(_uiDocument.Document))
                     {
@@ -118,7 +118,7 @@ namespace IPA.Bcfier.Revit.Services
                             if (null == perspView || uniqueView)
                             {
                                 perspView = View3D.CreatePerspective(doc, GetFamilyViews(doc).First().Id);
-                                perspView.Name = (uniqueView) ? "BCFpersp" + DateTime.Now.ToString("yyyyMMddTHHmmss") : "BCFpersp";
+                                perspView.Name = "IPA.BCFier Perspective";
                             }
                             else
                             {
