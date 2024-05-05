@@ -153,7 +153,11 @@ namespace IPA.Bcfier.Revit.Services
                     {
                         OriginatingSystem = versionName,
                         IfcGuid = ExportUtils.GetExportId(doc, x).ToIfcGuid(),
+#if REVIT_2021 || REVIT_2022 || REVIT_2023
+                        AuthoringToolId = x.IntegerValue.ToString()
+#else
                         AuthoringToolId = x.Value.ToString()
+#endif
                     }).ToList();
                 }
                 //list of visible components is smaller or equals the list of hidden components
@@ -164,7 +168,11 @@ namespace IPA.Bcfier.Revit.Services
                     {
                         OriginatingSystem = versionName,
                         IfcGuid = ExportUtils.GetExportId(doc, x).ToIfcGuid(),
+#if REVIT_2021 || REVIT_2022 || REVIT_2023
+                        AuthoringToolId = x.IntegerValue.ToString()
+#else
                         AuthoringToolId = x.Value.ToString()
+#endif
                     }).ToList();
                 }
 
@@ -173,7 +181,11 @@ namespace IPA.Bcfier.Revit.Services
                 {
                     OriginatingSystem = versionName,
                     IfcGuid = IfcGuidExtensions.ToIfcGuid(ExportUtils.GetExportId(doc, x)),
+#if REVIT_2021 || REVIT_2022 || REVIT_2023
+                    AuthoringToolId = x.IntegerValue.ToString()
+#else
                     AuthoringToolId = x.Value.ToString()
+#endif
                 }).ToList();
 
                 var snapshotBase64 = RevitUtilities.GetRevitSnapshotBase64(_uiDocument.Document);
