@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Revit.Models;
@@ -21,6 +22,8 @@ namespace IPA.Bcfier.Revit.Services
             {
                 Document doc = _uiDocument.Document;
                 var uniqueView = false;
+                double zoom;
+                var adjustZoomForOrthoView = false;
 
                 ElementId? viewId = null;
                 // IS ORTHOGONAL
@@ -32,7 +35,7 @@ namespace IPA.Bcfier.Revit.Services
                     }
 
                     //type = "OrthogonalCamera";
-                    var zoom = bcfViewpoint.OrthogonalCamera.ViewToWorldScale.ToFeet();
+                    zoom = bcfViewpoint.OrthogonalCamera.ViewToWorldScale.ToFeet();
                     var cameraDirection = RevitUtilities.GetRevitXYZ(bcfViewpoint.OrthogonalCamera.Direction);
                     var cameraUpVector = RevitUtilities.GetRevitXYZ(bcfViewpoint.OrthogonalCamera.UpVector);
                     var cameraViewPoint = RevitUtilities.GetRevitXYZ(bcfViewpoint.OrthogonalCamera.ViewPoint);
@@ -71,14 +74,7 @@ namespace IPA.Bcfier.Revit.Services
 
                     viewId = orthoView.Id;
                     _uiDocument.RequestViewChange(orthoView);
-                    //adjust view rectangle
-
-
-                    double x = zoom;
-                    //set UI view position and zoom
-                    XYZ m_xyzTl = _uiDocument.ActiveView.Origin.Add(_uiDocument.ActiveView.UpDirection.Multiply(x)).Subtract(_uiDocument.ActiveView.RightDirection.Multiply(x));
-                    XYZ m_xyzBr = _uiDocument.ActiveView.Origin.Subtract(_uiDocument.ActiveView.UpDirection.Multiply(x)).Add(_uiDocument.ActiveView.RightDirection.Multiply(x));
-                    _uiDocument.GetOpenUIViews().First().ZoomAndCenterRectangle(m_xyzTl, m_xyzBr);
+                    adjustZoomForOrthoView = true;
                 }
                 //perspective
                 else if (bcfViewpoint.PerspectiveCamera != null)
@@ -89,7 +85,7 @@ namespace IPA.Bcfier.Revit.Services
                     }
 
                     //not used since the fov cannot be changed in Revit
-                    var zoom = bcfViewpoint.PerspectiveCamera.FieldOfView;
+                    zoom = bcfViewpoint.PerspectiveCamera.FieldOfView;
                     //FOV - not used
 
                     var cameraDirection = RevitUtilities.GetRevitXYZ(bcfViewpoint.PerspectiveCamera.Direction);
@@ -148,6 +144,16 @@ namespace IPA.Bcfier.Revit.Services
                     if (bcfViewpoint.ViewpointComponents == null)
                     {
                         return;
+                    }
+
+                    if (adjustZoomForOrthoView)
+                    {
+                        //adjust view rectangle
+                        double x = zoom;
+                        //set UI view position and zoom
+                        XYZ m_xyzTl = _uiDocument.ActiveView.Origin.Add(_uiDocument.ActiveView.UpDirection.Multiply(x)).Subtract(_uiDocument.ActiveView.RightDirection.Multiply(x));
+                        XYZ m_xyzBr = _uiDocument.ActiveView.Origin.Subtract(_uiDocument.ActiveView.UpDirection.Multiply(x)).Add(_uiDocument.ActiveView.RightDirection.Multiply(x));
+                        _uiDocument.GetOpenUIViews().First().ZoomAndCenterRectangle(m_xyzTl, m_xyzBr);
                     }
 
                     var baseViewTemplate = new FilteredElementCollector(doc)
