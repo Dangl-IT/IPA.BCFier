@@ -30,11 +30,14 @@ namespace IPA.Bcfier.App
                 var window = await Electron.WindowManager.CreateWindowAsync(browserWindowOptions);
 
                 var hasRevitIntegration = false;
+                var hasNavisworksIntegration = false;
                 using (var scope = host.Services.CreateScope())
                 {
                     scope.ServiceProvider.GetRequiredService<ElectronWindowProvider>().SetBrowserWindow(window);
                     hasRevitIntegration = await Electron.App.CommandLine.HasSwitchAsync("revit-integration");
                     scope.ServiceProvider.GetRequiredService<RevitParameters>().IsConnectedToRevit = hasRevitIntegration;
+                    hasNavisworksIntegration = await Electron.App.CommandLine.HasSwitchAsync("navisworks-integration");
+                    scope.ServiceProvider.GetRequiredService<NavisworksParameters>().IsConnectedToNavisworks = hasNavisworksIntegration;
 
                     try
                     {
@@ -55,6 +58,25 @@ namespace IPA.Bcfier.App
                         try
                         {
                             using var ipcHandler = new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit");
+                            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                            {
+                                CorrelationId = Guid.NewGuid(),
+                                Command = IpcMessageCommand.AppClosed,
+                                Data = null
+                            }), timeout: 500);
+                        }
+                        catch (Exception ex)
+                        {
+                            // We're not really handling failures here, just write them to
+                            // the console and then continue with closing the window
+                            Console.WriteLine(ex);
+                        }
+                    }
+                    if (hasNavisworksIntegration)
+                    {
+                        try
+                        {
+                            using var ipcHandler = new IpcHandler(thisAppName: "BcfierAppNavisworks", otherAppName: "Navisworks");
                             await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
                             {
                                 CorrelationId = Guid.NewGuid(),

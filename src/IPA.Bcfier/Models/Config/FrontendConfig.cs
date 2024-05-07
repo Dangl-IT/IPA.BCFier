@@ -9,5 +9,8 @@ namespace IPA.Bcfier.Models.Config
 
         [Required]
         public bool IsConnectedToRevit { get; set; } = false;
+
+        [Required]
+        public bool IsConnectedToNavisworks { get; set; } = false;
     }
 }

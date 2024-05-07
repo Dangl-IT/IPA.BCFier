@@ -1521,6 +1521,7 @@ export interface BcfComment {
 export interface FrontendConfig {
     isInElectronMode: boolean;
     isConnectedToRevit: boolean;
+    isConnectedToNavisworks: boolean;
 }
 
 export interface LastOpenedFilesWrapperGet {

@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net481</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <DefineConstants Condition="$(Configuration.Contains('2021'))">$(DefineConstants);NAVISWORKS_2021</DefineConstants>
+    <DefineConstants Condition="$(Configuration.Contains('2022'))">$(DefineConstants);NAVISWORKS_2022</DefineConstants>
+    <DefineConstants Condition="$(Configuration.Contains('2023'))">$(DefineConstants);NAVISWORKS_2023</DefineConstants>
+    <Configurations>Debug;Release;Debug-2021;Debug-2022;Debug-2023;Debug-2024;Release-2021;Release-2022;Release-2023;Release-2024</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DecimalMath.DecimalEx" Version="1.0.2" />
+    <PackageReference Include="Speckle.Navisworks.API" Condition="$(Configuration.Contains('2024')) Or !$(Configuration.Contains('-20'))" Version="2024.0.0" IncludeAssets="compile;build" PrivateAssets="all" />
+    <PackageReference Include="Speckle.Navisworks.API" Condition="$(Configuration.Contains('2023'))" Version="2023.0.0" IncludeAssets="compile;build" PrivateAssets="all" />
+    <PackageReference Include="Speckle.Navisworks.API" Condition="$(Configuration.Contains('2022'))" Version="2022.0.0" IncludeAssets="compile;build" PrivateAssets="all" />
+    <PackageReference Include="Speckle.Navisworks.API" Condition="$(Configuration.Contains('2021'))" Version="2021.0.0" IncludeAssets="compile;build" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IPA.Bcfier\IPA.Bcfier.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="PackageContents.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

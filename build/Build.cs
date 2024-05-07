@@ -251,11 +251,13 @@ export const version = {{
         .DependsOn(BuildElectronApp)
         .Executes(() =>
         {
+
             CopyDirectoryRecursively(SourceDirectory / "ipa-bcfier-ui" / "dist" / "ipa-bcfier-ui" / "browser",
                 SourceDirectory / "IPA.Bcfier.Revit" / "Resources" / "Browser",
                 DirectoryExistsPolicy.Merge,
                 FileExistsPolicy.Overwrite);
-            var pluginOutputDirectory = OutputDirectory / "RevitPlugin";
+            var revitPluginOutputDirectory = OutputDirectory / "RevitPlugin";
+            var navisworksPluginOutputDirectory = OutputDirectory / "NavisworksPlugin";
 
             var configurations = new[]
             {
@@ -264,9 +266,11 @@ export const version = {{
                 "Release-2022",
                 "Release-2021"
             };
+
+            // Compiling Revit plugin
             foreach (var configuration in configurations)
             {
-                var outputDirectory = pluginOutputDirectory / configuration;
+                var outputDirectory = revitPluginOutputDirectory / configuration;
                 DotNetBuild(c => c.SetProjectFile(SourceDirectory / "IPA.Bcfier.Revit" / "IPA.Bcfier.Revit.csproj")
                                 .SetConfiguration(configuration)
                                 .SetOutputDirectory(outputDirectory)
@@ -276,9 +280,24 @@ export const version = {{
                 SignExecutablesInFolder(outputDirectory, includeDll: true);
             }
 
-            File.Copy(SourceDirectory / "IPA.Bcfier.Revit" / "Installer.iss", pluginOutputDirectory / "Installer.iss", overwrite: true);
+            // Compiling Navisworks plugin
+            XmlTasks.XmlPoke(SourceDirectory / "IPA.Bcfier.Navisworks" / "PackageContents.xml", "//ApplicationPackage/@AppVersion", GitVersion.NuGetVersion);
+            foreach (var configuration in configurations)
+            {
+                var outputDirectory = navisworksPluginOutputDirectory / configuration;
+                DotNetBuild(c => c.SetProjectFile(SourceDirectory / "IPA.Bcfier.Navisworks" / "IPA.Bcfier.Navisworks.csproj")
+                                .SetConfiguration(configuration)
+                                .SetOutputDirectory(outputDirectory)
+                                .SetAssemblyVersion(GitVersion.AssemblySemVer)
+                                .SetFileVersion(GitVersion.AssemblySemVer)
+                                .SetInformationalVersion(GitVersion.InformationalVersion));
+                SignExecutablesInFolder(outputDirectory, includeDll: true);
+                XmlTasks.XmlPoke(outputDirectory / "PackageContents.xml", "//ApplicationPackage[@AppVersion]", GitVersion.NuGetVersion);
+            }
 
-            var installerDirectory = pluginOutputDirectory / "Installer";
+            File.Copy(RootDirectory / "Installer.iss", OutputDirectory / "Installer.iss", overwrite: true);
+
+            var installerDirectory = OutputDirectory / "Installer";
             installerDirectory.CreateOrCleanDirectory();
 
             using var zipStream = File.OpenRead(OutputDirectory / "electron" / "IPA.Bcfier_Unzipped_Windows_X64.zip");
@@ -288,14 +307,23 @@ export const version = {{
             foreach (var configuration in configurations)
             {
                 (installerDirectory / configuration).CreateOrCleanDirectory();
-                File.Copy(pluginOutputDirectory / configuration / "Dangl.BCF.dll", installerDirectory / configuration / "Dangl.BCF.dll");
-                File.Copy(pluginOutputDirectory / configuration / "IPA.Bcfier.dll", installerDirectory / configuration / "IPA.Bcfier.dll");
-                File.Copy(pluginOutputDirectory / configuration / "IPA.Bcfier.Revit.dll", installerDirectory / configuration / "IPA.Bcfier.Revit.dll");
-                File.Copy(pluginOutputDirectory / configuration / "DecimalEx.dll", installerDirectory / configuration / "DecimalEx.dll");
-                File.Copy(pluginOutputDirectory / configuration / "IPA.Bcfier.Revit.addin", installerDirectory / configuration / "IPA.Bcfier.Revit.addin");
+                File.Copy(revitPluginOutputDirectory / configuration / "Dangl.BCF.dll", installerDirectory / configuration / "Dangl.BCF.dll");
+                File.Copy(revitPluginOutputDirectory / configuration / "IPA.Bcfier.dll", installerDirectory / configuration / "IPA.Bcfier.dll");
+                File.Copy(revitPluginOutputDirectory / configuration / "IPA.Bcfier.Revit.dll", installerDirectory / configuration / "IPA.Bcfier.Revit.dll");
+                File.Copy(revitPluginOutputDirectory / configuration / "DecimalEx.dll", installerDirectory / configuration / "DecimalEx.dll");
+                File.Copy(revitPluginOutputDirectory / configuration / "IPA.Bcfier.Revit.addin", installerDirectory / configuration / "IPA.Bcfier.Revit.addin");
+            }
+            foreach (var configuration in configurations)
+            {
+                (installerDirectory / configuration).CreateOrCleanDirectory();
+                File.Copy(navisworksPluginOutputDirectory / configuration / "Dangl.BCF.dll", installerDirectory / configuration / "Dangl.BCF.dll");
+                File.Copy(navisworksPluginOutputDirectory / configuration / "IPA.Bcfier.dll", installerDirectory / configuration / "IPA.Bcfier.dll");
+                File.Copy(navisworksPluginOutputDirectory / configuration / "IPA.Bcfier.Navisworks.dll", installerDirectory / configuration / "IPA.Bcfier.Navisworks.dll");
+                File.Copy(navisworksPluginOutputDirectory / configuration / "DecimalEx.dll", installerDirectory / configuration / "DecimalEx.dll");
+                File.Copy(navisworksPluginOutputDirectory / configuration / "Newtonsoft.Json.dll", installerDirectory / configuration / "Newtonsoft.Json.dll");
             }
 
-            InnoSetup($"/dAppVersion=\"{GitVersion.AssemblySemVer}\" {pluginOutputDirectory / "Installer.iss"}");
+            InnoSetup($"/dAppVersion=\"{GitVersion.AssemblySemVer}\" {OutputDirectory / "Installer.iss"}");
 
             SignExecutablesInFolder(installerDirectory / "output", false);
         });
@@ -305,7 +333,7 @@ export const version = {{
         .Executes(() =>
         {
             var changeLog = GetCompleteChangeLog(ChangeLogFile);
-            var assets = (OutputDirectory / "RevitPlugin" / "Installer" / "output").GlobFiles("*.exe")
+            var assets = (OutputDirectory / "output").GlobFiles("*.exe")
                 .Select(f => f.ToString())
                 .ToArray();
             Assert.NotEmpty(assets);

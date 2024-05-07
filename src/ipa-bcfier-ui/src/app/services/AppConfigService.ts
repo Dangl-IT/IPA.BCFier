@@ -8,6 +8,7 @@ export class AppConfigService {
   private defaultFrontendConfig: FrontendConfig = {
     isInElectronMode: false,
     isConnectedToRevit: false,
+    isConnectedToNavisworks: false,
   };
 
   getFrontendConfig(): FrontendConfig {

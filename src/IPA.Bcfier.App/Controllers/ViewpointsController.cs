@@ -1,4 +1,5 @@
 ﻿using Dangl.Data.Shared;
+using IPA.Bcfier.App.Configuration;
 using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Bcf;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +12,22 @@ namespace IPA.Bcfier.App.Controllers
     [Route("api/viewpoints")]
     public class ViewpointsController : ControllerBase
     {
+        private readonly RevitParameters _revitParameters;
+        private readonly NavisworksParameters _navisworksParameters;
+
+        public ViewpointsController(RevitParameters revitParameters,
+            NavisworksParameters navisworksParameters)
+        {
+            _revitParameters = revitParameters;
+            _navisworksParameters = navisworksParameters;
+        }
+
         [HttpPost("visualization")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ShowViewpointAsync([FromBody] BcfViewpoint viewpoint)
         {
-            using var ipcHandler = new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit");
+            using var ipcHandler = GetIpcHandler();
             await ipcHandler.InitializeAsync();
 
             var correlationId = Guid.NewGuid();
@@ -54,7 +65,7 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType(typeof(BcfViewpoint), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateViewpointAsync()
         {
-            using var ipcHandler = new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit");
+            using var ipcHandler = GetIpcHandler();
             await ipcHandler.InitializeAsync();
 
             var correlationId = Guid.NewGuid();
@@ -86,6 +97,19 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             return BadRequest();
+        }
+
+        private IpcHandler GetIpcHandler()
+        {
+            if (_revitParameters.IsConnectedToRevit)
+            {
+                return new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit");
+
+            }
+
+            // We're assuming it's Navisworks then, since we don't have another possibility
+            // at the moment
+            return new IpcHandler(thisAppName: "BcfierAppNavisworks", otherAppName: "Navisworks");
         }
     }
 }

@@ -58,7 +58,10 @@ export class BackendService {
   }
 
   addViewpoint(): Observable<BcfViewpoint | null> {
-    if (this.appConfigService.getFrontendConfig().isConnectedToRevit) {
+    if (
+      this.appConfigService.getFrontendConfig().isConnectedToRevit ||
+      this.appConfigService.getFrontendConfig().isConnectedToNavisworks
+    ) {
       this.loadingService.showLoadingScreen();
 
       return this.viewpointsClient.createViewpoint().pipe(
@@ -90,7 +93,10 @@ export class BackendService {
   }
 
   selectViewpoint(viewpoint: BcfViewpoint): void {
-    if (this.appConfigService.getFrontendConfig().isConnectedToRevit) {
+    if (
+      this.appConfigService.getFrontendConfig().isConnectedToRevit ||
+      this.appConfigService.getFrontendConfig().isConnectedToNavisworks
+    ) {
       this.loadingService.showLoadingScreen();
       this.viewpointsClient.showViewpoint(viewpoint).subscribe({
         next: () => this.loadingService.hideLoadingScreen(),

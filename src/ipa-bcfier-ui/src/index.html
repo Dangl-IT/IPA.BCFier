@@ -12,7 +12,8 @@
       if (
         window.ipaBcfierFrontendConfig &&
         window.ipaBcfierFrontendConfig.isInElectronMode &&
-        window.ipaBcfierFrontendConfig.isConnectedToRevit
+        (window.ipaBcfierFrontendConfig.isConnectedToRevit ||
+          window.ipaBcfierFrontendConfig.isConnectedToNavisworks)
       ) {
         const { ipcRenderer } = require("electron");
         let hasUnloaded = false;

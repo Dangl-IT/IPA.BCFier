@@ -13,10 +13,13 @@ namespace IPA.Bcfier.App.Controllers
     {
         private static string? _frontendConfig;
         private readonly RevitParameters _revitParameters;
+        private readonly NavisworksParameters _navisworksParameters;
 
-        public FrontendConfigController(RevitParameters revitParameters)
+        public FrontendConfigController(RevitParameters revitParameters,
+            NavisworksParameters navisworksParameters)
         {
             _revitParameters = revitParameters;
+            _navisworksParameters = navisworksParameters;
         }
 
         [HttpGet("config.js")]
@@ -90,7 +93,8 @@ window.ipaBcfierFrontendConfig = "
             return new FrontendConfig
             {
                 IsInElectronMode = true,
-                IsConnectedToRevit = _revitParameters.IsConnectedToRevit
+                IsConnectedToRevit = _revitParameters.IsConnectedToRevit,
+                IsConnectedToNavisworks = _navisworksParameters.IsConnectedToNavisworks
             };
         }
     }

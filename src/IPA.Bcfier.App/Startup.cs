@@ -20,6 +20,7 @@ namespace IPA.Bcfier.App
             services.AddTransient<SettingsService>();
             services.AddHttpContextAccessor();
             services.AddSingleton(new RevitParameters());
+            services.AddSingleton(new NavisworksParameters());
             services.AddHttpClient<TeamsMessagesService>();
 
             services.Configure<ApiBehaviorOptions>(options =>
