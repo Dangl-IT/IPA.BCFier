@@ -325,7 +325,7 @@ export const version = {{
 
             InnoSetup($"/dAppVersion=\"{GitVersion.AssemblySemVer}\" {OutputDirectory / "Installer.iss"}");
 
-            SignExecutablesInFolder(installerDirectory / "output", false);
+            SignExecutablesInFolder(OutputDirectory / "output" / "Installer", false);
         });
 
     Target UploadRevitPlugin => _ => _
@@ -333,7 +333,7 @@ export const version = {{
         .Executes(() =>
         {
             var changeLog = GetCompleteChangeLog(ChangeLogFile);
-            var assets = (OutputDirectory / "output").GlobFiles("*.exe")
+            var assets = (OutputDirectory / "output" / "Installer").GlobFiles("*.exe")
                 .Select(f => f.ToString())
                 .ToArray();
             Assert.NotEmpty(assets);
