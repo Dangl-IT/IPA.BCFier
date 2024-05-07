@@ -292,7 +292,6 @@ export const version = {{
                                 .SetFileVersion(GitVersion.AssemblySemVer)
                                 .SetInformationalVersion(GitVersion.InformationalVersion));
                 SignExecutablesInFolder(outputDirectory, includeDll: true);
-                XmlTasks.XmlPoke(outputDirectory / "PackageContents.xml", "//ApplicationPackage[@AppVersion]", GitVersion.NuGetVersion);
             }
 
             File.Copy(RootDirectory / "Installer.iss", OutputDirectory / "Installer.iss", overwrite: true);
