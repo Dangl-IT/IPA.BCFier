@@ -3,6 +3,8 @@ import {
   ChangeDetectorRef,
   Component,
   Inject,
+  OnDestroy,
+  inject,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -18,19 +20,21 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { EMPTY, Observable, filter, map, switchMap, tap } from 'rxjs';
+import { EMPTY, Observable, Subject, filter, map, switchMap, tap } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { AsyncPipe } from '@angular/common';
 import {
   ProjectGet,
   ProjectUserGet,
   ProjectUsersClient,
+  UsersClient,
 } from '../../generated-client/generated-client';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { UsersService } from '../../services/users.service';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 @Component({
   selector: 'bcfier-project-details',
   standalone: true,
@@ -45,12 +49,13 @@ import { UsersService } from '../../services/users.service';
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
+    MatAutocompleteModule,
   ],
   templateUrl: './project-details.component.html',
   styleUrl: './project-details.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProjectDetailsComponent {
+export class ProjectDetailsComponent implements OnDestroy {
   users$: Observable<ProjectUserGet[]> | null = null;
   projectDetailsForm = this.fb.group({
     name: ['', Validators.required],
@@ -59,6 +64,8 @@ export class ProjectDetailsComponent {
   });
   panelOpenState = false;
   identifier = '';
+  private allUsers$ = inject(UsersClient).getAllUsers();
+  filteredUsers$ = new Subject<string[]>();
   constructor(
     public dialogRef: MatDialogRef<ProjectDetailsComponent>,
     @Inject(MAT_DIALOG_DATA)
@@ -77,6 +84,25 @@ export class ProjectDetailsComponent {
       });
       this.users$ = this.getProjectUsers(data.id);
     }
+    this.filterUsers();
+  }
+
+  filterUsers(): void {
+    this.allUsers$.subscribe((users) => {
+      if (this.identifier) {
+        this.filteredUsers$.next(
+          users.filter(
+            (u) => u.toLowerCase().indexOf(this.identifier.toLowerCase()) !== -1
+          )
+        );
+      } else {
+        this.filteredUsers$.next(users);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.filteredUsers$.complete();
   }
 
   getProjectUsers(projectId: string): Observable<ProjectUserGet[]> {

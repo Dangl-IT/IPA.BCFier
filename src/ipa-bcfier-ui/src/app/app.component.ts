@@ -4,7 +4,6 @@ import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import {
   Observable,
   Subject,
-  combineLatest,
   filter,
   map,
   of,
