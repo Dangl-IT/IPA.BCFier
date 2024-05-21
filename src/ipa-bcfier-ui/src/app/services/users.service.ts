@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, ReplaySubject, filter, switchMap } from 'rxjs';
+import { BehaviorSubject, ReplaySubject, filter, switchMap, take } from 'rxjs';
 import {
   ProjectUserGet,
   ProjectUsersClient,
 } from '../generated-client/generated-client';
+
+import { Injectable } from '@angular/core';
 import { SelectedProjectMessengerService } from './selected-project-messenger.service';
 
 @Injectable({
@@ -23,7 +24,21 @@ export class UsersService {
     this.usersSource.next(users);
   }
 
-  getAllUsers(): void {
+  refreshUsers(): void {
+    this.selectedProjectMessengerService.selectedProject
+      .pipe(take(1))
+      .subscribe((project) => {
+        if (project) {
+          this.projectUsersClient
+            .getProjectUsersForProject(project.id)
+            .subscribe((users) => {
+              this.setUsers(users);
+            });
+        }
+      });
+  }
+
+  private getAllUsers(): void {
     this.selectedProjectMessengerService.selectedProject
       .pipe(
         filter((p) => !!p),

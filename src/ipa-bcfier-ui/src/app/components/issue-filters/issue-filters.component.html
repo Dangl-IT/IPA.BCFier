@@ -18,7 +18,12 @@
     </mat-form-field>
     <mat-form-field class="dark-theme">
       <mat-label>Responsible</mat-label>
-      <mat-select formControlName="users" multiple panelClass="panel-bg">
+      <mat-select
+        formControlName="users"
+        multiple
+        panelClass="panel-bg"
+        (opened)="refreshUsers()"
+      >
         @for (user of (users$ | async); track user.id) {
         <mat-option [value]="user.identifier">{{ user.identifier }}</mat-option>
         }

@@ -6,21 +6,21 @@ import {
   Output,
   inject,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-
-import { AsyncPipe } from '@angular/common';
-
-import { Observable } from 'rxjs';
 import {
-  FormControl,
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
 } from '@angular/forms';
+
+import { AsyncPipe } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { Observable } from 'rxjs';
 import { ProjectUserGet } from '../../generated-client/generated-client';
+import { UsersService } from '../../services/users.service';
 
 export interface IFilters {
   status: FormControl<string>;
@@ -62,6 +62,7 @@ export class IssueFiltersComponent {
     required: true,
   })
   users$!: Observable<ProjectUserGet[]>;
+  usersService = inject(UsersService);
 
   @Output()
   acceptedFilters = new EventEmitter<FormGroup<IFilters>>();
@@ -88,5 +89,9 @@ export class IssueFiltersComponent {
   clearFilters(): void {
     this.filtersForm.reset();
     this.acceptedFilters.emit(this.filtersForm);
+  }
+
+  refreshUsers(): void {
+    this.usersService.refreshUsers();
   }
 }

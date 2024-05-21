@@ -24,6 +24,7 @@ import {
   combineLatestWith,
   filter,
   switchMap,
+  take,
   takeUntil,
   tap,
 } from 'rxjs';
@@ -180,7 +181,10 @@ export class ProjectsTableComponent
         switchMap((newProject: ProjectPost) => {
           return this.projectsClient
             .createProject(newProject)
-            .pipe(combineLatestWith(this.settingsMessengerService.settings));
+            .pipe(
+              combineLatestWith(this.settingsMessengerService.settings),
+              take(1)
+            );
         }),
 
         switchMap(([p, s]) => {

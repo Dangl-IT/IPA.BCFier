@@ -5,6 +5,10 @@ import {
 } from '../../generated-client/generated-client';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {
+  MessageType,
+  TeamsMessengerService,
+} from '../../services/teams-messenger.service';
 
 import { AddStringValueComponent } from '../add-string-value/add-string-value.component';
 import { BackendService } from '../../services/BackendService';
@@ -22,10 +26,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UsersService } from '../../services/users.service';
-import {
-  MessageType,
-  TeamsMessengerService,
-} from '../../services/teams-messenger.service';
 
 @Component({
   selector: 'bcfier-topic-detail',
@@ -60,6 +60,7 @@ export class TopicDetailComponent implements OnInit {
   issueTypes$ = this.issueTypesService.issueTypes;
   isTitleChangeFirstTime = false;
   defaultTopicTitle = 'New Issue';
+  usersService = inject(UsersService);
   constructor(
     private matDialog: MatDialog,
     private backendService: BackendService
@@ -148,5 +149,9 @@ export class TopicDetailComponent implements OnInit {
     if (e === this.defaultTopicTitle) {
       this.isTitleChangeFirstTime = true;
     }
+  }
+
+  refreshUsers(): void {
+    this.usersService.refreshUsers();
   }
 }
