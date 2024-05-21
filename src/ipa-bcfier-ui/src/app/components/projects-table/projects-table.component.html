@@ -3,9 +3,11 @@
     <mat-label>Filter</mat-label>
     <input matInput (keyup)="applyFilter(filter)" [(ngModel)]="filter" />
   </mat-form-field>
+  @if(shouldEnableProjectManagement) {
   <button mat-mini-fab color="primary" (click)="createProject()">
     <mat-icon>add</mat-icon>
   </button>
+  }
 </div>
 
 <div class="table-wrap mat-elevation-z8">
@@ -33,13 +35,14 @@
             @if(row.id === selectedProject?.id) { bookmark } @else {
             bookmark_border }
           </mat-icon>
-
+          @if(shouldEnableProjectManagement) {
           <mat-icon
             color="warn"
             (click)="$event.stopPropagation(); deleteProject(row.id)"
           >
             delete
           </mat-icon>
+          }
         </div>
       </td>
     </ng-container>
@@ -49,7 +52,7 @@
       class="project-row"
       mat-row
       *matRowDef="let row; columns: displayedColumns"
-      (click)="openProjectDetails(row)"
+      (click)="projectClicked(row)"
     ></tr>
 
     <tr class="mat-row" *matNoDataRow>

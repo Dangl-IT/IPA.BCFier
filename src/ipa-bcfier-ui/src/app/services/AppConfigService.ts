@@ -17,4 +17,11 @@ export class AppConfigService {
       this.defaultFrontendConfig
     );
   }
+
+  shouldEnableProjectManagementFeatures(): boolean {
+    return (
+      !this.getFrontendConfig().isConnectedToNavisworks &&
+      !this.getFrontendConfig().isConnectedToRevit
+    );
+  }
 }

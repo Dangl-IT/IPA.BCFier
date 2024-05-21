@@ -28,6 +28,7 @@ import {
   tap,
 } from 'rxjs';
 
+import { AppConfigService } from '../../services/AppConfigService';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,8 +39,8 @@ import { MatInputModule } from '@angular/material/input';
 import { NotificationsService } from '../../services/notifications.service';
 import { ProjectDetailsComponent } from '../project-details/project-details.component';
 import { ProjectsService } from '../../services/light-query/projects.service';
-import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
+import { SettingsMessengerService } from '../../services/settings-messenger.service';
 
 @Component({
   selector: 'bcfier-projects-table',
@@ -75,12 +76,15 @@ export class ProjectsTableComponent
   projectUsersClient = inject(ProjectUsersClient);
   matDialog = inject(MatDialog);
   cdr = inject(ChangeDetectorRef);
+  appConfigService = inject(AppConfigService);
 
   private destroyed$ = new Subject<void>();
   dataSource!: MatTableDataSource<ProjectGet>;
   displayedColumns = ['name', 'created', 'actions'];
   filter = '';
   selectedProject: ProjectGet | null = null;
+  shouldEnableProjectManagement =
+    this.appConfigService.shouldEnableProjectManagementFeatures();
 
   constructor() {
     this.projectsService
@@ -123,7 +127,15 @@ export class ProjectsTableComponent
     }
   }
 
-  openProjectDetails(project: ProjectGet): void {
+  projectClicked(project: ProjectGet): void {
+    if (this.shouldEnableProjectManagement) {
+      this.openProjectDetails(project);
+    } else {
+      this.setSelectedProject(project);
+    }
+  }
+
+  private openProjectDetails(project: ProjectGet): void {
     this.matDialog
       .open(ProjectDetailsComponent, {
         autoFocus: false,
