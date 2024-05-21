@@ -46,7 +46,7 @@ namespace IPA.Bcfier.App.Controllers
                 }
                 });
 
-                if (fileSelectionResult == null)
+                if (fileSelectionResult == null || fileSelectionResult.Length == 0)
                 {
                     return NoContent();
                 }
@@ -102,7 +102,7 @@ namespace IPA.Bcfier.App.Controllers
                 }
             });
 
-            if (fileSaveSelectResult == null)
+            if (fileSaveSelectResult == null || fileSaveSelectResult.Length == 0)
             {
                 return NoContent();
             }
