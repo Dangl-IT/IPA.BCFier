@@ -25,7 +25,8 @@ namespace IPA.Bcfier.App
                     Icon = Path.Combine(Directory.GetCurrentDirectory(), "bcfier.png"),
                     Height = 800,
                     Width = 1200,
-                    AutoHideMenuBar = true
+                    AutoHideMenuBar = true,
+                    AlwaysOnTop = true
                 };
                 var window = await Electron.WindowManager.CreateWindowAsync(browserWindowOptions);
 
