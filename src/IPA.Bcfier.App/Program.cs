@@ -32,6 +32,7 @@ namespace IPA.Bcfier.App
 
                 var hasRevitIntegration = false;
                 var hasNavisworksIntegration = false;
+                string? appCorrelationId = null;
                 using (var scope = host.Services.CreateScope())
                 {
                     scope.ServiceProvider.GetRequiredService<ElectronWindowProvider>().SetBrowserWindow(window);
@@ -39,6 +40,7 @@ namespace IPA.Bcfier.App
                     scope.ServiceProvider.GetRequiredService<RevitParameters>().IsConnectedToRevit = hasRevitIntegration;
                     hasNavisworksIntegration = await Electron.App.CommandLine.HasSwitchAsync("navisworks-integration");
                     scope.ServiceProvider.GetRequiredService<NavisworksParameters>().IsConnectedToNavisworks = hasNavisworksIntegration;
+                    appCorrelationId = await Electron.App.CommandLine.GetSwitchValueAsync("app-correlation-id");
 
                     var revitProjectPath = await Electron.App.CommandLine.GetSwitchValueAsync("revit-project-path");
                     if (!string.IsNullOrWhiteSpace(revitProjectPath))
@@ -60,16 +62,18 @@ namespace IPA.Bcfier.App
 
                 await Electron.IpcMain.On("closeApp", async (e) =>
                 {
-                    if (hasRevitIntegration)
+                    if (!string.IsNullOrWhiteSpace(appCorrelationId))
                     {
-                        try
+                        if (hasRevitIntegration)
+                        {
+                            try
                         {
                             using var ipcHandler = new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit");
                             await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
                             {
                                 CorrelationId = Guid.NewGuid(),
                                 Command = IpcMessageCommand.AppClosed,
-                                Data = null
+                                    Data = appCorrelationId
                             }), timeout: 500);
                         }
                         catch (Exception ex)
@@ -88,7 +92,7 @@ namespace IPA.Bcfier.App
                             {
                                 CorrelationId = Guid.NewGuid(),
                                 Command = IpcMessageCommand.AppClosed,
-                                Data = null
+                                    Data = appCorrelationId
                             }), timeout: 500);
                         }
                         catch (Exception ex)
@@ -96,6 +100,7 @@ namespace IPA.Bcfier.App
                             // We're not really handling failures here, just write them to
                             // the console and then continue with closing the window
                             Console.WriteLine(ex);
+                            }
                         }
                     }
                     window.Close();

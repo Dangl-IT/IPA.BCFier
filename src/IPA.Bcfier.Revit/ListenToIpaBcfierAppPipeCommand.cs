@@ -20,16 +20,18 @@ namespace IPA.Bcfier.Revit
                 return Result.Succeeded;
             }
 
+            var appCorrelationId = Guid.NewGuid().ToString();
             OpenIpaBcfierApp(() =>
             {
                 _bcfierAppProcess = null;
-            }, commandData.Application.ActiveUIDocument.Document.PathName);
+            }, commandData.Application.ActiveUIDocument.Document.PathName,
+               appCorrelationId);
 
             var ipcHandler = new IpcHandler(thisAppName: "Revit", otherAppName: "BcfierApp");
             ipcHandler.InitializeAsync().ConfigureAwait(true).GetAwaiter().GetResult();
 
             var taskQueueHandler = new RevitTaskQueueHandler();
-            var commandListener = new IpcBcfierCommandListener(ipcHandler, taskQueueHandler);
+            var commandListener = new IpcBcfierCommandListener(ipcHandler, taskQueueHandler, appCorrelationId);
             commandListener.Listen();
             commandData.Application.Idling += taskQueueHandler.OnIdling;
 
@@ -38,7 +40,9 @@ namespace IPA.Bcfier.Revit
 
         private static Process? _bcfierAppProcess;
 
-        private static void OpenIpaBcfierApp(Action onExited, string revitProjectPath)
+        private static void OpenIpaBcfierApp(Action onExited,
+            string revitProjectPath,
+            string appCorrelationId)
         {
             if (_bcfierAppProcess != null && !_bcfierAppProcess.HasExited)
             {
@@ -51,7 +55,7 @@ namespace IPA.Bcfier.Revit
                 throw new SystemException("IPA.BCFier.App executable not found.");
             }
 
-            var arguments = "--revit-integration";
+            var arguments = $"--revit-integration --app-correlation-id \"{appCorrelationId}\"";
             if (!string.IsNullOrWhiteSpace(revitProjectPath))
             {
                 arguments += $" --revit-project-path \"{revitProjectPath}\"";

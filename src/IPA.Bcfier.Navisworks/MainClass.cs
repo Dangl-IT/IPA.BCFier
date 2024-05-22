@@ -22,22 +22,24 @@ namespace IPA.Bcfier.Navisworks
             }
 
             var taskQueueHandler = new NavisworksTaskQueueHandler();
+            var appCorrelationId = Guid.NewGuid().ToString();
             OpenIpaBcfierApp(() =>
             {
                 _bcfierAppProcess = null;
-            });
+            }, appCorrelationId);
 
             var ipcHandler = new IpcHandler(thisAppName: "Navisworks", otherAppName: "BcfierAppNavisworks");
             ipcHandler.InitializeAsync().ConfigureAwait(true).GetAwaiter().GetResult();
 
-            var commandListener = new IpcNavisworksCommandListener(ipcHandler, taskQueueHandler);
+            var commandListener = new IpcNavisworksCommandListener(ipcHandler, taskQueueHandler, appCorrelationId);
             commandListener.Listen();
             Autodesk.Navisworks.Api.Application.Idle += taskQueueHandler.OnIdling;
 
             return 0;
         }
 
-        private static void OpenIpaBcfierApp(Action onExited)
+        private static void OpenIpaBcfierApp(Action onExited,
+            string appCorrelationId)
         {
             if (_bcfierAppProcess != null && !_bcfierAppProcess.HasExited)
             {
@@ -50,7 +52,9 @@ namespace IPA.Bcfier.Navisworks
                 throw new SystemException("IPA.BCFier.App executable not found.");
             }
 
-            _bcfierAppProcess = Process.Start(ipaBcfierExecutablePath, "--navisworks-integration");
+            var arguments = $"--navisworks-integration --app-correlation-id \"{appCorrelationId}\"";
+
+            _bcfierAppProcess = Process.Start(ipaBcfierExecutablePath, arguments);
             _bcfierAppProcess.Exited += (sender, args) =>
             {
                 onExited();

@@ -1,4 +1,4 @@
-﻿using IPA.Bcfier.Ipc;
+using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Bcf;
 using Newtonsoft.Json;
 
@@ -8,13 +8,16 @@ namespace IPA.Bcfier.Revit
     {
         private readonly IpcHandler _ipcHandler;
         private readonly RevitTaskQueueHandler _revitTaskQueueHandler;
+        private readonly string _appCorrelationId;
         private bool _isRunning = true;
 
         public IpcBcfierCommandListener(IpcHandler ipcHandler,
-            RevitTaskQueueHandler revitTaskQueueHandler)
+            RevitTaskQueueHandler revitTaskQueueHandler,
+            string appCorrelationId)
         {
             _ipcHandler = ipcHandler;
             _revitTaskQueueHandler = revitTaskQueueHandler;
+            _appCorrelationId = appCorrelationId;
         }
 
         public void Listen()
@@ -29,7 +32,10 @@ namespace IPA.Bcfier.Revit
                         switch (ipcMessage.Command)
                         {
                             case IpcMessageCommand.AppClosed:
+                                if (ipcMessage.Data == _appCorrelationId)
+                                {
                                 _isRunning = false;
+                                }
                                 break;
 
                             case IpcMessageCommand.CreateViewpoint:

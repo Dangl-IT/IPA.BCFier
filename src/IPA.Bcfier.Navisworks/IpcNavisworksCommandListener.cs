@@ -9,13 +9,16 @@ namespace IPA.Bcfier.Navisworks
     {
         private readonly IpcHandler _ipcHandler;
         private readonly NavisworksTaskQueueHandler _navisworksTaskHandler;
+        private readonly string _appCorrelationId;
         private bool _isRunning = true;
 
         public IpcNavisworksCommandListener(IpcHandler ipcHandler,
-            NavisworksTaskQueueHandler navisworksTaskHandler)
+            NavisworksTaskQueueHandler navisworksTaskHandler,
+            string appCorrelationId)
         {
             _ipcHandler = ipcHandler;
             _navisworksTaskHandler = navisworksTaskHandler;
+            _appCorrelationId = appCorrelationId;
         }
 
         public void Listen()
@@ -30,7 +33,10 @@ namespace IPA.Bcfier.Navisworks
                         switch (ipcMessage.Command)
                         {
                             case IpcMessageCommand.AppClosed:
-                                _isRunning = false;
+                                if (ipcMessage.Data == _appCorrelationId)
+                                {
+                                    _isRunning = false;
+                                }
                                 break;
 
                             case IpcMessageCommand.CreateViewpoint:
