@@ -10,6 +10,7 @@ import {
   Subject,
   combineLatestWith,
   delay,
+  distinctUntilChanged,
   of,
   switchMap,
   take,
@@ -97,17 +98,16 @@ export class TopMenuComponent implements OnDestroy {
 
   checkOpenedFileAndSendInfo(): void {
     this.bcfFilesMessengerService.bcfFileSelected
-      .pipe(
-        takeUntil(this.destroyed$),
-        combineLatestWith(this.selectedProject$)
-      )
-      .subscribe(([f, p]) => {
-        if (f.fileName) {
-          this.lastOpenedFilesClient
-            .setFileAsLastOpened(p?.id, f.fileName)
-            .subscribe(() => {
-              // Not doing anything with the response
-            });
+      .pipe(distinctUntilChanged(), takeUntil(this.destroyed$))
+      .subscribe((bcfFile) => {
+        if (bcfFile.fileName) {
+          this.selectedProject$.pipe(take(1)).subscribe((project) => {
+            this.lastOpenedFilesClient
+              .setFileAsLastOpened(project?.id, bcfFile.fileName)
+              .subscribe(() => {
+                // Not doing anything with the response
+              });
+          });
         }
       });
   }

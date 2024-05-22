@@ -30,7 +30,8 @@ namespace IPA.Bcfier.App.Controllers
 
             var lastOpenedFiles = await _context
                 .LastOpenedUserFiles
-                .Where(louf => louf.UserName == userName && louf.ProjectId == projectId)
+                .Where(louf => louf.UserName == userName
+                    && louf.ProjectId == projectId)
                 .OrderByDescending(louf => louf.OpenedAtAtUtc)
                 .Select(louf => new LastOpenedFileGet
                 {
