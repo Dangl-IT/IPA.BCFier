@@ -12,5 +12,7 @@ namespace IPA.Bcfier.Models.Config
 
         [Required]
         public bool IsConnectedToNavisworks { get; set; } = false;
+
+        public string? RevitProjectPath { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using IPA.Bcfier.Ipc;
 using System.Diagnostics;
 using System.Reflection;
+using System.Windows;
 
 namespace IPA.Bcfier.Revit
 {
@@ -22,7 +23,7 @@ namespace IPA.Bcfier.Revit
             OpenIpaBcfierApp(() =>
             {
                 _bcfierAppProcess = null;
-            });
+            }, commandData.Application.ActiveUIDocument.Document.PathName);
 
             var ipcHandler = new IpcHandler(thisAppName: "Revit", otherAppName: "BcfierApp");
             ipcHandler.InitializeAsync().ConfigureAwait(true).GetAwaiter().GetResult();
@@ -37,7 +38,7 @@ namespace IPA.Bcfier.Revit
 
         private static Process? _bcfierAppProcess;
 
-        private static void OpenIpaBcfierApp(Action onExited)
+        private static void OpenIpaBcfierApp(Action onExited, string revitProjectPath)
         {
             if (_bcfierAppProcess != null && !_bcfierAppProcess.HasExited)
             {
@@ -50,7 +51,13 @@ namespace IPA.Bcfier.Revit
                 throw new SystemException("IPA.BCFier.App executable not found.");
             }
 
-            _bcfierAppProcess = Process.Start(ipaBcfierExecutablePath, "--revit-integration");
+            var arguments = "--revit-integration";
+            if (!string.IsNullOrWhiteSpace(revitProjectPath))
+            {
+                arguments += $" --revit-project-path \"{revitProjectPath}\"";
+            }
+
+            _bcfierAppProcess = Process.Start(ipaBcfierExecutablePath, arguments);
             _bcfierAppProcess.Exited += (sender, args) =>
             {
                 onExited();

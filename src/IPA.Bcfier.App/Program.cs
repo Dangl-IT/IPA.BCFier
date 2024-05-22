@@ -40,6 +40,12 @@ namespace IPA.Bcfier.App
                     hasNavisworksIntegration = await Electron.App.CommandLine.HasSwitchAsync("navisworks-integration");
                     scope.ServiceProvider.GetRequiredService<NavisworksParameters>().IsConnectedToNavisworks = hasNavisworksIntegration;
 
+                    var revitProjectPath = await Electron.App.CommandLine.GetSwitchValueAsync("revit-project-path");
+                    if (!string.IsNullOrWhiteSpace(revitProjectPath))
+                    {
+                        scope.ServiceProvider.GetRequiredService<RevitParameters>().RevitProjectPath = revitProjectPath;
+                    }
+
                     try
                     {
                         var dbContext = scope.ServiceProvider.GetRequiredService<BcfierDbContext>();

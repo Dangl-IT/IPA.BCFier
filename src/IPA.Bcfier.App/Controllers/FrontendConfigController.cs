@@ -94,7 +94,8 @@ window.ipaBcfierFrontendConfig = "
             {
                 IsInElectronMode = true,
                 IsConnectedToRevit = _revitParameters.IsConnectedToRevit,
-                IsConnectedToNavisworks = _navisworksParameters.IsConnectedToNavisworks
+                IsConnectedToNavisworks = _navisworksParameters.IsConnectedToNavisworks,
+                RevitProjectPath = _revitParameters.RevitProjectPath
             };
         }
     }

@@ -570,7 +570,7 @@ export class LastOpenedFilesClient implements ILastOpenedFilesClient {
 }
 
 export interface IProjectsClient {
-    getAllProjects(filter: string | null | undefined): Observable<PaginationResultOfProjectGet>;
+    getAllProjects(filter: string | null | undefined, revitPathFilter: string | null | undefined): Observable<PaginationResultOfProjectGet>;
     createProject(model: ProjectPost): Observable<ProjectGet>;
     editProject(projectId: string, model: ProjectPut): Observable<ProjectGet>;
     deleteProject(projectId: string): Observable<void>;
@@ -589,10 +589,12 @@ export class ProjectsClient implements IProjectsClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAllProjects(filter: string | null | undefined): Observable<PaginationResultOfProjectGet> {
+    getAllProjects(filter: string | null | undefined, revitPathFilter: string | null | undefined): Observable<PaginationResultOfProjectGet> {
         let url_ = this.baseUrl + "/api/projects?";
         if (filter !== undefined && filter !== null)
             url_ += "filter=" + encodeURIComponent("" + filter) + "&";
+        if (revitPathFilter !== undefined && revitPathFilter !== null)
+            url_ += "revitPathFilter=" + encodeURIComponent("" + revitPathFilter) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1587,6 +1589,7 @@ export interface FrontendConfig {
     isInElectronMode: boolean;
     isConnectedToRevit: boolean;
     isConnectedToNavisworks: boolean;
+    revitProjectPath?: string | null;
 }
 
 export interface LastOpenedFilesWrapperGet {

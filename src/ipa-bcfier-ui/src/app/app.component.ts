@@ -1,4 +1,8 @@
-import { BcfFile, BcfFileWrapper } from './generated-client/generated-client';
+import {
+  BcfFile,
+  BcfFileWrapper,
+  ProjectsClient,
+} from './generated-client/generated-client';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import {
@@ -13,6 +17,7 @@ import {
   tap,
 } from 'rxjs';
 
+import { AppConfigService } from './services/AppConfigService';
 import { BackendService } from './services/BackendService';
 import { BcfFileAutomaticallySaveService } from './services/bcf-file-automaticaly-save.service';
 import { BcfFileComponent } from './components/bcf-file/bcf-file.component';
@@ -22,6 +27,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NotificationsService } from './services/notifications.service';
+import { SelectedProjectMessengerService } from './services/selected-project-messenger.service';
 import { TopMenuComponent } from './components/top-menu/top-menu.component';
 
 @Component({
@@ -47,8 +53,28 @@ export class AppComponent implements OnDestroy {
     private bcfFilesMessengerService: BcfFilesMessengerService,
     private backendService: BackendService,
     private notificationsService: NotificationsService,
-    private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService
+    private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService,
+    appConfigService: AppConfigService,
+    projectsClient: ProjectsClient,
+    selectedProjectMessengerService: SelectedProjectMessengerService
   ) {
+    if (
+      appConfigService.getFrontendConfig().isConnectedToRevit &&
+      !!appConfigService.getFrontendConfig().revitProjectPath
+    ) {
+      projectsClient
+        .getAllProjects(
+          null,
+          appConfigService.getFrontendConfig().revitProjectPath
+        )
+        .subscribe((projects) => {
+          if (projects?.data?.length && projects.data.length > 0) {
+            const selectedProject = projects.data[0];
+            selectedProjectMessengerService.setSelectedProject(selectedProject);
+          }
+        });
+    }
+
     this.changeSelectedTabIndex(0);
     this.bcfFiles = bcfFilesMessengerService.bcfFiles;
     this.bcfFilesMessengerService.bcfFileSaveAsRequested

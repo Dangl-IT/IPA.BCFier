@@ -25,7 +25,7 @@ namespace IPA.Bcfier.App.Controllers
         [AsyncLightQuery(forcePagination: true)]
         [HttpGet("")]
         [ProducesResponseType(typeof(PaginationResult<ProjectGet>), (int)HttpStatusCode.OK)]
-        public IActionResult GetAllProjects(string? filter = null)
+        public IActionResult GetAllProjects(string? filter = null, string? revitPathFilter = null)
         {
             var projectsQuery = _context
                 .Projects
@@ -35,6 +35,12 @@ namespace IPA.Bcfier.App.Controllers
             {
                 projectsQuery = projectsQuery
                     .Filter(filter, text => p => EF.Functions.Like(p.Name, $"%{text}%"), transformFilterToLowercase: true);
+            }
+
+            if (!string.IsNullOrWhiteSpace(revitPathFilter))
+            {
+                projectsQuery = projectsQuery
+                    .Where(project => project.RevitIdentifer == revitPathFilter);
             }
 
             return Ok(projectsQuery.Select(p => new ProjectGet
