@@ -1,4 +1,4 @@
-﻿using IPA.Bcfier.Models.Config;
+using IPA.Bcfier.Models.Config;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
@@ -14,12 +14,15 @@ namespace IPA.Bcfier.App.Controllers
         private static string? _frontendConfig;
         private readonly RevitParameters _revitParameters;
         private readonly NavisworksParameters _navisworksParameters;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public FrontendConfigController(RevitParameters revitParameters,
-            NavisworksParameters navisworksParameters)
+            NavisworksParameters navisworksParameters,
+            IWebHostEnvironment webHostEnvironment)
         {
             _revitParameters = revitParameters;
             _navisworksParameters = navisworksParameters;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet("config.js")]
@@ -95,7 +98,8 @@ window.ipaBcfierFrontendConfig = "
                 IsInElectronMode = true,
                 IsConnectedToRevit = _revitParameters.IsConnectedToRevit,
                 IsConnectedToNavisworks = _navisworksParameters.IsConnectedToNavisworks,
-                RevitProjectPath = _revitParameters.RevitProjectPath
+                RevitProjectPath = _revitParameters.RevitProjectPath,
+                Environment = _webHostEnvironment.EnvironmentName
             };
         }
     }

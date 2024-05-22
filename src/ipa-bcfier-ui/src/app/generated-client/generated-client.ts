@@ -1590,6 +1590,7 @@ export interface FrontendConfig {
     isConnectedToRevit: boolean;
     isConnectedToNavisworks: boolean;
     revitProjectPath?: string | null;
+    environment: string;
 }
 
 export interface LastOpenedFilesWrapperGet {

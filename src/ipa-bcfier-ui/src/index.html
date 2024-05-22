@@ -11,6 +11,7 @@
     <script>
       if (
         window.ipaBcfierFrontendConfig &&
+        window.ipaBcfierFrontendConfig.environment !== "Development" &&
         window.ipaBcfierFrontendConfig.isInElectronMode &&
         (window.ipaBcfierFrontendConfig.isConnectedToRevit ||
           window.ipaBcfierFrontendConfig.isConnectedToNavisworks)

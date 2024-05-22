@@ -9,6 +9,7 @@ export class AppConfigService {
     isInElectronMode: false,
     isConnectedToRevit: false,
     isConnectedToNavisworks: false,
+    environment: 'Production',
   };
 
   getFrontendConfig(): FrontendConfig {
