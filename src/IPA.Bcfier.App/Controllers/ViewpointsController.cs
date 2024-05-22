@@ -1,5 +1,6 @@
 ﻿using Dangl.Data.Shared;
 using IPA.Bcfier.App.Configuration;
+using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Bcf;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,13 @@ namespace IPA.Bcfier.App.Controllers
                 Data = JsonConvert.SerializeObject(viewpoint)
             }));
 
+            if (_revitParameters.IsConnectedToRevit)
+            {
+                // We want to put revit into focus after the message was sent
+                // so the UI thread is active and our request is processed
+                RevitFocusService.SetFocusToRevit();
+            }
+
             var hasReceived = false;
             var start = DateTime.Now;
             while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
@@ -75,6 +83,13 @@ namespace IPA.Bcfier.App.Controllers
                 Command = IpcMessageCommand.CreateViewpoint,
                 Data = null
             }));
+
+            if (_revitParameters.IsConnectedToRevit)
+            {
+                // We want to put revit into focus after the message was sent
+                // so the UI thread is active and our request is processed
+                RevitFocusService.SetFocusToRevit();
+            }
 
             var hasReceived = false;
             var start = DateTime.Now;
