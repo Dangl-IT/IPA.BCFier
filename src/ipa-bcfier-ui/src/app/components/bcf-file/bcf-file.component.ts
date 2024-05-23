@@ -1,4 +1,8 @@
-import { BcfFile, BcfTopic } from '../../generated-client/generated-client';
+import {
+  BcfFile,
+  BcfTopic,
+  ViewpointsClient,
+} from '../../generated-client/generated-client';
 import { ChangeDetectorRef, Component, Input, inject } from '@angular/core';
 import { FormGroup, FormsModule } from '@angular/forms';
 import {
@@ -6,26 +10,29 @@ import {
   IssueFiltersComponent,
 } from '../issue-filters/issue-filters.component';
 
+import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { CommonModule } from '@angular/common';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
+import { LoadingService } from '../../services/loading.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { NotificationsService } from '../../services/notifications.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
+import { SettingsMessengerService } from '../../services/settings-messenger.service';
+import { TeamsMessengerService } from '../../services/teams-messenger.service';
 import { TopicDetailComponent } from '../topic-detail/topic-detail.component';
 import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
+import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { UsersService } from '../../services/users.service';
 import { getNewRandomGuid } from '../../functions/uuid';
-import { TeamsMessengerService } from '../../services/teams-messenger.service';
-import { TopicMessengerService } from '../../services/topic-messenger.service';
-import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { take } from 'rxjs';
 
 @Component({
@@ -62,6 +69,11 @@ export class BcfFileComponent {
   cdr = inject(ChangeDetectorRef);
   selectedTopic: BcfTopic | null = null;
   filtredTopics: BcfTopic[] = [];
+  isInNavisworks =
+    inject(AppConfigService).getFrontendConfig().isConnectedToNavisworks;
+  viewpointsClient = inject(ViewpointsClient);
+  loadingService = inject(LoadingService);
+  notificationsService = inject(NotificationsService);
 
   ngOnInit() {
     this.selectedTopic = this.bcfFile.topics[0] || null;
@@ -161,5 +173,34 @@ export class BcfFileComponent {
           ),
         ]
       : this.bcfFile.topics;
+  }
+
+  addNavisworksClashIssues(): void {
+    this.notificationsService.info(
+      'If there are many clashes, generation of the data could take a few minutes.'
+    );
+    this.loadingService.showLoadingScreen();
+    this.viewpointsClient
+      .createNavisworksClashDetectionResultIssues()
+      .subscribe({
+        next: (createdTopics) => {
+          this.loadingService.hideLoadingScreen();
+          this.settingsMessengerService.settings
+            .pipe(take(1))
+            .subscribe((s) => {
+              createdTopics.forEach((topic) => {
+                topic.creationAuthor = s.username;
+              });
+
+              this.bcfFile.topics.push(...createdTopics);
+              this.filtredTopics = [...this.bcfFile.topics];
+              this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
+            });
+        },
+        error: (error) => {
+          this.loadingService.hideLoadingScreen();
+          console.error(error);
+        },
+      });
   }
 }

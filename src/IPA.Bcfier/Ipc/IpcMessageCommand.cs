@@ -11,5 +11,9 @@
         ShowViewpoint = 3,
 
         ViewpointShown = 4,
+
+        CreateNavisworksClashDetectionIssues = 5,
+
+        NavisworksClashDetectionIssuesCreated = 6
     }
 }

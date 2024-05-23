@@ -19,9 +19,10 @@
   flex-direction: row;
   justify-content: space-evenly;
   margin-bottom: 4px;
+  gap: 8px;
 
   button {
-    width: 45%;
+    flex: 1;
   }
 }
 

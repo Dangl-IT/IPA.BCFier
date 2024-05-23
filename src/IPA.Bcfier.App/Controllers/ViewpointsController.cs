@@ -114,6 +114,51 @@ namespace IPA.Bcfier.App.Controllers
             return BadRequest();
         }
 
+        [HttpPost("navisworks-clashes")]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<BcfTopic>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> CreateNavisworksClashDetectionResultIssuesAsync()
+        {
+            if (!_navisworksParameters.IsConnectedToNavisworks)
+            {
+                return BadRequest(new ApiError("The app is currently not connected to Navisworks"));
+            }
+
+            using var ipcHandler = GetIpcHandler();
+            await ipcHandler.InitializeAsync();
+
+            var correlationId = Guid.NewGuid();
+            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            {
+                CorrelationId = correlationId,
+                Command = IpcMessageCommand.CreateNavisworksClashDetectionIssues,
+                Data = null
+            }));
+
+            var hasReceived = false;
+            var start = DateTime.Now;
+            // We're waiting up to 20 minutes for the results here - could take a while for large clash results
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(1200) && !hasReceived)
+            {
+                if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
+                {
+                    var ipcMessage = JsonConvert.DeserializeObject<IpcMessage>(message)!;
+                    if (ipcMessage.CorrelationId == correlationId)
+                    {
+                        hasReceived = true;
+                        var bcfViewpoint = JsonConvert.DeserializeObject<List<BcfTopic>>(ipcMessage.Data!)!;
+                        return Ok(bcfViewpoint);
+                    }
+                    else
+                    {
+                        IpcHandler.ReceivedMessages.Enqueue(message);
+                    }
+                }
+            }
+
+            return BadRequest();
+        }
+
         private IpcHandler GetIpcHandler()
         {
             if (_revitParameters.IsConnectedToRevit)

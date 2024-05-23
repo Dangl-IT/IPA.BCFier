@@ -51,6 +51,18 @@ namespace IPA.Bcfier.Navisworks
                                 });
                                 break;
 
+                            case IpcMessageCommand.CreateNavisworksClashDetectionIssues:
+                                _navisworksTaskHandler.CreateNavisworksClashIssuesCallbacks.Enqueue(async (data) =>
+                                {
+                                    await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                    {
+                                        CorrelationId = ipcMessage.CorrelationId,
+                                        Command = IpcMessageCommand.NavisworksClashDetectionIssuesCreated,
+                                        Data = data
+                                    }));
+                                });
+                                break;
+
                             case IpcMessageCommand.ShowViewpoint:
                                 _navisworksTaskHandler.ShowViewpointQueueItems.Enqueue(new ShowViewpointQueueItem
                                 {

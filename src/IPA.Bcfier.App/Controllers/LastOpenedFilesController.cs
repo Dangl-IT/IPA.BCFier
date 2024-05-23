@@ -1,5 +1,6 @@
 ﻿using IPA.Bcfier.App.Data;
 using IPA.Bcfier.App.Models.Controllers.LastOpenedFiles;
+using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +15,15 @@ namespace IPA.Bcfier.App.Controllers
     {
         private readonly BcfierDbContext _context;
         private readonly SettingsService _settingsService;
+        private readonly LastOpenedFilesService _lastOpenedFilesService;
 
         public LastOpenedFilesController(BcfierDbContext context,
-            SettingsService settingsService)
+            SettingsService settingsService,
+            LastOpenedFilesService lastOpenedFilesService)
         {
             _context = context;
             _settingsService = settingsService;
+            _lastOpenedFilesService = lastOpenedFilesService;
         }
 
         [HttpGet("")]
@@ -51,26 +55,7 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> SetFileAsLastOpened([FromQuery]Guid? projectId, [FromQuery, Required]string filePath)
         {
-            var userName = (await _settingsService.LoadSettingsAsync()).Username;
-            var existingEntry = await _context.LastOpenedUserFiles
-                .FirstOrDefaultAsync(louf => louf.ProjectId == projectId
-                    && louf.UserName == userName
-                    && louf.FilePath == filePath);
-            if (existingEntry != null)
-            {
-                existingEntry.OpenedAtAtUtc = DateTimeOffset.UtcNow;
-            }
-            else
-            {
-                _context.LastOpenedUserFiles.Add(new Data.Models.LastOpenedUserFile
-                {
-                    ProjectId = projectId,
-                    UserName = userName,
-                    FilePath = filePath
-                });
-            }
-
-            await _context.SaveChangesAsync();
+            await _lastOpenedFilesService.SetFileAsLastOpenedAsync(projectId, filePath);
             return NoContent();
         }
     }

@@ -10,6 +10,7 @@ namespace IPA.Bcfier.Navisworks
     public class NavisworksTaskQueueHandler
     {
         public Queue<Func<string, Task>> CreateNavisworksViewpointCallbacks { get; } = new Queue<Func<string, Task>>();
+        public Queue<Func<string, Task>> CreateNavisworksClashIssuesCallbacks { get; } = new Queue<Func<string, Task>>();
         public Queue<ShowViewpointQueueItem> ShowViewpointQueueItems { get; } = new Queue<ShowViewpointQueueItem>();
         private bool shouldUnregister = false;
 
@@ -25,6 +26,13 @@ namespace IPA.Bcfier.Navisworks
                 var uiDocument = Application.ActiveDocument;
                 var callback = CreateNavisworksViewpointCallbacks.Dequeue();
                 HandleCreateNavisworksViewpointCallback(callback, uiDocument);
+            }
+
+            if (CreateNavisworksClashIssuesCallbacks.Count > 0)
+            {
+                var uiDocument = Application.ActiveDocument;
+                var callback = CreateNavisworksClashIssuesCallbacks.Dequeue();
+                HandleCreateNavisworksClashIssuesCallback(callback, uiDocument);
             }
 
             if (ShowViewpointQueueItems.Count > 0)
@@ -62,6 +70,32 @@ namespace IPA.Bcfier.Navisworks
                 else
                 {
                     await callback(JsonConvert.SerializeObject(viewpoint, serializerSettings));
+                }
+            });
+        }
+
+        private void HandleCreateNavisworksClashIssuesCallback(Func<string, Task> callback, Document uiDocument)
+        {
+            var viewpointService = new NavisworksViewpointCreationService(uiDocument);
+            var clashIssues = viewpointService.CreateClashIssues();
+            var contractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new CamelCaseNamingStrategy()
+            };
+            var serializerSettings = new JsonSerializerSettings
+            {
+                ContractResolver = contractResolver,
+                Formatting = Formatting.Indented
+            };
+            Task.Run(async () =>
+            {
+                if (clashIssues == null)
+                {
+                    await callback("[]");
+                }
+                else
+                {
+                    await callback(JsonConvert.SerializeObject(clashIssues, serializerSettings));
                 }
             });
         }

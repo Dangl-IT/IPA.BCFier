@@ -26,6 +26,17 @@
               Delete Issue
             </button>
           </div>
+          @if(isInNavisworks) {
+          <div class="issue-list-buttons">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="addNavisworksClashIssues()"
+            >
+              Add Navisworks Clash Issues
+            </button>
+          </div>
+          }
 
           <div class="filter-wrapper">
             <mat-form-field class="dark-theme">

@@ -96,7 +96,7 @@ export class TopMenuComponent implements OnDestroy {
     this.bcfFilesMessengerService.saveCurrentActiveBcfFileAs();
   }
 
-  checkOpenedFileAndSendInfo(): void {
+  private checkOpenedFileAndSendInfo(): void {
     this.bcfFilesMessengerService.bcfFileSelected
       .pipe(distinctUntilChanged(), takeUntil(this.destroyed$))
       .subscribe((bcfFile) => {
