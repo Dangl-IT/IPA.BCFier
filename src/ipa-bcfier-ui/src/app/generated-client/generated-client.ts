@@ -17,7 +17,7 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IBcfConversionClient {
     importBcfFile(filePath: string | null | undefined): Observable<BcfFileWrapper>;
-    exportBcfFile(bcfFile: BcfFile): Observable<BcfFileWrapper>;
+    exportBcfFile(projectId: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper>;
     saveBcfFile(bcfFileWrapper: BcfFileWrapper): Observable<void>;
     mergeBcfFiles(): Observable<BcfFile>;
 }
@@ -94,8 +94,10 @@ export class BcfConversionClient implements IBcfConversionClient {
         return _observableOf(null as any);
     }
 
-    exportBcfFile(bcfFile: BcfFile): Observable<BcfFileWrapper> {
-        let url_ = this.baseUrl + "/api/bcf-conversion/export";
+    exportBcfFile(projectId: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper> {
+        let url_ = this.baseUrl + "/api/bcf-conversion/export?";
+        if (projectId !== undefined && projectId !== null)
+            url_ += "projectId=" + encodeURIComponent("" + projectId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(bcfFile);

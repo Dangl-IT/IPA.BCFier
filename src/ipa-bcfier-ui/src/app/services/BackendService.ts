@@ -15,6 +15,7 @@ import { Injectable } from '@angular/core';
 import { LoadingService } from './loading.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from './notifications.service';
+import { SelectedProjectMessengerService } from './selected-project-messenger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,15 +29,25 @@ export class BackendService {
     private bcfConversionClient: BcfConversionClient,
     private documentationClient: DocumentationClient,
     private settingsClient: SettingsClient,
-    private viewpointsClient: ViewpointsClient
-  ) {}
+    private viewpointsClient: ViewpointsClient,
+    selectedProjectMessengerService: SelectedProjectMessengerService
+  ) {
+    selectedProjectMessengerService.selectedProject.subscribe((p) => {
+      this.selectedProjectId = p?.id || null;
+    });
+  }
+
+  private selectedProjectId: string | null = null;
 
   importBcfFile(fileName?: string): Observable<BcfFileWrapper> {
     return this.bcfConversionClient.importBcfFile(fileName);
   }
 
   exportBcfFile(bcfFile: BcfFileWrapper): Observable<BcfFileWrapper> {
-    return this.bcfConversionClient.exportBcfFile(bcfFile.bcfFile!);
+    return this.bcfConversionClient.exportBcfFile(
+      this.selectedProjectId,
+      bcfFile.bcfFile!
+    );
   }
 
   saveBcfFile(bcfFileWrapper: BcfFileWrapper): Observable<any> {

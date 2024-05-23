@@ -22,6 +22,7 @@ namespace IPA.Bcfier.App
             services.AddSingleton(new RevitParameters());
             services.AddSingleton(new NavisworksParameters());
             services.AddHttpClient<TeamsMessagesService>();
+            services.AddTransient<LastOpenedFilesService>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {

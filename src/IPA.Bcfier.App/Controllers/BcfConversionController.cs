@@ -1,4 +1,5 @@
-﻿using Dangl.Data.Shared;
+﻿using Dangl.BCF.APIObjects.V10.File;
+using Dangl.Data.Shared;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
 using IPA.Bcfier.App.Services;
@@ -14,10 +15,13 @@ namespace IPA.Bcfier.App.Controllers
     public class BcfConversionController : ControllerBase
     {
         private readonly ElectronWindowProvider _electronWindowProvider;
+        private readonly LastOpenedFilesService _lastOpenedFilesService;
 
-        public BcfConversionController(ElectronWindowProvider electronWindowProvider)
+        public BcfConversionController(ElectronWindowProvider electronWindowProvider,
+            LastOpenedFilesService lastOpenedFilesService)
         {
             _electronWindowProvider = electronWindowProvider;
+            _lastOpenedFilesService = lastOpenedFilesService;
         }
 
         [HttpPost("import")]
@@ -59,6 +63,7 @@ namespace IPA.Bcfier.App.Controllers
                 using var bcfFileStream = System.IO.File.OpenRead(filePath);
                 var bcfFileName = Path.GetFileName(filePath);
                 var bcfResult = await new BcfImportService().ImportBcfFileAsync(bcfFileStream, bcfFileName ?? "issue.bcf");
+
                 return Ok(new BcfFileWrapper
                 {
                     FileName = filePath,
@@ -75,7 +80,8 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BcfFileWrapper), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> ExportBcfFileAsync([FromBody] BcfFile bcfFile)
+        public async Task<IActionResult> ExportBcfFileAsync([FromBody] BcfFile bcfFile,
+            [FromQuery] Guid? projectId)
         {
             var bcfFileResult = new BcfExportService().ExportBcfFile(bcfFile);
             if (bcfFileResult == null)
@@ -109,6 +115,10 @@ namespace IPA.Bcfier.App.Controllers
 
             using var fs = System.IO.File.Create(fileSaveSelectResult);
             await bcfFileResult.CopyToAsync(fs);
+
+            await _lastOpenedFilesService.SetFileAsLastOpenedAsync(projectId, fileSaveSelectResult);
+
+
             return Ok(new BcfFileWrapper
             {
               FileName = fileSaveSelectResult,
