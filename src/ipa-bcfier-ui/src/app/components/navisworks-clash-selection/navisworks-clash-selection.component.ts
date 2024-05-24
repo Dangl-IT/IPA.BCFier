@@ -5,6 +5,7 @@ import {
   ViewpointsClient,
 } from '../../generated-client/generated-client';
 
+import { LoadingService } from '../../services/loading.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -18,14 +19,20 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class NavisworksClashSelectionComponent {
   viewpointsClient = inject(ViewpointsClient);
+  loadingService = inject(LoadingService);
   constructor(
     public dialogRef: MatDialogRef<NavisworksClashSelectionComponent>
   ) {
-    this.viewpointsClient
-      .getAvailableNavisworksClashes()
-      .subscribe((clashes) => {
+    this.loadingService.showLoadingScreen();
+    this.viewpointsClient.getAvailableNavisworksClashes().subscribe({
+      next: (clashes) => {
+        this.loadingService.hideLoadingScreen();
         this.clashes = clashes;
-      });
+      },
+      error: () => {
+        this.loadingService.hideLoadingScreen();
+      },
+    });
   }
 
   clashes: NavisworksClashSelection[] = [];
