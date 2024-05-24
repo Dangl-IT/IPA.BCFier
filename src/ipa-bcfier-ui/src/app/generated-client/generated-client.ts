@@ -1307,7 +1307,8 @@ export class UsersClient implements IUsersClient {
 export interface IViewpointsClient {
     showViewpoint(viewpoint: BcfViewpoint): Observable<void>;
     createViewpoint(): Observable<BcfViewpoint>;
-    createNavisworksClashDetectionResultIssues(): Observable<BcfTopic[]>;
+    getAvailableNavisworksClashes(): Observable<NavisworksClashSelection[]>;
+    createNavisworksClashDetectionResultIssues(clashId: string | undefined): Observable<BcfTopic[]>;
 }
 
 @Injectable({
@@ -1430,8 +1431,65 @@ export class ViewpointsClient implements IViewpointsClient {
         return _observableOf(null as any);
     }
 
-    createNavisworksClashDetectionResultIssues(): Observable<BcfTopic[]> {
+    getAvailableNavisworksClashes(): Observable<NavisworksClashSelection[]> {
         let url_ = this.baseUrl + "/api/viewpoints/navisworks-clashes";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAvailableNavisworksClashes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAvailableNavisworksClashes(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<NavisworksClashSelection[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<NavisworksClashSelection[]>;
+        }));
+    }
+
+    protected processGetAvailableNavisworksClashes(response: HttpResponseBase): Observable<NavisworksClashSelection[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            result400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ApiError;
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as NavisworksClashSelection[];
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    createNavisworksClashDetectionResultIssues(clashId: string | undefined): Observable<BcfTopic[]> {
+        let url_ = this.baseUrl + "/api/viewpoints/navisworks-clashes?";
+        if (clashId === null)
+            throw new Error("The parameter 'clashId' cannot be null.");
+        else if (clashId !== undefined)
+            url_ += "clashId=" + encodeURIComponent("" + clashId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1715,6 +1773,12 @@ export interface TeamsMessagePost {
     comment?: string | null;
     viewpointBase64?: string | null;
     username: string;
+}
+
+export interface NavisworksClashSelection {
+    id?: string;
+    displayName?: string;
+    isGroup?: boolean;
 }
 
 export interface FileResponse {

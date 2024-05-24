@@ -14,6 +14,10 @@
 
         CreateNavisworksClashDetectionIssues = 5,
 
-        NavisworksClashDetectionIssuesCreated = 6
+        NavisworksClashDetectionIssuesCreated = 6,
+
+        GetNavisworksAvailableClashes = 7,
+
+        NavisworksAvailableClashes = 8
     }
 }

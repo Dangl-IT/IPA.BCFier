@@ -10,8 +10,9 @@ namespace IPA.Bcfier.Navisworks
     public class NavisworksTaskQueueHandler
     {
         public Queue<Func<string, Task>> CreateNavisworksViewpointCallbacks { get; } = new Queue<Func<string, Task>>();
-        public Queue<Func<string, Task>> CreateNavisworksClashIssuesCallbacks { get; } = new Queue<Func<string, Task>>();
+        public Queue<CreateClashIssuesQueueItem> CreateNavisworksClashIssuesCallbacks { get; } = new Queue<CreateClashIssuesQueueItem>();
         public Queue<ShowViewpointQueueItem> ShowViewpointQueueItems { get; } = new Queue<ShowViewpointQueueItem>();
+        public Queue<Func<string, Task>> GetAvailableNavisworksClashes { get; } = new Queue<Func<string, Task>>();
         private bool shouldUnregister = false;
 
         public void OnIdling(object sender, EventArgs args)
@@ -31,8 +32,8 @@ namespace IPA.Bcfier.Navisworks
             if (CreateNavisworksClashIssuesCallbacks.Count > 0)
             {
                 var uiDocument = Application.ActiveDocument;
-                var callback = CreateNavisworksClashIssuesCallbacks.Dequeue();
-                HandleCreateNavisworksClashIssuesCallback(callback, uiDocument);
+                var queueItem = CreateNavisworksClashIssuesCallbacks.Dequeue();
+                HandleCreateNavisworksClashIssuesCallback(queueItem.Callback, uiDocument, queueItem.ClashId);
             }
 
             if (ShowViewpointQueueItems.Count > 0)
@@ -41,11 +42,44 @@ namespace IPA.Bcfier.Navisworks
                 var showViewpointQueueItem = ShowViewpointQueueItems.Dequeue();
                 HandleShowNavisworksViewpointCallback(showViewpointQueueItem.Callback, showViewpointQueueItem.Viewpoint, uiDocument);
             }
+
+            if (GetAvailableNavisworksClashes.Count > 0)
+            {
+                var uiDocument = Application.ActiveDocument;
+                var callback = GetAvailableNavisworksClashes.Dequeue();
+                HandleGetAvailableNavisworksClashes(callback, uiDocument);
+            }
         }
 
         public void UnregisterEventHandler()
         {
             shouldUnregister = true;
+        }
+
+        private void HandleGetAvailableNavisworksClashes(Func<string, Task> callback, Document uiDocument)
+        {
+            var viewpointService = new NavisworksViewpointCreationService(uiDocument);
+            var clashes = viewpointService.GetAvailableClashesForExport();
+            var contractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new CamelCaseNamingStrategy()
+            };
+            var serializerSettings = new JsonSerializerSettings
+            {
+                ContractResolver = contractResolver,
+                Formatting = Formatting.Indented
+            };
+            Task.Run(async () =>
+            {
+                if (clashes == null)
+                {
+                    await callback("[]");
+                }
+                else
+                {
+                    await callback(JsonConvert.SerializeObject(clashes, serializerSettings));
+                }
+            });
         }
 
         private void HandleCreateNavisworksViewpointCallback(Func<string, Task> callback, Document uiDocument)
@@ -74,10 +108,12 @@ namespace IPA.Bcfier.Navisworks
             });
         }
 
-        private void HandleCreateNavisworksClashIssuesCallback(Func<string, Task> callback, Document uiDocument)
+        private void HandleCreateNavisworksClashIssuesCallback(Func<string, Task> callback,
+            Document uiDocument,
+            Guid clashId)
         {
             var viewpointService = new NavisworksViewpointCreationService(uiDocument);
-            var clashIssues = viewpointService.CreateClashIssues();
+            var clashIssues = viewpointService.CreateClashIssues(clashId);
             var contractResolver = new DefaultContractResolver
             {
                 NamingStrategy = new CamelCaseNamingStrategy()

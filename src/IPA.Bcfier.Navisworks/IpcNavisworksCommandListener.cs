@@ -52,14 +52,18 @@ namespace IPA.Bcfier.Navisworks
                                 break;
 
                             case IpcMessageCommand.CreateNavisworksClashDetectionIssues:
-                                _navisworksTaskHandler.CreateNavisworksClashIssuesCallbacks.Enqueue(async (data) =>
+                                _navisworksTaskHandler.CreateNavisworksClashIssuesCallbacks.Enqueue(new CreateClashIssuesQueueItem
                                 {
-                                    await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                    ClashId = Guid.Parse(ipcMessage.Data!),
+                                    Callback = async (data) =>
                                     {
-                                        CorrelationId = ipcMessage.CorrelationId,
-                                        Command = IpcMessageCommand.NavisworksClashDetectionIssuesCreated,
-                                        Data = data
-                                    }));
+                                        await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                        {
+                                            CorrelationId = ipcMessage.CorrelationId,
+                                            Command = IpcMessageCommand.NavisworksClashDetectionIssuesCreated,
+                                            Data = data
+                                        }));
+                                    }
                                 });
                                 break;
 
@@ -76,6 +80,19 @@ namespace IPA.Bcfier.Navisworks
                                     },
                                     Viewpoint = JsonConvert.DeserializeObject<BcfViewpoint>(ipcMessage.Data!)
                                 });
+                                break;
+
+                            case IpcMessageCommand.GetNavisworksAvailableClashes:
+                                _navisworksTaskHandler.GetAvailableNavisworksClashes.Enqueue(async (availableClashes) =>
+                                    {
+                                        await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                        {
+                                            CorrelationId = ipcMessage.CorrelationId,
+                                            Command = IpcMessageCommand.NavisworksAvailableClashes,
+                                            Data = availableClashes
+                                        }));
+                                    }
+                                );
                                 break;
 
                             default:

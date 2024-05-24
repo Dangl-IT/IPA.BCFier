@@ -1,4 +1,4 @@
-﻿using Autodesk.Navisworks.Api.Plugins;
+using Autodesk.Navisworks.Api.Plugins;
 using System.Diagnostics;
 using System.Reflection;
 using IPA.Bcfier.Ipc;
@@ -79,6 +79,7 @@ namespace IPA.Bcfier.Navisworks
             // initial command but only later, like in our case when an event from
             // the browser is triggering some action
             typeof(IPA.Bcfier.Models.Bcf.BcfComment).ToString();
+            typeof(IPA.Bcfier.Models.Clashes.NavisworksClashSelection).ToString();
             typeof(Dangl.BCF.APIObjects.V21.Auth_GET).ToString();
             typeof(IPA.Bcfier.Ipc.IpcHandler).ToString();
             typeof(DecimalMath.DecimalEx).ToString();

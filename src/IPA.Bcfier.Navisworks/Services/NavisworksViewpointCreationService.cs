@@ -1,8 +1,8 @@
 ﻿using Autodesk.Navisworks.Api;
 using Autodesk.Navisworks.Api.Clash;
 using IPA.Bcfier.Models.Bcf;
+using IPA.Bcfier.Models.Clashes;
 using IPA.Bcfier.Navisworks.Utilities;
-using System.Drawing.Imaging;
 
 namespace IPA.Bcfier.Navisworks.Services
 {
@@ -135,20 +135,40 @@ namespace IPA.Bcfier.Navisworks.Services
             return v;
         }
 
+        public List<NavisworksClashSelection> GetAvailableClashesForExport()
+        {
+            var doc = _doc;
+            var tests = doc.GetClash().TestsData.Tests;
+            return tests.Select(test => new NavisworksClashSelection
+            {
+                Id = test.Guid,
+                DisplayName = test.DisplayName,
+                IsGroup = test.IsGroup
+            }).ToList();
+
+        }
+
         // Mostly taken from here:
         // https://forums.autodesk.com/t5/navisworks-api/here-s-how-to-export-clash-result-images-using-navisworks-api/td-p/9089222
-        public List<BcfTopic> CreateClashIssues()
+        public List<BcfTopic> CreateClashIssues(Guid clashId)
         {
             var bcfTopics = new List<BcfTopic>();
             NavisUtils.GetGunits(_doc);
 
             var doc = _doc;
             var tests = doc.GetClash().TestsData.Tests;
-
             // Assuming you've already run all Clash Tests and have the results
             foreach (ClashTest test in tests)
             {
-                if (test.Children.Count <= 0) continue;
+                if (test.Children.Count <= 0)
+                {
+                    continue;
+                }
+
+                if (test.Guid != clashId)
+                {
+                    continue;
+                }
 
                 foreach (var testItem in test.Children)
                 {
@@ -284,8 +304,15 @@ namespace IPA.Bcfier.Navisworks.Services
                         doc.CurrentViewpoint.CopyFrom(copy);
 
                         // Paint the clashing items in Red and Green respectively
-                        doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(0) }, Color.Red);
-                        doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(1) }, Color.Green);
+                        try
+                        {
+                            doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(0) }, Color.Red);
+                            doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(1) }, Color.Green);
+                        }
+                        catch
+                        {
+                            // Sometimes setting a color of a component fails, but we don't want to crash the application for that
+                        }
                         // Adjust the camera angle
                         doc.ActiveView.LookFromFrontRightTop();
                         // Prevent redraw for every test and item

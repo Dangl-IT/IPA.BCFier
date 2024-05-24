@@ -19,10 +19,12 @@ import { IssueTypesService } from '../../services/issue-types.service';
 import { LoadingService } from '../../services/loading.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { NavisworksClashSelectionComponent } from '../navisworks-clash-selection/navisworks-clash-selection.component';
 import { NotificationsService } from '../../services/notifications.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
@@ -74,6 +76,7 @@ export class BcfFileComponent {
   viewpointsClient = inject(ViewpointsClient);
   loadingService = inject(LoadingService);
   notificationsService = inject(NotificationsService);
+  private dialog = inject(MatDialog);
 
   ngOnInit() {
     this.selectedTopic = this.bcfFile.topics[0] || null;
@@ -176,31 +179,39 @@ export class BcfFileComponent {
   }
 
   addNavisworksClashIssues(): void {
-    this.notificationsService.info(
-      'If there are many clashes, generation of the data could take a few minutes.'
-    );
-    this.loadingService.showLoadingScreen();
-    this.viewpointsClient
-      .createNavisworksClashDetectionResultIssues()
-      .subscribe({
-        next: (createdTopics) => {
-          this.loadingService.hideLoadingScreen();
-          this.settingsMessengerService.settings
-            .pipe(take(1))
-            .subscribe((s) => {
-              createdTopics.forEach((topic) => {
-                topic.creationAuthor = s.username;
-              });
+    this.dialog
+      .open(NavisworksClashSelectionComponent)
+      .afterClosed()
+      .subscribe((selectedClashId?: string | null) => {
+        if (!selectedClashId) {
+          return;
+        }
+        this.notificationsService.info(
+          'If there are many clashes, generation of the data could take a few minutes.'
+        );
+        this.loadingService.showLoadingScreen();
+        this.viewpointsClient
+          .createNavisworksClashDetectionResultIssues(selectedClashId)
+          .subscribe({
+            next: (createdTopics) => {
+              this.loadingService.hideLoadingScreen();
+              this.settingsMessengerService.settings
+                .pipe(take(1))
+                .subscribe((s) => {
+                  createdTopics.forEach((topic) => {
+                    topic.creationAuthor = s.username;
+                  });
 
-              this.bcfFile.topics.push(...createdTopics);
-              this.filtredTopics = [...this.bcfFile.topics];
-              this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
-            });
-        },
-        error: (error) => {
-          this.loadingService.hideLoadingScreen();
-          console.error(error);
-        },
+                  this.bcfFile.topics.push(...createdTopics);
+                  this.filtredTopics = [...this.bcfFile.topics];
+                  this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
+                });
+            },
+            error: (error) => {
+              this.loadingService.hideLoadingScreen();
+              console.error(error);
+            },
+          });
       });
   }
 }
