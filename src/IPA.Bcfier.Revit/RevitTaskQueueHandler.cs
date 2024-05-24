@@ -79,7 +79,7 @@ namespace IPA.Bcfier.Revit
                     item.ViewContinuation?.Invoke();
                     Task.Run(async () =>
                     {
-                        if (item != null)
+                        if (item != null && item.Callback != null)
                         {
                             await item.Callback();
                         }

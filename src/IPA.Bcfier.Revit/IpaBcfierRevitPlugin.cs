@@ -10,7 +10,7 @@ namespace IPA.Bcfier.Revit
         {
             var buttonData = new PushButtonData("openPluginButton", "Open Plugin", Assembly.GetExecutingAssembly().Location, "IPA.Bcfier.Revit.ListenToIpaBcfierAppPipeCommand");
             var pushButton = application.CreateRibbonPanel("IPA.BCFier").AddItem(buttonData) as PushButton;
-            pushButton.ToolTip = "Launch IPA.Bcfier Revit Plugin";
+            pushButton!.ToolTip = "Launch IPA.Bcfier Revit Plugin";
             pushButton.Image = GetBitmapImage("button16.png");
             pushButton.LargeImage = GetBitmapImage("button32.png");
 

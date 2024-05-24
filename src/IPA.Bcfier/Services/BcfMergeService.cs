@@ -12,7 +12,7 @@ namespace IPA.Bcfier.Services
         {
             try
             {
-                BcfFile newBcf = null;
+                BcfFile? newBcf = null;
                 foreach (var stream in bcfFileStreams)
                 {
                     var bcfResult = await new BcfImportService().ImportBcfFileAsync(stream, "issue.bcf");

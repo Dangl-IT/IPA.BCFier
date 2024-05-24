@@ -16,6 +16,6 @@ namespace IPA.Bcfier.Models.Config
         public string? RevitProjectPath { get; set; }
 
         [Required]
-        public string Environment { get; set; }
+        public string Environment { get; set; } = string.Empty;
     }
 }

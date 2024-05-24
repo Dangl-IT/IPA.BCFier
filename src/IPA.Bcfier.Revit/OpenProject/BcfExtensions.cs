@@ -35,7 +35,7 @@ namespace IPA.Bcfier.Revit.OpenProject
         /// <returns>A list of clipping planes.</returns>
         public static List<BcfViewpointClippingPlane> ToClippingPlanes(
           this AxisAlignedBoundingBox clippingBox,
-          Vector3 clippingCenter = null)
+          Vector3? clippingCenter = null)
         {
             Vector3 center = clippingCenter ?? (clippingBox.Min + clippingBox.Max) * 0.5m;
 

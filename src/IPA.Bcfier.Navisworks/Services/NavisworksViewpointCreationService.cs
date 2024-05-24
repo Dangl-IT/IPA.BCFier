@@ -28,12 +28,11 @@ namespace IPA.Bcfier.Navisworks.Services
                 var v = GetViewpointFromNavisworksViewpoint(viewpoint);
                 return v;
             }
-            catch (System.Exception ex1)
+            catch
             {
-                // TODO
-                //TaskDialog.Show("Error generating viewpoint", "exception: " + ex1);
+                // We're not handling errors here at the moment, we just fail☹
+                return null;
             }
-            return null;
         }
 
         private BcfViewpoint GetViewpointFromNavisworksViewpoint(Viewpoint viewpoint)

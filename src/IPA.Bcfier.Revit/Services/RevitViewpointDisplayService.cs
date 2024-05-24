@@ -72,7 +72,7 @@ namespace IPA.Bcfier.Revit.Services
                         }
                     }
 
-                    viewId = orthoView.Id;
+                    viewId = orthoView!.Id;
                     _uiDocument.RequestViewChange(orthoView);
                     adjustZoomForOrthoView = true;
                 }
@@ -93,7 +93,7 @@ namespace IPA.Bcfier.Revit.Services
                     var cameraViewPoint = RevitUtilities.GetRevitXYZ(bcfViewpoint.PerspectiveCamera.ViewPoint);
                     var orient3D = RevitUtilities.ConvertBasePoint(doc, cameraViewPoint, cameraDirection, cameraUpVector, true);
 
-                    View3D perspView = null;
+                    View3D? perspView = null;
                     //try to use an existing 3D view
                     IEnumerable<View3D> viewcollector3D = Get3DViews(doc);
                     if (viewcollector3D.Any(o => o.Name == "BCF Coordination View Perspective"))
@@ -131,7 +131,7 @@ namespace IPA.Bcfier.Revit.Services
                     }
 
                     _uiDocument.RequestViewChange(perspView);
-                    viewId = perspView.Id;
+                    viewId = perspView!.Id;
                 }
                 //no view included
                 else
@@ -186,7 +186,7 @@ namespace IPA.Bcfier.Revit.Services
                     {
                         var guid = ExportUtils.GetExportId(doc, e).ToIfcGuid();
 
-                        if (canSetVisibility)
+                        if (canSetVisibility && bcfViewpoint.ViewpointComponents.Visibility != null)
                         {
                             if (bcfViewpoint.ViewpointComponents.Visibility.DefaultVisibility)
                             {

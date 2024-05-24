@@ -124,7 +124,7 @@ namespace IPA.Bcfier.App.Services
                 // Let's compress the images
                 foreach (var section in message.Sections.Where(s => s.Images != null))
                 {
-                    foreach (var imageSection in section.Images.Where(image => !string.IsNullOrWhiteSpace(image.ImageBase64DataUrl)))
+                    foreach (var imageSection in section.Images!.Where(image => !string.IsNullOrWhiteSpace(image.ImageBase64DataUrl)))
                     {
                         var imageBase64 = imageSection.ImageBase64DataUrl.Substring(imageSection.ImageBase64DataUrl.IndexOf(",") + 1);
                         var imageBytes = Convert.FromBase64String(imageBase64);
