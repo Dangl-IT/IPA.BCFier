@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import { PaginationBaseService, PaginationResult } from 'ng-lightquery';
 import { Observable, map, of } from 'rxjs';
 import { ProjectGet } from '../../generated-client/generated-client';
+import { SettingsMessengerService } from '../settings-messenger.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -12,9 +13,16 @@ export class ProjectsService
   extends PaginationBaseService<ProjectGet>
   implements DataSource<ProjectGet>
 {
-  constructor(override http: HttpClient) {
+  constructor(
+    override http: HttpClient,
+    private settingsMessengerService: SettingsMessengerService
+  ) {
     super(http);
     this.baseUrl = `api/projects`;
+
+    this.settingsMessengerService.settings.subscribe((settings) => {
+      this.forceRefresh();
+    });
   }
 
   disconnect(collectionViewer: CollectionViewer): void {
