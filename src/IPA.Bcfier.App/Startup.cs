@@ -2,10 +2,13 @@
 using ElectronNET.API;
 using IPA.Bcfier.App.Configuration;
 using IPA.Bcfier.App.Data;
+using IPA.Bcfier.App.Hubs;
 using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Converters;
 
 namespace IPA.Bcfier.App
 {
@@ -33,6 +36,11 @@ namespace IPA.Bcfier.App
             services.AddTransient<DatabaseLocationService>();
 
             AddDatabaseServices(services);
+
+            services.AddHostedService<PluginErrorListenerService>();
+
+            services.AddSignalR()
+                .AddNewtonsoftJsonProtocol(c => c.PayloadSerializerSettings.Converters.Add(new StringEnumConverter()));
         }
 
         private static void AddDatabaseServices(IServiceCollection services)
@@ -75,6 +83,7 @@ namespace IPA.Bcfier.App
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<BcfierHub>("/hubs/bcfier");
             });
 
             if (env.IsDevelopment())

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Navisworks.Models;
+using System.Collections.Concurrent;
 
 namespace IPA.Bcfier.Navisworks
 {
@@ -99,6 +100,15 @@ namespace IPA.Bcfier.Navisworks
                                 // TODO
                                 throw new NotImplementedException();
                         }
+                    }
+
+                    if (_navisworksTaskHandler.CadErrorMessages.TryDequeue(out var errorMessage))
+                    {
+                        await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                        {
+                            Command = IpcMessageCommand.PluginErrorEncountered,
+                            Data = errorMessage
+                        }));
                     }
 
                     await Task.Delay(100);

@@ -22,6 +22,7 @@ import { BackendService } from './services/BackendService';
 import { BcfFileAutomaticallySaveService } from './services/bcf-file-automaticaly-save.service';
 import { BcfFileComponent } from './components/bcf-file/bcf-file.component';
 import { BcfFilesMessengerService } from './services/bcf-files-messenger.service';
+import { BcfierHubConnectorService } from './services/connectors/bcfier-hub-connector.service';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -54,6 +55,7 @@ export class AppComponent implements OnDestroy {
     private backendService: BackendService,
     private notificationsService: NotificationsService,
     private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService,
+    private bcfierHubConnectorService: BcfierHubConnectorService, // We want to initialize it so it's listening to SignalR messages
     appConfigService: AppConfigService,
     projectsClient: ProjectsClient,
     selectedProjectMessengerService: SelectedProjectMessengerService

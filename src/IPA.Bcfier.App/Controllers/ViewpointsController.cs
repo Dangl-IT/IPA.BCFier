@@ -62,6 +62,7 @@ namespace IPA.Bcfier.App.Controllers
                     else
                     {
                         IpcHandler.ReceivedMessages.Enqueue(message);
+                        await Task.Delay(100);
                     }
                 }
             }
@@ -108,6 +109,7 @@ namespace IPA.Bcfier.App.Controllers
                     else
                     {
                         IpcHandler.ReceivedMessages.Enqueue(message);
+                        await Task.Delay(100);
                     }
                 }
             }
@@ -152,6 +154,7 @@ namespace IPA.Bcfier.App.Controllers
                     else
                     {
                         IpcHandler.ReceivedMessages.Enqueue(message);
+                        await Task.Delay(100);
                     }
                 }
             }
@@ -197,6 +200,7 @@ namespace IPA.Bcfier.App.Controllers
                     else
                     {
                         IpcHandler.ReceivedMessages.Enqueue(message);
+                        await Task.Delay(100);
                     }
                 }
             }

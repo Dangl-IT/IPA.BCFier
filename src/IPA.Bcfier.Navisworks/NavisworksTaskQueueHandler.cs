@@ -4,6 +4,7 @@ using IPA.Bcfier.Navisworks.Models;
 using Autodesk.Navisworks.Api;
 using IPA.Bcfier.Navisworks.Services;
 using Newtonsoft.Json.Serialization;
+using System.Collections.Concurrent;
 
 namespace IPA.Bcfier.Navisworks
 {
@@ -14,6 +15,8 @@ namespace IPA.Bcfier.Navisworks
         public Queue<ShowViewpointQueueItem> ShowViewpointQueueItems { get; } = new Queue<ShowViewpointQueueItem>();
         public Queue<Func<string, Task>> GetAvailableNavisworksClashes { get; } = new Queue<Func<string, Task>>();
         private bool shouldUnregister = false;
+        public ConcurrentQueue<string> CadErrorMessages { get; } = new ConcurrentQueue<string>();
+
 
         public void OnIdling(object sender, EventArgs args)
         {
@@ -84,56 +87,70 @@ namespace IPA.Bcfier.Navisworks
 
         private void HandleCreateNavisworksViewpointCallback(Func<string, Task> callback, Document uiDocument)
         {
-            var viewpointService = new NavisworksViewpointCreationService(uiDocument);
-            var viewpoint = viewpointService.GenerateViewpoint();
-            var contractResolver = new DefaultContractResolver
+            try
             {
-                NamingStrategy = new CamelCaseNamingStrategy()
-            };
-            var serializerSettings = new JsonSerializerSettings
-            {
-                ContractResolver = contractResolver,
-                Formatting = Formatting.Indented
-            };
-            Task.Run(async () =>
-            {
-                if (viewpoint == null)
+                var viewpointService = new NavisworksViewpointCreationService(uiDocument);
+                var viewpoint = viewpointService.GenerateViewpoint();
+                var contractResolver = new DefaultContractResolver
                 {
-                    await callback("{}");
-                }
-                else
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                };
+                var serializerSettings = new JsonSerializerSettings
                 {
-                    await callback(JsonConvert.SerializeObject(viewpoint, serializerSettings));
-                }
-            });
+                    ContractResolver = contractResolver,
+                    Formatting = Formatting.Indented
+                };
+                Task.Run(async () =>
+                {
+                    if (viewpoint == null)
+                    {
+                        await callback("{}");
+                    }
+                    else
+                    {
+                        await callback(JsonConvert.SerializeObject(viewpoint, serializerSettings));
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                CadErrorMessages.Enqueue($"Error during viewpoint creation: {Environment.NewLine}{e}");
+            }
         }
 
         private void HandleCreateNavisworksClashIssuesCallback(Func<string, Task> callback,
             Document uiDocument,
             Guid clashId)
         {
-            var viewpointService = new NavisworksViewpointCreationService(uiDocument);
-            var clashIssues = viewpointService.CreateClashIssues(clashId);
-            var contractResolver = new DefaultContractResolver
+            try
             {
-                NamingStrategy = new CamelCaseNamingStrategy()
-            };
-            var serializerSettings = new JsonSerializerSettings
-            {
-                ContractResolver = contractResolver,
-                Formatting = Formatting.Indented
-            };
-            Task.Run(async () =>
-            {
-                if (clashIssues == null)
+                var viewpointService = new NavisworksViewpointCreationService(uiDocument);
+                var clashIssues = viewpointService.CreateClashIssues(clashId);
+                var contractResolver = new DefaultContractResolver
                 {
-                    await callback("[]");
-                }
-                else
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                };
+                var serializerSettings = new JsonSerializerSettings
                 {
-                    await callback(JsonConvert.SerializeObject(clashIssues, serializerSettings));
-                }
-            });
+                    ContractResolver = contractResolver,
+                    Formatting = Formatting.Indented
+                };
+                Task.Run(async () =>
+                {
+                    if (clashIssues == null)
+                    {
+                        await callback("[]");
+                    }
+                    else
+                    {
+                        await callback(JsonConvert.SerializeObject(clashIssues, serializerSettings));
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                CadErrorMessages.Enqueue($"Error during clash issues creation: {Environment.NewLine}{e}");
+            }
         }
 
         private void HandleShowNavisworksViewpointCallback(Func<Task>? callback, BcfViewpoint? viewpoint, Document uiDocument)
@@ -143,9 +160,16 @@ namespace IPA.Bcfier.Navisworks
                 return;
             }
 
-            var viewpointService = new NavisworksViewpointDisplayService(uiDocument);
-            viewpointService.DisplayViewpoint(viewpoint);
-            Task.Run(async () => await callback());
+            try
+            {
+                var viewpointService = new NavisworksViewpointDisplayService(uiDocument);
+                viewpointService.DisplayViewpoint(viewpoint);
+                Task.Run(async () => await callback());
+            }
+            catch (Exception e)
+            {
+                CadErrorMessages.Enqueue($"Error during viewpoint rendering: {Environment.NewLine}{e}");
+            }
         }
     }
 }

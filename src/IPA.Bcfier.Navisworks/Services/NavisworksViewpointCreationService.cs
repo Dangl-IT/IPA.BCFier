@@ -1,4 +1,4 @@
-﻿using Autodesk.Navisworks.Api;
+using Autodesk.Navisworks.Api;
 using Autodesk.Navisworks.Api.Clash;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Models.Clashes;
@@ -21,18 +21,10 @@ namespace IPA.Bcfier.Navisworks.Services
         ///<returns></returns>
         public BcfViewpoint? GenerateViewpoint()
         {
-            try
-            {
-                var viewpoint = _doc.CurrentViewpoint.Value;
-                NavisUtils.GetGunits(_doc);
-                var v = GetViewpointFromNavisworksViewpoint(viewpoint);
-                return v;
-            }
-            catch
-            {
-                // We're not handling errors here at the moment, we just fail☹
-                return null;
-            }
+            var viewpoint = _doc.CurrentViewpoint.Value;
+            NavisUtils.GetGunits(_doc);
+            var v = GetViewpointFromNavisworksViewpoint(viewpoint);
+            return v;
         }
 
         private BcfViewpoint GetViewpointFromNavisworksViewpoint(Viewpoint viewpoint)

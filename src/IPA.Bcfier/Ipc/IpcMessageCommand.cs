@@ -18,6 +18,8 @@
 
         GetNavisworksAvailableClashes = 7,
 
-        NavisworksAvailableClashes = 8
+        NavisworksAvailableClashes = 8,
+
+        PluginErrorEncountered = 9
     }
 }
