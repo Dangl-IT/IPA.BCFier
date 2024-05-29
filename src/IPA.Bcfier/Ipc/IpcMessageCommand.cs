@@ -20,6 +20,8 @@
 
         NavisworksAvailableClashes = 8,
 
-        PluginErrorEncountered = 9
+        PluginErrorEncountered = 9,
+
+        CadClosing
     }
 }

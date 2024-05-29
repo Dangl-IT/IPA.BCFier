@@ -2,6 +2,7 @@ using Autodesk.Navisworks.Api.Plugins;
 using System.Diagnostics;
 using System.Reflection;
 using IPA.Bcfier.Ipc;
+using Newtonsoft.Json;
 
 namespace IPA.Bcfier.Navisworks
 {
@@ -34,6 +35,17 @@ namespace IPA.Bcfier.Navisworks
             var commandListener = new IpcNavisworksCommandListener(ipcHandler, taskQueueHandler, appCorrelationId);
             commandListener.Listen();
             Autodesk.Navisworks.Api.Application.Idle += taskQueueHandler.OnIdling;
+            Autodesk.Navisworks.Api.Application.Gui.Closing += (s, e) =>
+            {
+                if (_bcfierAppProcess != null)
+                {
+                    ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                    {
+                        Command = IpcMessageCommand.CadClosing,
+                        Data = appCorrelationId
+                    })).ConfigureAwait(true).GetAwaiter().GetResult();
+                }
+            };
 
             return 0;
         }

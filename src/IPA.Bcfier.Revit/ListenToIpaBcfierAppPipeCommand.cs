@@ -1,7 +1,8 @@
-﻿using Autodesk.Revit.Attributes;
+using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using IPA.Bcfier.Ipc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
@@ -34,6 +35,17 @@ namespace IPA.Bcfier.Revit
             var commandListener = new IpcBcfierCommandListener(ipcHandler, taskQueueHandler, appCorrelationId);
             commandListener.Listen();
             commandData.Application.Idling += taskQueueHandler.OnIdling;
+            commandData.Application.ApplicationClosing += (s, e) =>
+            {
+                if (_bcfierAppProcess != null)
+                {
+                    ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                    {
+                        Command = IpcMessageCommand.CadClosing,
+                        Data = appCorrelationId
+                    })).ConfigureAwait(true).GetAwaiter().GetResult();
+                }
+            };
 
             return Result.Succeeded;
         }

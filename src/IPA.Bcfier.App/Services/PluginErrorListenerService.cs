@@ -35,6 +35,12 @@ namespace IPA.Bcfier.App.Services
                         var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<BcfierHub>>();
                         await hubContext.Clients.All.SendAsync("InternalError", ipcMessage.Data);
                     }
+                    else if (ipcMessage.Command == IpcMessageCommand.CadClosing)
+                    {
+                        using var scope = _serviceProvider.CreateScope();
+                        var lifetime = scope.ServiceProvider.GetRequiredService<IHostApplicationLifetime>();
+                        lifetime.StopApplication();
+                    }
                     else
                     {
                         IpcHandler.ReceivedMessages.Enqueue(message);
