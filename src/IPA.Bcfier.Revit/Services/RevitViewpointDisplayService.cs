@@ -163,7 +163,15 @@ namespace IPA.Bcfier.Revit.Services
                         .FirstOrDefault();
                     if (baseViewTemplate != null)
                     {
-                        uiDocument.Document.ActiveView.ApplyViewTemplateParameters(baseViewTemplate);
+                        using (var trans = new Transaction(uiDocument.Document))
+                        {
+                            if (trans.Start("Apply IPA BCF View Template") == TransactionStatus.Started)
+                            {
+                                uiDocument.Document.ActiveView.ApplyViewTemplateParameters(baseViewTemplate);
+                            }
+
+                            trans.Commit();
+                        }
                     }
 
                     var elementsToSelect = new List<ElementId>();
