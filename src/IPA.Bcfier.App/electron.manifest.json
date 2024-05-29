@@ -9,6 +9,7 @@
   "environment": "Production",
   "build": {
     "appId": "com.IPA.Bcfier.app",
+    "icon": "../../../bcfier.png",
     "productName": "IPA.Bcfier",
     "copyright": "Copyright © 2024 Dangl IT GmbH",
     "afterSign": "../../../electronAfterPackHook.js",
