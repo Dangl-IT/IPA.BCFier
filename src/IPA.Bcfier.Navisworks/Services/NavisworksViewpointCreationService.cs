@@ -43,7 +43,8 @@ namespace IPA.Bcfier.Navisworks.Services
             }
 
             // it is a orthogonal view
-            if (viewpoint.Projection == ViewpointProjection.Orthographic)
+            //if (viewpoint.Projection == ViewpointProjection.Orthographic)
+            if (true) // TODO always creating orthographic views for now from Navisworks
             {
                 //TODO: needs checking!!!
                 double dist = viewpoint.VerticalExtentAtFocalDistance / 2;
