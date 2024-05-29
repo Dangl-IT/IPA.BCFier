@@ -2,6 +2,7 @@ using Autodesk.Navisworks.Api;
 using Autodesk.Navisworks.Api.Clash;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Models.Clashes;
+using IPA.Bcfier.Navisworks.OpenProject;
 using IPA.Bcfier.Navisworks.Utilities;
 
 namespace IPA.Bcfier.Navisworks.Services
@@ -101,7 +102,12 @@ namespace IPA.Bcfier.Navisworks.Services
                 };
             }
 
-            var selectedIfcGuids = _doc.CurrentSelection.SelectedItems.Select(selectedItem => selectedItem.InstanceGuid.ToIfcGuid()).ToList();
+            var elementBoundingBoxes = new List<BoundingBox3D>();
+            var selectedIfcGuids = _doc.CurrentSelection.SelectedItems.Select(selectedItem =>
+            {
+                elementBoundingBoxes.Add(selectedItem.BoundingBox());
+                return selectedItem.InstanceGuid.ToIfcGuid();
+            }).ToList();
             if (selectedIfcGuids.Any())
             {
                 v.ViewpointComponents = new BcfViewpointComponents
@@ -112,6 +118,25 @@ namespace IPA.Bcfier.Navisworks.Services
                         OriginatingSystem = "IPA.BCFier.Navisworks",
                     }).ToList()
                 };
+            }
+
+            if (elementBoundingBoxes.Any())
+            {
+                // We need to construct a common bounding box for all selected elements
+                var minX = elementBoundingBoxes.Min(b => b.Min.X);
+                var minY = elementBoundingBoxes.Min(b => b.Min.Y);
+                var minZ = elementBoundingBoxes.Min(b => b.Min.Z);
+                var maxX = elementBoundingBoxes.Max(b => b.Max.X);
+                var maxY = elementBoundingBoxes.Max(b => b.Max.Y);
+                var maxZ = elementBoundingBoxes.Max(b => b.Max.Z);
+
+                var commonBoundingBox = new BoundingBox3D(new Point3D(maxZ.FromInternal(), maxY.FromInternal(), minZ.FromInternal()),
+                    new Point3D(minX.FromInternal(), minY.FromInternal(), maxZ.FromInternal()));
+
+                var clippingPlanes = TransformBoundingBoxToClippingPlanes(commonBoundingBox);
+
+                v.ClippingPlanes ??= new List<BcfViewpointClippingPlane>();
+                v.ClippingPlanes.AddRange(clippingPlanes);
             }
 
 #if NAVISWORKS_2023 || NAVISWORKS_2022 || NAVISWORKS_2021
@@ -370,5 +395,81 @@ namespace IPA.Bcfier.Navisworks.Services
             rot.Normalize();
             return rot;
         }
+
+        private List<BcfViewpointClippingPlane> TransformBoundingBoxToClippingPlanes(BoundingBox3D clippingBox)
+        {
+            Vector3 center = new Vector3(clippingBox.Center.X.ToDecimal(), clippingBox.Center.Y.ToDecimal(), clippingBox.Center.Z.ToDecimal());
+
+            var planes = new List<BcfViewpointClippingPlane>();
+
+            planes.Add(new BcfViewpointClippingPlane
+            {
+                Location = new BcfViewpointPoint
+                {
+                    X = Convert.ToSingle(clippingBox.Min.X),
+                    Y = Convert.ToSingle(center.Y),
+                    Z = Convert.ToSingle(center.Z)
+                },
+                Direction = new BcfViewpointVector { X = -1, Y = 0, Z = 0 }
+            });
+
+            planes.Add(new BcfViewpointClippingPlane
+            {
+                Location = new BcfViewpointPoint
+                {
+                    X = Convert.ToSingle(center.X),
+                    Y = Convert.ToSingle(clippingBox.Min.Y),
+                    Z = Convert.ToSingle(center.Z)
+                },
+                Direction = new BcfViewpointVector { X = 0, Y = -1, Z = 0 }
+            });
+
+            planes.Add(new BcfViewpointClippingPlane
+            {
+                Location = new BcfViewpointPoint
+                {
+                    X = Convert.ToSingle(center.X),
+                    Y = Convert.ToSingle(center.Y),
+                    Z = Convert.ToSingle(clippingBox.Min.Z)
+                },
+                Direction = new BcfViewpointVector { X = 0, Y = 0, Z = -1 }
+            });
+
+            planes.Add(new BcfViewpointClippingPlane
+            {
+                Location = new BcfViewpointPoint
+                {
+                    X = Convert.ToSingle(clippingBox.Max.X),
+                    Y = Convert.ToSingle(center.Y),
+                    Z = Convert.ToSingle(center.Z)
+                },
+                Direction = new BcfViewpointVector { X = 1, Y = 0, Z = 0 }
+            });
+
+            planes.Add(new BcfViewpointClippingPlane
+            {
+                Location = new BcfViewpointPoint
+                {
+                    X = Convert.ToSingle(center.X),
+                    Y = Convert.ToSingle(clippingBox.Max.Y),
+                    Z = Convert.ToSingle(center.Z)
+                },
+                Direction = new BcfViewpointVector { X = 0, Y = 1, Z = 0 }
+            });
+
+            planes.Add(new BcfViewpointClippingPlane
+            {
+                Location = new BcfViewpointPoint
+                {
+                    X = Convert.ToSingle(center.X),
+                    Y = Convert.ToSingle(center.Y),
+                    Z = Convert.ToSingle(clippingBox.Max.Z)
+                },
+                Direction = new BcfViewpointVector { X = 0, Y = 0, Z = 1 }
+            });
+
+            return planes;
+        }
     }
 }
+
