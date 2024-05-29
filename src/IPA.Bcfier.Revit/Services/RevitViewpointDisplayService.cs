@@ -139,7 +139,7 @@ namespace IPA.Bcfier.Revit.Services
                     return null;
                 }
 
-                Action viewContinuation = () =>
+                Action<UIDocument> viewContinuation = (uiDocument) =>
                 {
                     if (bcfViewpoint.ViewpointComponents == null)
                     {
@@ -156,25 +156,25 @@ namespace IPA.Bcfier.Revit.Services
                         _uiDocument.GetOpenUIViews().First().ZoomAndCenterRectangle(m_xyzTl, m_xyzBr);
                     }
 
-                    var baseViewTemplate = new FilteredElementCollector(doc)
+                    var baseViewTemplate = new FilteredElementCollector(uiDocument.Document)
                         .OfClass(typeof(View))
                         .Cast<View>()
                         .Where(view => view.IsTemplate && view.Name.Contains("3D") && view.Name.Contains("IPA BCF"))
                         .FirstOrDefault();
                     if (baseViewTemplate != null)
                     {
-                        doc.ActiveView.ApplyViewTemplateParameters(baseViewTemplate);
+                        uiDocument.Document.ActiveView.ApplyViewTemplateParameters(baseViewTemplate);
                     }
 
                     var elementsToSelect = new List<ElementId>();
                     var elementsToHide = new List<ElementId>();
                     var elementsToShow = new List<ElementId>();
 
-                    var visibleElems = new FilteredElementCollector(doc, doc.ActiveView.Id)
+                    var visibleElems = new FilteredElementCollector(uiDocument.Document, uiDocument.Document.ActiveView.Id)
                         .WhereElementIsNotElementType()
                         .WhereElementIsViewIndependent()
                         .ToElementIds()
-                        .Where(e => doc.GetElement(e).CanBeHidden(doc.ActiveView)); //might affect performance, but it's necessary
+                        .Where(e => uiDocument.Document.GetElement(e).CanBeHidden(uiDocument.Document.ActiveView)); //might affect performance, but it's necessary
 
                     bool canSetVisibility = (bcfViewpoint.ViewpointComponents.Visibility != null &&
                       bcfViewpoint.ViewpointComponents.Visibility.DefaultVisibility &&
@@ -213,29 +213,29 @@ namespace IPA.Bcfier.Revit.Services
                         }
                     }
 
-                    using (var trans = new Transaction(_uiDocument.Document))
+                    using (var trans = new Transaction(uiDocument.Document))
                     {
                         if (trans.Start("Apply BCF visibility and selection and section box") == TransactionStatus.Started)
                         {
                             if (elementsToHide.Any())
-                                doc.ActiveView.HideElementsTemporary(elementsToHide);
+                                uiDocument.Document.ActiveView.HideElementsTemporary(elementsToHide);
                             //there are no items to hide, therefore hide everything and just show the visible ones
                             else if (elementsToShow.Any())
-                                doc.ActiveView.IsolateElementsTemporary(elementsToShow);
+                                uiDocument.Document.ActiveView.IsolateElementsTemporary(elementsToShow);
 
                             if (elementsToSelect.Any())
-                                _uiDocument.Selection.SetElementIds(elementsToSelect);
+                                uiDocument.Selection.SetElementIds(elementsToSelect);
 
-                            if (_uiDocument.ActiveView is View3D view3d)
+                            if (uiDocument.ActiveView is View3D view3d)
                             {
-                                ApplyClippingPlanes(_uiDocument, view3d, bcfViewpoint);
+                                ApplyClippingPlanes(uiDocument, view3d, bcfViewpoint);
                             }
                         }
 
                         trans.Commit();
                     }
 
-                    _uiDocument.RefreshActiveView();
+                    uiDocument.RefreshActiveView();
                 };
 
                 return new ViewContinuationInstructions

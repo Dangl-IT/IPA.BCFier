@@ -80,7 +80,7 @@ namespace IPA.Bcfier.Revit
                     var item = AfterViewCreationCallbackQueue.Dequeue();
                     if (item?.ViewId == uiDocument.ActiveView.Id)
                     {
-                        item.ViewContinuation?.Invoke();
+                        item.ViewContinuation?.Invoke(uiDocument);
                         Task.Run(async () =>
                         {
                             if (item != null && item.Callback != null)
