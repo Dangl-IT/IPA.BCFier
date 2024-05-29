@@ -71,6 +71,15 @@ namespace IPA.Bcfier.Revit
                         }
                     }
 
+                    if (_revitTaskQueueHandler.CadErrorMessages.TryDequeue(out var errorMessage))
+                    {
+                        await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                        {
+                            Command = IpcMessageCommand.PluginErrorEncountered,
+                            Data = errorMessage
+                        }));
+                    }
+
                     await Task.Delay(100);
                 }
 

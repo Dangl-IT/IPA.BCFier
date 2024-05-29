@@ -7,6 +7,7 @@ using IPA.Bcfier.Services;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Collections.Concurrent;
 
 namespace IPA.Bcfier.Revit
 {
@@ -16,6 +17,7 @@ namespace IPA.Bcfier.Revit
         public Queue<Func<string, Task>> CreateRevitViewpointCallbacks { get; } = new Queue<Func<string, Task>>();
         public Queue<ShowViewpointQueueItem> ShowViewpointQueueItems { get; } = new Queue<ShowViewpointQueueItem>();
         private Queue<ViewContinuationInstructions> AfterViewCreationCallbackQueue { get; } = new Queue<ViewContinuationInstructions>();
+        public ConcurrentQueue<string> CadErrorMessages { get; } = new ConcurrentQueue<string>();
         private bool shouldUnregister = false;
 
         public void OnIdling(object sender, IdlingEventArgs args)
@@ -70,25 +72,32 @@ namespace IPA.Bcfier.Revit
             // 5. Once the view is loaded, we check this other queue here and apply the callback,
             //    which sets e.g. the selected components
             // 6. After that, we can inform the frontend
-            var queueLength = AfterViewCreationCallbackQueue.Count;
-            for (var i = 0; i < queueLength; i++)
+            try
             {
-                var item = AfterViewCreationCallbackQueue.Dequeue();
-                if (item?.ViewId == uiDocument.ActiveView.Id)
+                var queueLength = AfterViewCreationCallbackQueue.Count;
+                for (var i = 0; i < queueLength; i++)
                 {
-                    item.ViewContinuation?.Invoke();
-                    Task.Run(async () =>
+                    var item = AfterViewCreationCallbackQueue.Dequeue();
+                    if (item?.ViewId == uiDocument.ActiveView.Id)
                     {
-                        if (item != null && item.Callback != null)
+                        item.ViewContinuation?.Invoke();
+                        Task.Run(async () =>
                         {
-                            await item.Callback();
-                        }
-                    });
+                            if (item != null && item.Callback != null)
+                            {
+                                await item.Callback();
+                            }
+                        });
+                    }
+                    else if (item != null)
+                    {
+                        AfterViewCreationCallbackQueue.Enqueue(item);
+                    }
                 }
-                else if (item != null)
-                {
-                    AfterViewCreationCallbackQueue.Enqueue(item);
-                }
+            }
+            catch (Exception e)
+            {
+                CadErrorMessages.Enqueue($"Error during viewpoint display (after view init): {Environment.NewLine}{e}");
             }
         }
 
@@ -131,28 +140,35 @@ namespace IPA.Bcfier.Revit
 
         private void HandleCreateRevitViewpointCallback(Func<string, Task> callback, UIDocument uiDocument)
         {
-            var viewpointService = new RevitViewpointCreationService(uiDocument);
-            var viewpoint = viewpointService.GenerateViewpoint();
-            var contractResolver = new DefaultContractResolver
+            try
             {
-                NamingStrategy = new CamelCaseNamingStrategy()
-            };
-            var serializerSettings = new JsonSerializerSettings
-            {
-                ContractResolver = contractResolver,
-                Formatting = Formatting.Indented
-            };
-            Task.Run(async () =>
-            {
-                if (viewpoint == null)
+                var viewpointService = new RevitViewpointCreationService(uiDocument);
+                var viewpoint = viewpointService.GenerateViewpoint();
+                var contractResolver = new DefaultContractResolver
                 {
-                    await callback("{}");
-                }
-                else
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                };
+                var serializerSettings = new JsonSerializerSettings
                 {
-                    await callback(JsonConvert.SerializeObject(viewpoint, serializerSettings));
-                }
-            });
+                    ContractResolver = contractResolver,
+                    Formatting = Formatting.Indented
+                };
+                Task.Run(async () =>
+                {
+                    if (viewpoint == null)
+                    {
+                        await callback("{}");
+                    }
+                    else
+                    {
+                        await callback(JsonConvert.SerializeObject(viewpoint, serializerSettings));
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                CadErrorMessages.Enqueue($"Error during viewpoint creation: {Environment.NewLine}{e}");
+            }
         }
 
         private void HandleShowRevitViewpointCallback(Func<Task>? callback, BcfViewpoint? viewpoint, UIDocument uiDocument)
@@ -162,19 +178,26 @@ namespace IPA.Bcfier.Revit
                 return;
             }
 
-            var viewpointService = new RevitViewpointDisplayService(uiDocument);
-            var afterViewInitCallback = viewpointService.DisplayViewpoint(viewpoint);
-            if (afterViewInitCallback?.ViewId == null)
+            try
             {
-                Task.Run(async () =>
+                var viewpointService = new RevitViewpointDisplayService(uiDocument);
+                var afterViewInitCallback = viewpointService.DisplayViewpoint(viewpoint);
+                if (afterViewInitCallback?.ViewId == null)
                 {
-                    await callback();
-                });
-                return;
-            }
+                    Task.Run(async () =>
+                    {
+                        await callback();
+                    });
+                    return;
+                }
 
-            afterViewInitCallback.Callback = callback;
-            AfterViewCreationCallbackQueue.Enqueue(afterViewInitCallback);
+                afterViewInitCallback.Callback = callback;
+                AfterViewCreationCallbackQueue.Enqueue(afterViewInitCallback);
+            }
+            catch (Exception e)
+            {
+                CadErrorMessages.Enqueue($"Error during viewpoint display: {Environment.NewLine}{e}");
+            }
         }
     }
 }
