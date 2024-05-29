@@ -4,7 +4,8 @@ namespace IPA.Bcfier.App.Models.Controllers.ProjectUsers
 {
     public class ProjectUserPost
     {
-        [Required]
-        public string Identifier { get; set; } = string.Empty;
+        public Guid? UserId { get; set; }
+
+        public string? Identifier { get; set; }
     }
 }

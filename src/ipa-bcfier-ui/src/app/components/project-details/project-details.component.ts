@@ -20,13 +20,24 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { EMPTY, Observable, Subject, filter, map, switchMap, tap } from 'rxjs';
+import {
+  EMPTY,
+  Observable,
+  Subject,
+  catchError,
+  filter,
+  map,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { AsyncPipe } from '@angular/common';
 import {
   ProjectGet,
   ProjectUserGet,
   ProjectUsersClient,
+  UserGet,
   UsersClient,
 } from '../../generated-client/generated-client';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,6 +46,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { UsersService } from '../../services/users.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { NotificationsService } from '../../services/notifications.service';
 @Component({
   selector: 'bcfier-project-details',
   standalone: true,
@@ -65,7 +77,8 @@ export class ProjectDetailsComponent implements OnDestroy {
   panelOpenState = false;
   identifier = '';
   private allUsers$ = inject(UsersClient).getAllUsers();
-  filteredUsers$ = new Subject<string[]>();
+  filteredUsers$ = new Subject<UserGet[]>();
+  private notificationsService = inject(NotificationsService);
   constructor(
     public dialogRef: MatDialogRef<ProjectDetailsComponent>,
     @Inject(MAT_DIALOG_DATA)
@@ -92,7 +105,10 @@ export class ProjectDetailsComponent implements OnDestroy {
       if (this.identifier) {
         this.filteredUsers$.next(
           users.filter(
-            (u) => u.toLowerCase().indexOf(this.identifier.toLowerCase()) !== -1
+            (u) =>
+              u.identifier
+                .toLowerCase()
+                .indexOf(this.identifier.toLowerCase()) !== -1
           )
         );
       } else {
@@ -123,10 +139,16 @@ export class ProjectDetailsComponent implements OnDestroy {
         identifier: this.identifier,
       })
       .pipe(
-        tap((u) => {
-          this.usersService.setUsers(u);
-          this.identifier = '';
-          this.cdr.detectChanges();
+        tap({
+          next: (u) => {
+            this.notificationsService.success('User added');
+            this.usersService.setUsers(u);
+            this.identifier = '';
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.notificationsService.error('Failed to add the user');
+          },
         })
       );
   }

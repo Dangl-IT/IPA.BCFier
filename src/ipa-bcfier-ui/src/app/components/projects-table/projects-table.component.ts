@@ -81,7 +81,7 @@ export class ProjectsTableComponent
 
   private destroyed$ = new Subject<void>();
   dataSource!: MatTableDataSource<ProjectGet>;
-  displayedColumns = ['name', 'created', 'actions'];
+  displayedColumns = ['name', 'createdAtUtc', 'actions'];
   filter = '';
   selectedProject: ProjectGet | null = null;
   shouldEnableProjectManagement =
@@ -104,6 +104,10 @@ export class ProjectsTableComponent
       .subscribe((p) => {
         this.selectedProject = p;
       });
+    this.projectsService.onSort({
+      active: 'createdAtUtc',
+      direction: 'desc',
+    });
   }
 
   ngOnDestroy(): void {

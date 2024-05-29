@@ -44,8 +44,8 @@
         (ngModelChange)="filterUsers()"
       />
       <mat-autocomplete #auto="matAutocomplete">
-        @for (userName of filteredUsers$ | async; track userName) {
-        <mat-option [value]="userName">{{ userName }}</mat-option>
+        @for (user of filteredUsers$ | async; track user) {
+        <mat-option [value]="user.identifier">{{ user.identifier }}</mat-option>
         }
       </mat-autocomplete>
     </mat-form-field>
@@ -68,11 +68,9 @@
         <mat-label>User identifier</mat-label>
         <input matInput [(ngModel)]="user.identifier" readonly />
       </mat-form-field>
-      @if(count > 1) {
       <mat-icon color="warn" (click)="deleteProjectUser(user.id)"
         >delete</mat-icon
       >
-      }
     </mat-list-item>
     }
   </mat-list>

@@ -36,7 +36,7 @@ namespace IPA.Bcfier.App.Controllers
                 .Select(p => new ProjectUserGet
                 {
                     Id = p.Id,
-                    Identifier = p.Identifier
+                    Identifier = p.User!.Identifier
                 })
                 .ToListAsync();
             return Ok(projectUsers);
@@ -48,21 +48,34 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> AddUserToProjectAsync(Guid projectId, [FromBody] ProjectUserPost model)
         {
+            if (model.UserId == null && model.Identifier == null)
+            {
+                return BadRequest(new ApiError("Either UserId or Identifier must be provided."));
+            }
+
             var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId);
             if (!projectExists)
             {
                 return NotFound();
             }
 
-            var identifierExistsAlready = await _context.ProjectUsers.AnyAsync(pu => pu.ProjectId == projectId && pu.Identifier == model.Identifier);
+            var identifierExistsAlready = await _context.ProjectUsers.AnyAsync(pu => pu.ProjectId == projectId
+                && pu.UserId == model.UserId);
             if (identifierExistsAlready)
             {
-                return BadRequest(new ApiError("This user already exists."));
+                return BadRequest(new ApiError("This user assignment already exists."));
+            }
+
+            var dbUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == model.UserId
+            || u.Identifier == model.Identifier);
+            if (dbUser == null)
+            {
+                return BadRequest(new ApiError("The user does not exist."));
             }
 
             var projectUser = new ProjectUser
             {
-                Identifier = model.Identifier,
+                UserId = dbUser.Id,
                 ProjectId = projectId
             };
             _context.ProjectUsers.Add(projectUser);
@@ -74,7 +87,7 @@ namespace IPA.Bcfier.App.Controllers
                 .Select(p => new ProjectUserGet
                 {
                     Id = p.Id,
-                    Identifier = p.Identifier
+                    Identifier = dbUser.Identifier
                 })
                 .ToListAsync();
             return Ok(projectUsers);
@@ -101,7 +114,7 @@ namespace IPA.Bcfier.App.Controllers
                 .Select(p => new ProjectUserGet
                 {
                     Id = p.Id,
-                    Identifier = p.Identifier
+                    Identifier = p.User.Identifier
                 })
                 .ToListAsync();
             return Ok(projectUsers);

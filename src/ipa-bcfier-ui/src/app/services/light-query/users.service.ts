@@ -3,22 +3,22 @@ import { DataSource } from '@angular/cdk/table';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { PaginationBaseService, PaginationResult } from 'ng-lightquery';
-import { Observable, map, of } from 'rxjs';
-import { ProjectGet } from '../../generated-client/generated-client';
+import { Observable, map } from 'rxjs';
+import { UserGet } from '../../generated-client/generated-client';
 import { SettingsMessengerService } from '../settings-messenger.service';
 @Injectable({
   providedIn: 'root',
 })
-export class ProjectsService
-  extends PaginationBaseService<ProjectGet>
-  implements DataSource<ProjectGet>
+export class UsersService
+  extends PaginationBaseService<UserGet>
+  implements DataSource<UserGet>
 {
   constructor(
     override http: HttpClient,
     private settingsMessengerService: SettingsMessengerService
   ) {
     super(http);
-    this.baseUrl = `api/projects`;
+    this.baseUrl = `api/users`;
 
     this.settingsMessengerService.settings.subscribe((settings) => {
       this.forceRefresh();
@@ -29,9 +29,9 @@ export class ProjectsService
     throw new Error('Method not implemented.');
   }
 
-  connect(): Observable<ProjectGet[]> {
+  connect(): Observable<UserGet[]> {
     return this.paginationResult.pipe(
-      map((r: PaginationResult<ProjectGet>) => r.data)
+      map((r: PaginationResult<UserGet>) => r.data)
     );
   }
 
