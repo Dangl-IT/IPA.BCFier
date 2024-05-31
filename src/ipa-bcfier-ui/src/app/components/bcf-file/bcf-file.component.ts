@@ -12,7 +12,7 @@ import {
 
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
-import { BulkAddResponsibleComponent } from '../bulk-add-responsible/bulk-add-responsible.component';
+import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
 import { CommonModule } from '@angular/common';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
@@ -218,18 +218,32 @@ export class BcfFileComponent {
 
   setResponsibleForAll(): void {
     this.dialog
-      .open(BulkAddResponsibleComponent)
+      .open(BulkTopicEditComponent)
       .afterClosed()
-      .subscribe((responsibleUser?: string) => {
-        if (!responsibleUser) {
-          return;
+      .subscribe(
+        (bulkOptions?: {
+          responsibleUser?: string;
+          status?: string;
+          type?: string;
+        }) => {
+          if (!bulkOptions) {
+            return;
+          }
+
+          this.filtredTopics.forEach((topic) => {
+            if (bulkOptions.status) {
+              topic.topicStatus = bulkOptions.status;
+            }
+            if (bulkOptions.type) {
+              topic.topicType = bulkOptions.type;
+            }
+            if (bulkOptions.responsibleUser) {
+              topic.assignedTo = bulkOptions.responsibleUser;
+            }
+          });
+
+          this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
         }
-
-        this.filtredTopics.forEach((topic) => {
-          topic.assignedTo = responsibleUser;
-        });
-
-        this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
-      });
+      );
   }
 }
