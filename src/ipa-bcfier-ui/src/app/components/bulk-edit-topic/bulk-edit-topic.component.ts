@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
-import { UsersService } from '../../services/users.service';
+import { ProjectUsersService } from '../../services/project-users.service';
 import { AsyncPipe } from '@angular/common';
 import { ProjectUserGet } from '../../generated-client/generated-client';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
@@ -17,10 +17,10 @@ import { IssueTypesService } from '../../services/issue-types.service';
 })
 export class BulkTopicEditComponent {
   private dialogRef = inject(MatDialogRef<BulkTopicEditComponent>);
-  users$ = inject(UsersService).users;
+  users$ = inject(ProjectUsersService).users;
   issueStatusesService = inject(IssueStatusesService);
   issueTypesService = inject(IssueTypesService);
-  usersService = inject(UsersService);
+  projectUsersService = inject(ProjectUsersService);
 
   issueStatuses$ = this.issueStatusesService.issueStatuses;
   issueTypes$ = this.issueTypesService.issueTypes;
@@ -30,7 +30,7 @@ export class BulkTopicEditComponent {
   selectedStatus: string | null = null;
 
   refreshUsers(): void {
-    this.usersService.refreshUsers();
+    this.projectUsersService.refreshUsers();
   }
 
   save(): void {

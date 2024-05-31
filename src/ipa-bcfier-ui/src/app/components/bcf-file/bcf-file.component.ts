@@ -27,6 +27,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { NavisworksClashSelectionComponent } from '../navisworks-clash-selection/navisworks-clash-selection.component';
 import { NotificationsService } from '../../services/notifications.service';
+import { ProjectUsersService } from '../../services/project-users.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { TeamsMessengerService } from '../../services/teams-messenger.service';
@@ -34,7 +35,6 @@ import { TopicDetailComponent } from '../topic-detail/topic-detail.component';
 import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
 import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
-import { UsersService } from '../../services/users.service';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
 
@@ -63,7 +63,7 @@ export class BcfFileComponent {
   @Input() bcfFile!: BcfFile;
   issueStatuses$ = inject(IssueStatusesService).issueStatuses;
   issueTypes$ = inject(IssueTypesService).issueTypes;
-  users$ = inject(UsersService).users;
+  users$ = inject(ProjectUsersService).users;
   issueFilterService = inject(IssueFilterService);
   bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
   teamsMessengerService = inject(TeamsMessengerService);

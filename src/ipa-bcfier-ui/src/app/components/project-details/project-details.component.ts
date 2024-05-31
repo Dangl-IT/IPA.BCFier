@@ -44,7 +44,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { UsersService } from '../../services/users.service';
+import { ProjectUsersService } from '../../services/project-users.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NotificationsService } from '../../services/notifications.service';
 @Component({
@@ -87,7 +87,7 @@ export class ProjectDetailsComponent implements OnDestroy {
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private matDialog: MatDialog,
-    private usersService: UsersService
+    private projectUsersService: ProjectUsersService
   ) {
     if (data) {
       this.projectDetailsForm.patchValue({
@@ -142,7 +142,7 @@ export class ProjectDetailsComponent implements OnDestroy {
         tap({
           next: (u) => {
             this.notificationsService.success('User added');
-            this.usersService.setUsers(u);
+            this.projectUsersService.setUsers(u);
             this.identifier = '';
             this.cdr.detectChanges();
           },
@@ -165,7 +165,7 @@ export class ProjectDetailsComponent implements OnDestroy {
         if (confirm) {
           this.users$ = this.projectUsersClient
             .deleteProjectUser(this.data.id, userId)
-            .pipe(tap((u) => this.usersService.setUsers(u)));
+            .pipe(tap((u) => this.projectUsersService.setUsers(u)));
           this.cdr.detectChanges();
         }
       });

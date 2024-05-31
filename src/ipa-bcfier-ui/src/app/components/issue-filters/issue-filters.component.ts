@@ -20,7 +20,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Observable } from 'rxjs';
 import { ProjectUserGet } from '../../generated-client/generated-client';
-import { UsersService } from '../../services/users.service';
+import { ProjectUsersService } from '../../services/project-users.service';
 
 export interface IFilters {
   status: FormControl<string>;
@@ -62,7 +62,7 @@ export class IssueFiltersComponent {
     required: true,
   })
   users$!: Observable<ProjectUserGet[]>;
-  usersService = inject(UsersService);
+  projectUsersService = inject(ProjectUsersService);
 
   @Output()
   acceptedFilters = new EventEmitter<FormGroup<IFilters>>();
@@ -92,6 +92,6 @@ export class IssueFiltersComponent {
   }
 
   refreshUsers(): void {
-    this.usersService.refreshUsers();
+    this.projectUsersService.refreshUsers();
   }
 }

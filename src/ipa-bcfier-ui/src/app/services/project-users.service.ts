@@ -10,7 +10,7 @@ import { SelectedProjectMessengerService } from './selected-project-messenger.se
 @Injectable({
   providedIn: 'root',
 })
-export class UsersService {
+export class ProjectUsersService {
   private usersSource = new BehaviorSubject<ProjectUserGet[]>([]);
   users = this.usersSource.asObservable();
   constructor(

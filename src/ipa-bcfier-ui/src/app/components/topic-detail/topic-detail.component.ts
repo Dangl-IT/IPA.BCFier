@@ -25,7 +25,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { UsersService } from '../../services/users.service';
+import { ProjectUsersService } from '../../services/project-users.service';
 
 @Component({
   selector: 'bcfier-topic-detail',
@@ -52,7 +52,7 @@ export class TopicDetailComponent implements OnInit {
   @Input() bcfFile!: BcfFile;
   issueStatusesService = inject(IssueStatusesService);
   issueTypesService = inject(IssueTypesService);
-  users$ = inject(UsersService).users;
+  users$ = inject(ProjectUsersService).users;
   bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
   teamsMessengerService = inject(TeamsMessengerService);
   extensions!: BcfProjectExtensions;
@@ -60,7 +60,7 @@ export class TopicDetailComponent implements OnInit {
   issueTypes$ = this.issueTypesService.issueTypes;
   isTitleChangeFirstTime = false;
   defaultTopicTitle = 'New Issue';
-  usersService = inject(UsersService);
+  projectUsersService = inject(ProjectUsersService);
   constructor(
     private matDialog: MatDialog,
     private backendService: BackendService
@@ -152,6 +152,6 @@ export class TopicDetailComponent implements OnInit {
   }
 
   refreshUsers(): void {
-    this.usersService.refreshUsers();
+    this.projectUsersService.refreshUsers();
   }
 }
