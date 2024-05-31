@@ -262,6 +262,7 @@ namespace IPA.Bcfier.Navisworks.Services
                             {
                                 bcfViewpoint
                             },
+                            TopicStatus = result.Status.ToString(),
                             Title = $"{test.DisplayName} - {result.DisplayName}"
                         });
                     }
@@ -345,6 +346,7 @@ namespace IPA.Bcfier.Navisworks.Services
                             {
                                 bcfViewpoint
                             },
+                            TopicStatus = resultGroup.Status.ToString(),
                             Title = $"{test.DisplayName} - {resultGroup.DisplayName} (Group)"
                         });
                     }
