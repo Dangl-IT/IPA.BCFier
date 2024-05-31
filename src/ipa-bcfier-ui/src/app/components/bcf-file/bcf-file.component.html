@@ -36,7 +36,7 @@
               Add Navisworks Clash Issues
             </button>
           </div>
-          } @if(filtredTopics && filtredTopics.length > 1) {
+          } @if(filteredTopics && filteredTopics.length > 1) {
           <div class="issue-list-buttons">
             <button
               mat-raised-button
@@ -74,7 +74,7 @@
           "
         >
           <mat-card
-            *ngFor="let topic of filtredTopics | topicFilter : search"
+            *ngFor="let topic of filteredTopics | topicFilter : search"
             (click)="selectTopic(topic)"
           >
             <mat-progress-bar

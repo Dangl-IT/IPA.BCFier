@@ -71,7 +71,7 @@ export class BcfFileComponent {
   settingsMessengerService = inject(SettingsMessengerService);
   cdr = inject(ChangeDetectorRef);
   selectedTopic: BcfTopic | null = null;
-  filtredTopics: BcfTopic[] = [];
+  filteredTopics: BcfTopic[] = [];
   isInNavisworks =
     inject(AppConfigService).getFrontendConfig().isConnectedToNavisworks;
   viewpointsClient = inject(ViewpointsClient);
@@ -83,7 +83,7 @@ export class BcfFileComponent {
     this.selectedTopic = this.bcfFile.topics[0] || null;
     this.topicMessengerService.setSelectedTopic(this.selectedTopic);
     this.cdr.detectChanges();
-    this.filtredTopics = [...this.bcfFile.topics];
+    this.filteredTopics = [...this.bcfFile.topics];
   }
 
   private _search = '';
@@ -125,7 +125,7 @@ export class BcfFileComponent {
       this.bcfFile.topics.push(newIssue);
       this.selectedTopic = newIssue;
       this.topicMessengerService.setSelectedTopic(this.selectedTopic);
-      this.filtredTopics = [...this.bcfFile.topics];
+      this.filteredTopics = [...this.bcfFile.topics];
       this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
     });
   }
@@ -145,7 +145,7 @@ export class BcfFileComponent {
       this.selectedTopic = null;
     }
     this.topicMessengerService.setSelectedTopic(this.selectedTopic);
-    this.filtredTopics = [...this.bcfFile.topics];
+    this.filteredTopics = [...this.bcfFile.topics];
     this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
   }
 
@@ -165,7 +165,7 @@ export class BcfFileComponent {
     const isValuePresentInFilters =
       !!status || !!type || !!users || !!issueRange.start || !!issueRange.end;
 
-    this.filtredTopics = isValuePresentInFilters
+    this.filteredTopics = isValuePresentInFilters
       ? [
           ...this.issueFilterService.filterIssue(
             this.bcfFile.topics,
@@ -204,7 +204,7 @@ export class BcfFileComponent {
                   });
 
                   this.bcfFile.topics.push(...createdTopics);
-                  this.filtredTopics = [...this.bcfFile.topics];
+                  this.filteredTopics = [...this.bcfFile.topics];
                   this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
                 });
             },
@@ -230,7 +230,7 @@ export class BcfFileComponent {
             return;
           }
 
-          this.filtredTopics.forEach((topic) => {
+          this.filteredTopics.forEach((topic) => {
             if (bulkOptions.status) {
               topic.topicStatus = bulkOptions.status;
             }
