@@ -36,6 +36,16 @@
               Add Navisworks Clash Issues
             </button>
           </div>
+          } @if(filtredTopics && filtredTopics.length > 1) {
+          <div class="issue-list-buttons">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="setResponsibleForAll()"
+            >
+              Set Responsible for All
+            </button>
+          </div>
           }
 
           <div class="filter-wrapper">

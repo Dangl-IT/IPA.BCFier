@@ -12,6 +12,7 @@ import {
 
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
+import { BulkAddResponsibleComponent } from '../bulk-add-responsible/bulk-add-responsible.component';
 import { CommonModule } from '@angular/common';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
@@ -212,6 +213,23 @@ export class BcfFileComponent {
               console.error(error);
             },
           });
+      });
+  }
+
+  setResponsibleForAll(): void {
+    this.dialog
+      .open(BulkAddResponsibleComponent)
+      .afterClosed()
+      .subscribe((responsibleUser?: string) => {
+        if (!responsibleUser) {
+          return;
+        }
+
+        this.filtredTopics.forEach((topic) => {
+          topic.assignedTo = responsibleUser;
+        });
+
+        this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
       });
   }
 }
