@@ -183,16 +183,26 @@ export class BcfFileComponent {
     this.dialog
       .open(NavisworksClashSelectionComponent)
       .afterClosed()
-      .subscribe((selectedClashId?: string | null) => {
-        if (!selectedClashId) {
+      .subscribe((selection?: { clashId: string; onlyImportNew: boolean }) => {
+        if (!selection) {
           return;
         }
         this.notificationsService.info(
           'If there are many clashes, generation of the data could take a few minutes.'
         );
         this.loadingService.showLoadingScreen();
+
+        const existingIds = selection.onlyImportNew
+          ? this.bcfFile.topics
+              .filter((topic) => !!topic.serverAssignedId)
+              .map((topic) => topic.serverAssignedId!)
+          : [];
+
         this.viewpointsClient
-          .createNavisworksClashDetectionResultIssues(selectedClashId)
+          .createNavisworksClashDetectionResultIssues({
+            clashId: selection.clashId,
+            excludedClashIds: existingIds,
+          })
           .subscribe({
             next: (createdTopics) => {
               this.loadingService.hideLoadingScreen();
@@ -202,6 +212,18 @@ export class BcfFileComponent {
                   createdTopics.forEach((topic) => {
                     topic.creationAuthor = s.username;
                   });
+
+                  if (selection.onlyImportNew) {
+                    // In that case, we're filtering out those topics that already exist in the
+                    createdTopics = createdTopics.filter(
+                      (topic) =>
+                        !this.bcfFile.topics.some(
+                          (existingTopic) =>
+                            existingTopic.serverAssignedId ===
+                            topic.serverAssignedId
+                        )
+                    );
+                  }
 
                   this.bcfFile.topics.push(...createdTopics);
                   this.filteredTopics = [...this.bcfFile.topics];

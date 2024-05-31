@@ -5,21 +5,31 @@ import {
   ViewpointsClient,
 } from '../../generated-client/generated-client';
 
+import { FormsModule } from '@angular/forms';
 import { LoadingService } from '../../services/loading.service';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'bcfier-navisworks-clash-selection',
   standalone: true,
-  imports: [MatInputModule, MatDialogModule, MatButtonModule, MatSelectModule],
+  imports: [
+    MatInputModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    FormsModule,
+  ],
   templateUrl: './navisworks-clash-selection.component.html',
   styleUrl: './navisworks-clash-selection.component.scss',
 })
 export class NavisworksClashSelectionComponent {
   viewpointsClient = inject(ViewpointsClient);
   loadingService = inject(LoadingService);
+  onlyImportNew = true;
   constructor(
     public dialogRef: MatDialogRef<NavisworksClashSelectionComponent>
   ) {
@@ -39,7 +49,10 @@ export class NavisworksClashSelectionComponent {
   selectedClashId: string | null = null;
 
   save(): void {
-    this.dialogRef.close(this.selectedClashId);
+    this.dialogRef.close({
+      clashId: this.selectedClashId,
+      onlyImportNew: this.onlyImportNew,
+    });
   }
 
   close(): void {

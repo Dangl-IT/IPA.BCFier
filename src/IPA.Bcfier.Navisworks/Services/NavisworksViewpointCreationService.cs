@@ -168,7 +168,7 @@ namespace IPA.Bcfier.Navisworks.Services
 
         // Mostly taken from here:
         // https://forums.autodesk.com/t5/navisworks-api/here-s-how-to-export-clash-result-images-using-navisworks-api/td-p/9089222
-        public List<BcfTopic> CreateClashIssues(Guid clashId)
+        public List<BcfTopic> CreateClashIssues(NavisworksClashCreationData clashCreationData)
         {
             var bcfTopics = new List<BcfTopic>();
             NavisUtils.GetGunits(_doc);
@@ -183,7 +183,7 @@ namespace IPA.Bcfier.Navisworks.Services
                     continue;
                 }
 
-                if (test.Guid != clashId)
+                if (test.Guid != clashCreationData.ClashId)
                 {
                     continue;
                 }
@@ -192,6 +192,11 @@ namespace IPA.Bcfier.Navisworks.Services
                 {
                     if (testItem is ClashResult result)
                     {
+                        if (clashCreationData.ExcludedClashIds != null && clashCreationData.ExcludedClashIds.Contains(result.Guid))
+                        {
+                            continue;
+                        }
+
                         var viewpoint = doc.CurrentViewpoint.Value;
                         // Create a collection of the 2 clashing items from the ClashResult
                         var items = new ModelItemCollection();
@@ -256,8 +261,10 @@ namespace IPA.Bcfier.Navisworks.Services
 
 
                         var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint);
+                        bcfViewpoint.Id = result.Guid;
                         bcfTopics.Add(new BcfTopic
                         {
+                            ServerAssignedId = result.Guid.ToString(),
                             Viewpoints = new List<BcfViewpoint>
                             {
                                 bcfViewpoint
@@ -268,6 +275,11 @@ namespace IPA.Bcfier.Navisworks.Services
                     }
                     else if (testItem is ClashResultGroup resultGroup)
                     {
+                        if (clashCreationData.ExcludedClashIds != null && clashCreationData.ExcludedClashIds.Contains(resultGroup.Guid))
+                        {
+                            continue;
+                        }
+
                         var viewpoint = doc.CurrentViewpoint.Value;
                         // Create a collection of the 2 clashing items from the ClashResult
                         var items = new ModelItemCollection();
@@ -339,8 +351,10 @@ namespace IPA.Bcfier.Navisworks.Services
 
 
                         var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint);
+                        bcfViewpoint.Id = resultGroup.Guid;
                         bcfTopics.Add(new BcfTopic
                         {
+                            ServerAssignedId = resultGroup.Guid.ToString(),
                             CreationDate = DateTime.Now,
                             Viewpoints = new List<BcfViewpoint>
                             {

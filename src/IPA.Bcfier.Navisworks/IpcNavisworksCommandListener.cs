@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Navisworks.Models;
 using System.Collections.Concurrent;
+using IPA.Bcfier.Models.Clashes;
 
 namespace IPA.Bcfier.Navisworks
 {
@@ -53,9 +54,10 @@ namespace IPA.Bcfier.Navisworks
                                 break;
 
                             case IpcMessageCommand.CreateNavisworksClashDetectionIssues:
+                                var data = JsonConvert.DeserializeObject<NavisworksClashCreationData>(ipcMessage.Data!)!;
                                 _navisworksTaskHandler.CreateNavisworksClashIssuesCallbacks.Enqueue(new CreateClashIssuesQueueItem
                                 {
-                                    ClashId = Guid.Parse(ipcMessage.Data!),
+                                    ClashCreationData = data,
                                     Callback = async (data) =>
                                     {
                                         await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage

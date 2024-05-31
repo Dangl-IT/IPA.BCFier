@@ -165,11 +165,16 @@ namespace IPA.Bcfier.App.Controllers
         [HttpPost("navisworks-clashes")]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(List<BcfTopic>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateNavisworksClashDetectionResultIssuesAsync([FromQuery] Guid clashId)
+        public async Task<IActionResult> CreateNavisworksClashDetectionResultIssuesAsync([FromBody] NavisworksClashCreationData model)
         {
             if (!_navisworksParameters.IsConnectedToNavisworks)
             {
                 return BadRequest(new ApiError("The app is currently not connected to Navisworks"));
+            }
+
+            if (model == null || model.ClashId == Guid.Empty)
+            {
+                return BadRequest(new ApiError("The model is invalid"));
             }
 
             using var ipcHandler = GetIpcHandler();
@@ -180,7 +185,7 @@ namespace IPA.Bcfier.App.Controllers
             {
                 CorrelationId = correlationId,
                 Command = IpcMessageCommand.CreateNavisworksClashDetectionIssues,
-                Data = clashId.ToString()
+                Data = JsonConvert.SerializeObject(model)
             }));
 
             var hasReceived = false;

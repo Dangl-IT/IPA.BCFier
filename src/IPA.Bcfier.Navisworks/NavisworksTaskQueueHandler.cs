@@ -5,6 +5,7 @@ using Autodesk.Navisworks.Api;
 using IPA.Bcfier.Navisworks.Services;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Concurrent;
+using IPA.Bcfier.Models.Clashes;
 
 namespace IPA.Bcfier.Navisworks
 {
@@ -36,7 +37,7 @@ namespace IPA.Bcfier.Navisworks
             {
                 var uiDocument = Application.ActiveDocument;
                 var queueItem = CreateNavisworksClashIssuesCallbacks.Dequeue();
-                HandleCreateNavisworksClashIssuesCallback(queueItem.Callback, uiDocument, queueItem.ClashId);
+                HandleCreateNavisworksClashIssuesCallback(queueItem.Callback, uiDocument, queueItem.ClashCreationData);
             }
 
             if (ShowViewpointQueueItems.Count > 0)
@@ -120,12 +121,12 @@ namespace IPA.Bcfier.Navisworks
 
         private void HandleCreateNavisworksClashIssuesCallback(Func<string, Task> callback,
             Document uiDocument,
-            Guid clashId)
+            NavisworksClashCreationData clashCreationData)
         {
             try
             {
                 var viewpointService = new NavisworksViewpointCreationService(uiDocument);
-                var clashIssues = viewpointService.CreateClashIssues(clashId);
+                var clashIssues = viewpointService.CreateClashIssues(clashCreationData);
                 var contractResolver = new DefaultContractResolver
                 {
                     NamingStrategy = new CamelCaseNamingStrategy()

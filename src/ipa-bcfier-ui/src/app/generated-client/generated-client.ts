@@ -1470,7 +1470,7 @@ export interface IViewpointsClient {
     showViewpoint(viewpoint: BcfViewpoint): Observable<void>;
     createViewpoint(): Observable<BcfViewpoint>;
     getAvailableNavisworksClashes(): Observable<NavisworksClashSelection[]>;
-    createNavisworksClashDetectionResultIssues(clashId: string | undefined): Observable<BcfTopic[]>;
+    createNavisworksClashDetectionResultIssues(model: NavisworksClashCreationData): Observable<BcfTopic[]>;
 }
 
 @Injectable({
@@ -1646,18 +1646,18 @@ export class ViewpointsClient implements IViewpointsClient {
         return _observableOf(null as any);
     }
 
-    createNavisworksClashDetectionResultIssues(clashId: string | undefined): Observable<BcfTopic[]> {
-        let url_ = this.baseUrl + "/api/viewpoints/navisworks-clashes?";
-        if (clashId === null)
-            throw new Error("The parameter 'clashId' cannot be null.");
-        else if (clashId !== undefined)
-            url_ += "clashId=" + encodeURIComponent("" + clashId) + "&";
+    createNavisworksClashDetectionResultIssues(model: NavisworksClashCreationData): Observable<BcfTopic[]> {
+        let url_ = this.baseUrl + "/api/viewpoints/navisworks-clashes";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(model);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -1947,6 +1947,11 @@ export interface NavisworksClashSelection {
     id?: string;
     displayName?: string;
     isGroup?: boolean;
+}
+
+export interface NavisworksClashCreationData {
+    clashId?: string;
+    excludedClashIds?: string[];
 }
 
 export interface FileResponse {
