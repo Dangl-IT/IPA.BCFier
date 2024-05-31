@@ -292,6 +292,10 @@ namespace IPA.Bcfier.Revit.Services
                 view.SetSectionBox(ToRevitSectionBox(boundingBox));
                 view.IsSectionBoxActive = true;
             }
+            else
+            {
+                view.IsSectionBoxActive = false;
+            }
         }
 
         private AxisAlignedBoundingBox GetViewpointClippingBox(BcfViewpoint bcfViewpoint)
