@@ -28,7 +28,7 @@ namespace IPA.Bcfier.Navisworks.Services
             return v;
         }
 
-        private BcfViewpoint GetViewpointFromNavisworksViewpoint(Viewpoint viewpoint)
+        private BcfViewpoint GetViewpointFromNavisworksViewpoint(Viewpoint viewpoint, List<ModelItem> selectedItems = null)
         {
             var v = new BcfViewpoint();
             Vector3D vi = GetViewDirection(viewpoint);
@@ -103,11 +103,17 @@ namespace IPA.Bcfier.Navisworks.Services
             }
 
             var elementBoundingBoxes = new List<BoundingBox3D>();
-            var selectedIfcGuids = _doc.CurrentSelection.SelectedItems.Select(selectedItem =>
-            {
-                elementBoundingBoxes.Add(selectedItem.BoundingBox());
-                return selectedItem.InstanceGuid.ToIfcGuid();
-            }).ToList();
+            var selectedIfcGuids = selectedItems == null
+                ? _doc.CurrentSelection.SelectedItems.Select(selectedItem =>
+                {
+                    elementBoundingBoxes.Add(selectedItem.BoundingBox());
+                    return selectedItem.InstanceGuid.ToIfcGuid();
+                }).ToList()
+                : selectedItems.Select(selectedItem =>
+                {
+                    elementBoundingBoxes.Add(selectedItem.BoundingBox());
+                    return selectedItem.InstanceGuid.ToIfcGuid();
+                }).ToList();
             if (selectedIfcGuids.Any())
             {
                 v.ViewpointComponents = new BcfViewpointComponents
@@ -243,6 +249,7 @@ namespace IPA.Bcfier.Navisworks.Services
                                                 .Except<ModelItem>(to_show)
                                               , true);
                         // Remove selction color from the clashing items
+                        var selectedItems = doc.CurrentSelection.SelectedItems.ToList();
                         doc.CurrentSelection.Clear();
 
                         // Adjust the camera and lighting
@@ -260,7 +267,7 @@ namespace IPA.Bcfier.Navisworks.Services
                         doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
 
 
-                        var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint);
+                        var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, selectedItems);
                         bcfViewpoint.Id = result.Guid;
                         bcfTopics.Add(new BcfTopic
                         {
@@ -325,7 +332,8 @@ namespace IPA.Bcfier.Navisworks.Services
                                                 .Except<ModelItem>(to_hide)
                                                 .Except<ModelItem>(to_show)
                                               , true);
-                        // Remove selction color from the clashing items
+                        // Remove selection color from the clashing items
+                        var selectedItems = doc.CurrentSelection.SelectedItems.ToList();
                         doc.CurrentSelection.Clear();
 
                         // Adjust the camera and lighting
@@ -350,7 +358,7 @@ namespace IPA.Bcfier.Navisworks.Services
                         doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
 
 
-                        var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint);
+                        var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, selectedItems);
                         bcfViewpoint.Id = resultGroup.Guid;
                         bcfTopics.Add(new BcfTopic
                         {
