@@ -72,7 +72,6 @@ export class ProjectDetailsComponent implements OnDestroy {
   projectDetailsForm = this.fb.group({
     name: ['', Validators.required],
     teamsWebhook: [''],
-    revitIdentifier: [''],
   });
   panelOpenState = false;
   identifier = '';
@@ -93,7 +92,6 @@ export class ProjectDetailsComponent implements OnDestroy {
       this.projectDetailsForm.patchValue({
         name: data.name,
         teamsWebhook: data?.teamsWebhook,
-        revitIdentifier: data?.revitIdentifier,
       });
       this.users$ = this.getProjectUsers(data.id);
     }
