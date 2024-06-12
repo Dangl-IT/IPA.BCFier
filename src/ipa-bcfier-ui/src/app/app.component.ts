@@ -30,6 +30,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NotificationsService } from './services/notifications.service';
 import { SelectedProjectMessengerService } from './services/selected-project-messenger.service';
 import { TopMenuComponent } from './components/top-menu/top-menu.component';
+import { version } from './version';
 
 @Component({
   selector: 'bcfier-root',
@@ -75,6 +76,14 @@ export class AppComponent implements OnDestroy {
             selectedProjectMessengerService.setSelectedProject(selectedProject);
           }
         });
+    }
+
+    const cadPluginVersion =
+      appConfigService.getFrontendConfig().cadPluginVersion;
+    if (!!cadPluginVersion && version.version !== cadPluginVersion) {
+      this.notificationsService.info(
+        `The BCFier version (${version.version}) is different from the CAD plugin version (${cadPluginVersion}).`
+      );
     }
 
     this.changeSelectedTabIndex(0);

@@ -15,14 +15,17 @@ namespace IPA.Bcfier.App.Controllers
         private readonly RevitParameters _revitParameters;
         private readonly NavisworksParameters _navisworksParameters;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly AppParameters _appParameters;
 
         public FrontendConfigController(RevitParameters revitParameters,
             NavisworksParameters navisworksParameters,
-            IWebHostEnvironment webHostEnvironment)
+            IWebHostEnvironment webHostEnvironment,
+            AppParameters appParameters)
         {
             _revitParameters = revitParameters;
             _navisworksParameters = navisworksParameters;
             _webHostEnvironment = webHostEnvironment;
+            _appParameters = appParameters;
         }
 
         [HttpGet("config.js")]
@@ -99,7 +102,8 @@ window.ipaBcfierFrontendConfig = "
                 IsConnectedToRevit = _revitParameters.IsConnectedToRevit,
                 IsConnectedToNavisworks = _navisworksParameters.IsConnectedToNavisworks,
                 RevitProjectPath = _revitParameters.RevitProjectPath,
-                Environment = _webHostEnvironment.EnvironmentName
+                Environment = _webHostEnvironment.EnvironmentName,
+                CadPluginVersion = _appParameters.CadPluginVersion
             };
         }
     }

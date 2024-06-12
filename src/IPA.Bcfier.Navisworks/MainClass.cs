@@ -70,7 +70,7 @@ namespace IPA.Bcfier.Navisworks
                 throw new SystemException("IPA.BCFier.App executable not found.");
             }
 
-            var arguments = $"--navisworks-integration --app-correlation-id=\"{appCorrelationId}\"";
+            var arguments = $"--navisworks-integration --app-correlation-id=\"{appCorrelationId}\" --cad-plugin-version=\"{FileVersionProvider.NuGetVersion}\"";
 
             _bcfierAppProcess = Process.Start(ipaBcfierExecutablePath, arguments);
             _bcfierAppProcess.Exited += (sender, args) =>

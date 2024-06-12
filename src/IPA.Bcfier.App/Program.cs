@@ -58,6 +58,9 @@ namespace IPA.Bcfier.App
                         scope.ServiceProvider.GetRequiredService<AppParameters>().ApplicationId = correlationId;
                     }
 
+                    var cadPluginVersion = await Electron.App.CommandLine.GetSwitchValueAsync("cad-plugin-version");
+                    scope.ServiceProvider.GetRequiredService<AppParameters>().CadPluginVersion = cadPluginVersion;
+
                     var revitProjectPath = await Electron.App.CommandLine.GetSwitchValueAsync("revit-project-path");
                     if (!string.IsNullOrWhiteSpace(revitProjectPath))
                     {

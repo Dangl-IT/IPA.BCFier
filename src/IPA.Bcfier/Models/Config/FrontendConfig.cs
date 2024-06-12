@@ -17,5 +17,7 @@ namespace IPA.Bcfier.Models.Config
 
         [Required]
         public string Environment { get; set; } = string.Empty;
+
+        public string? CadPluginVersion { get; set; }
     }
 }

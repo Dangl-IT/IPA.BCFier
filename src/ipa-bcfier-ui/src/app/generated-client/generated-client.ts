@@ -1867,6 +1867,7 @@ export interface FrontendConfig {
     isConnectedToNavisworks: boolean;
     revitProjectPath?: string | null;
     environment: string;
+    cadPluginVersion?: string | null;
 }
 
 export interface LastOpenedFilesWrapperGet {

@@ -73,7 +73,7 @@ namespace IPA.Bcfier.Revit
                 throw new SystemException("IPA.BCFier.App executable not found.");
             }
 
-            var arguments = $"--revit-integration --app-correlation-id=\"{appCorrelationId}\"";
+            var arguments = $"--revit-integration --app-correlation-id=\"{appCorrelationId}\" --cad-plugin-version=\"{FileVersionProvider.NuGetVersion}\"";
             if (!string.IsNullOrWhiteSpace(revitProjectPath))
             {
                 arguments += $" --revit-project-path \"{revitProjectPath}\"";
