@@ -261,13 +261,18 @@ export class BcfFileComponent {
 
           this.filteredTopics.forEach((topic) => {
             if (bulkOptions.status) {
-              topic.topicStatus = bulkOptions.status;
+              topic.topicStatus =
+                bulkOptions.status === '' ? undefined : bulkOptions.status;
             }
             if (bulkOptions.type) {
-              topic.topicType = bulkOptions.type;
+              topic.topicType =
+                bulkOptions.type === '' ? undefined : bulkOptions.type;
             }
             if (bulkOptions.responsibleUser) {
-              topic.assignedTo = bulkOptions.responsibleUser;
+              topic.assignedTo =
+                bulkOptions.responsibleUser === ''
+                  ? undefined
+                  : bulkOptions.responsibleUser;
             }
           });
 

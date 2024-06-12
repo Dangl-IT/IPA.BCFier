@@ -7,7 +7,9 @@
       <mat-label>Responsible</mat-label>
       <mat-select [(value)]="selectedUser" (opened)="refreshUsers()">
         @for (user of (users$ | async)?.values(); track user.id) {
-        <mat-option [value]="user">{{ user.identifier }}</mat-option>
+        <mat-option [value]="user">{{
+          user.identifier || "No Responsible"
+        }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -16,7 +18,7 @@
       <mat-label>Type</mat-label>
       <mat-select [(value)]="selectedType">
         @for (type of (issueTypes$ | async)?.values(); track type) {
-        <mat-option [value]="type">{{ type }}</mat-option>
+        <mat-option [value]="type">{{ type || "No Type" }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -25,7 +27,7 @@
       <mat-label>Status</mat-label>
       <mat-select [(value)]="selectedStatus">
         @for (status of (issueStatuses$ | async)?.values(); track status) {
-        <mat-option [value]="status">{{ status }}</mat-option>
+        <mat-option [value]="status">{{ status || "No Status" }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
