@@ -1,5 +1,6 @@
 <div class="container" [formGroup]="filtersForm">
   <div class="container_filters">
+    <mat-checkbox formControlName="withoutStatus">Without Status</mat-checkbox>
     <mat-form-field class="dark-theme">
       <mat-label>Status</mat-label>
       <mat-select formControlName="status">
@@ -8,6 +9,7 @@
         }
       </mat-select>
     </mat-form-field>
+    <mat-checkbox formControlName="withoutType">Without Type</mat-checkbox>
     <mat-form-field class="dark-theme">
       <mat-label>Type</mat-label>
       <mat-select formControlName="type">
@@ -16,6 +18,9 @@
         }
       </mat-select>
     </mat-form-field>
+    <mat-checkbox formControlName="withoutUser"
+      >Without Responsible</mat-checkbox
+    >
     <mat-form-field class="dark-theme">
       <mat-label>Responsible</mat-label>
       <mat-select

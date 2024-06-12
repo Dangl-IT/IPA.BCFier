@@ -8,8 +8,11 @@ import { BcfTopic } from '../generated-client/generated-client';
 export class IssueFilterService {
   filterIssue(
     issues: BcfTopic[],
+    withoutStatus: boolean,
     status: string,
+    withoutType: boolean,
     type: string,
+    withoutUser: boolean,
     users: string[],
     dateStart: Date | null,
     dateEnd: Date | null
@@ -23,15 +26,21 @@ export class IssueFilterService {
       let passesUsers = true;
       let passesDate = true;
 
-      if (status && issue.topicStatus !== status) {
+      if (withoutStatus) {
+        passesStatus = !issue.topicStatus;
+      } else if (status && issue.topicStatus !== status) {
         passesStatus = false;
       }
 
-      if (type && issue.topicType !== type) {
+      if (withoutType) {
+        passesType = !issue.topicType;
+      } else if (type && issue.topicType !== type) {
         passesType = false;
       }
 
-      if (
+      if (withoutUser) {
+        passesUsers = !issue.assignedTo;
+      } else if (
         (users &&
           users.length > 0 &&
           issue.assignedTo &&
@@ -60,7 +69,6 @@ export class IssueFilterService {
       if ((dateStart || dateEnd) && !issue.dueDate) {
         passesDate = false;
       }
-
       return passesStatus && passesType && passesDate && passesUsers;
     });
   }

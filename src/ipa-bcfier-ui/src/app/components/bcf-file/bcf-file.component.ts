@@ -150,11 +150,22 @@ export class BcfFileComponent {
   }
 
   filterIssues(filters: FormGroup<IFilters>): void {
-    const { status, type, users, issueRange } = filters.value;
+    const {
+      withoutStatus,
+      status,
+      withoutType,
+      type,
+      withoutUser,
+      users,
+      issueRange,
+    } = filters.value;
     if (
-      status === undefined ||
-      type === undefined ||
-      users === undefined ||
+      withoutStatus === undefined ||
+      (!withoutStatus && status === undefined) ||
+      withoutType === undefined ||
+      (!withoutType && type === undefined) ||
+      withoutUser === undefined ||
+      (!withoutUser && users === undefined) ||
       issueRange === undefined ||
       issueRange?.start === undefined ||
       issueRange?.end === undefined
@@ -163,15 +174,25 @@ export class BcfFileComponent {
     }
 
     const isValuePresentInFilters =
-      !!status || !!type || !!users || !!issueRange.start || !!issueRange.end;
+      withoutStatus ||
+      withoutType ||
+      withoutUser ||
+      !!status ||
+      !!type ||
+      !!users ||
+      !!issueRange.start ||
+      !!issueRange.end;
 
     this.filteredTopics = isValuePresentInFilters
       ? [
           ...this.issueFilterService.filterIssue(
             this.bcfFile.topics,
-            status,
-            type,
-            users,
+            withoutStatus,
+            status || '',
+            withoutType,
+            type || '',
+            withoutUser,
+            users || [],
             issueRange?.start,
             issueRange?.end
           ),
