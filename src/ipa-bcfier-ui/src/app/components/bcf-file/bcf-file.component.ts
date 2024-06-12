@@ -194,7 +194,14 @@ export class BcfFileComponent {
 
         const existingIds = selection.onlyImportNew
           ? this.bcfFile.topics
-              .filter((topic) => !!topic.serverAssignedId)
+              .filter(
+                (topic) =>
+                  !!topic.serverAssignedId &&
+                  // We only want to take Guids, as other server assigned ids might not originate from Navisworks
+                  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                    topic.serverAssignedId
+                  )
+              )
               .map((topic) => topic.serverAssignedId!)
           : [];
 
