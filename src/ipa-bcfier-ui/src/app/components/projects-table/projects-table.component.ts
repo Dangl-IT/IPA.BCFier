@@ -246,4 +246,8 @@ export class ProjectsTableComponent
     }
     this.selectedProjectMessengerService.setSelectedProject(p);
   }
+
+  refresh(): void {
+    this.projectsService.forceRefresh();
+  }
 }
