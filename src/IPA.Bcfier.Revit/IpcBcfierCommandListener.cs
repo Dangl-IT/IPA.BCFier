@@ -8,12 +8,12 @@ namespace IPA.Bcfier.Revit
     {
         private readonly IpcHandler _ipcHandler;
         private readonly RevitTaskQueueHandler _revitTaskQueueHandler;
-        private readonly string _appCorrelationId;
+        private readonly Guid _appCorrelationId;
         private bool _isRunning = true;
 
         public IpcBcfierCommandListener(IpcHandler ipcHandler,
             RevitTaskQueueHandler revitTaskQueueHandler,
-            string appCorrelationId)
+            Guid appCorrelationId)
         {
             _ipcHandler = ipcHandler;
             _revitTaskQueueHandler = revitTaskQueueHandler;
@@ -32,9 +32,9 @@ namespace IPA.Bcfier.Revit
                         switch (ipcMessage.Command)
                         {
                             case IpcMessageCommand.AppClosed:
-                                if (ipcMessage.Data == _appCorrelationId)
+                                if (ipcMessage.Data == _appCorrelationId.ToString())
                                 {
-                                _isRunning = false;
+                                    _isRunning = false;
                                 }
                                 break;
 

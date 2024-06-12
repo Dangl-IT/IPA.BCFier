@@ -23,13 +23,19 @@ namespace IPA.Bcfier.Navisworks
             }
 
             var taskQueueHandler = new NavisworksTaskQueueHandler();
-            var appCorrelationId = Guid.NewGuid().ToString();
+#if !DEBUG_BUILD
+            var appCorrelationId = Guid.NewGuid();
             OpenIpaBcfierApp(() =>
             {
                 _bcfierAppProcess = null;
             }, appCorrelationId);
+#else
+            // If we're in a debug build, we want to use a static Guid for the app id, so that we can launch the UI manually
+            // in debug mode and apply changes quickly
+            var appCorrelationId = new Guid("65ef2104-64ca-4390-bae3-3de4901a53dc");
+#endif
 
-            var ipcHandler = new IpcHandler(thisAppName: "Navisworks", otherAppName: "BcfierAppNavisworks");
+            var ipcHandler = new IpcHandler(thisAppName: "Navisworks", otherAppName: "BcfierAppNavisworks", appCorrelationId);
             ipcHandler.InitializeAsync().ConfigureAwait(true).GetAwaiter().GetResult();
 
             var commandListener = new IpcNavisworksCommandListener(ipcHandler, taskQueueHandler, appCorrelationId);
@@ -42,7 +48,7 @@ namespace IPA.Bcfier.Navisworks
                     ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
                     {
                         Command = IpcMessageCommand.CadClosing,
-                        Data = appCorrelationId
+                        Data = appCorrelationId.ToString()
                     })).ConfigureAwait(true).GetAwaiter().GetResult();
                 }
             };
@@ -51,7 +57,7 @@ namespace IPA.Bcfier.Navisworks
         }
 
         private static void OpenIpaBcfierApp(Action onExited,
-            string appCorrelationId)
+            Guid appCorrelationId)
         {
             if (_bcfierAppProcess != null && !_bcfierAppProcess.HasExited)
             {
@@ -64,7 +70,7 @@ namespace IPA.Bcfier.Navisworks
                 throw new SystemException("IPA.BCFier.App executable not found.");
             }
 
-            var arguments = $"--navisworks-integration --app-correlation-id \"{appCorrelationId}\"";
+            var arguments = $"--navisworks-integration --app-correlation-id=\"{appCorrelationId}\"";
 
             _bcfierAppProcess = Process.Start(ipaBcfierExecutablePath, arguments);
             _bcfierAppProcess.Exited += (sender, args) =>

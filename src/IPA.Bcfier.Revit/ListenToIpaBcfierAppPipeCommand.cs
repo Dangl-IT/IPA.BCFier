@@ -21,14 +21,20 @@ namespace IPA.Bcfier.Revit
                 return Result.Succeeded;
             }
 
-            var appCorrelationId = Guid.NewGuid().ToString();
+#if !DEBUG_BUILD
+            var appCorrelationId = Guid.NewGuid();
             OpenIpaBcfierApp(() =>
             {
                 _bcfierAppProcess = null;
             }, commandData.Application.ActiveUIDocument.Document.PathName,
                appCorrelationId);
+#else
+            // If we're in a debug build, we want to use a static Guid for the app id, so that we can launch the UI manually
+            // in debug mode and apply changes quickly
+            var appCorrelationId = new Guid("3136262a-5f6b-41b0-ba89-6a8c4212b699");
+#endif
 
-            var ipcHandler = new IpcHandler(thisAppName: "Revit", otherAppName: "BcfierApp");
+            var ipcHandler = new IpcHandler(thisAppName: "Revit", otherAppName: "BcfierApp", appCorrelationId);
             ipcHandler.InitializeAsync().ConfigureAwait(true).GetAwaiter().GetResult();
 
             var taskQueueHandler = new RevitTaskQueueHandler();
@@ -42,7 +48,7 @@ namespace IPA.Bcfier.Revit
                     ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
                     {
                         Command = IpcMessageCommand.CadClosing,
-                        Data = appCorrelationId
+                        Data = appCorrelationId.ToString()
                     })).ConfigureAwait(true).GetAwaiter().GetResult();
                 }
             };
@@ -54,7 +60,7 @@ namespace IPA.Bcfier.Revit
 
         private static void OpenIpaBcfierApp(Action onExited,
             string revitProjectPath,
-            string appCorrelationId)
+            Guid appCorrelationId)
         {
             if (_bcfierAppProcess != null && !_bcfierAppProcess.HasExited)
             {
@@ -67,7 +73,7 @@ namespace IPA.Bcfier.Revit
                 throw new SystemException("IPA.BCFier.App executable not found.");
             }
 
-            var arguments = $"--revit-integration --app-correlation-id \"{appCorrelationId}\"";
+            var arguments = $"--revit-integration --app-correlation-id=\"{appCorrelationId}\"";
             if (!string.IsNullOrWhiteSpace(revitProjectPath))
             {
                 arguments += $" --revit-project-path \"{revitProjectPath}\"";

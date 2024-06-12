@@ -1,4 +1,5 @@
 ﻿using Dangl.Data.Shared;
+using ElectronNET.API;
 using IPA.Bcfier.App.Configuration;
 using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Ipc;
@@ -16,12 +17,15 @@ namespace IPA.Bcfier.App.Controllers
     {
         private readonly RevitParameters _revitParameters;
         private readonly NavisworksParameters _navisworksParameters;
+        private readonly AppParameters _appParameters;
 
         public ViewpointsController(RevitParameters revitParameters,
-            NavisworksParameters navisworksParameters)
+            NavisworksParameters navisworksParameters,
+            AppParameters appParameters)
         {
             _revitParameters = revitParameters;
             _navisworksParameters = navisworksParameters;
+            _appParameters = appParameters;
         }
 
         [HttpPost("visualization")]
@@ -217,13 +221,13 @@ namespace IPA.Bcfier.App.Controllers
         {
             if (_revitParameters.IsConnectedToRevit)
             {
-                return new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit");
+                return new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit", _appParameters.ApplicationId);
 
             }
 
             // We're assuming it's Navisworks then, since we don't have another possibility
             // at the moment
-            return new IpcHandler(thisAppName: "BcfierAppNavisworks", otherAppName: "Navisworks");
+            return new IpcHandler(thisAppName: "BcfierAppNavisworks", otherAppName: "Navisworks", _appParameters.ApplicationId);
         }
     }
 }

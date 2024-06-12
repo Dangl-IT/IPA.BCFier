@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.IO.Pipes;
@@ -10,15 +10,18 @@ namespace IPA.Bcfier.Ipc
     {
         private readonly string _thisAppName;
         private readonly string _otherAppName;
+        private readonly Guid _applicationId;
         private bool _isDisposed = false;
 
         public static ConcurrentQueue<string> ReceivedMessages { get; } = new ConcurrentQueue<string>();
 
         public IpcHandler(string thisAppName,
-            string otherAppName)
+            string otherAppName,
+            Guid applicationId)
         {
             _thisAppName = thisAppName;
             _otherAppName = otherAppName;
+            _applicationId = applicationId;
         }
 
         public Task InitializeAsync()
@@ -33,7 +36,8 @@ namespace IPA.Bcfier.Ipc
 
         public async Task SendMessageAsync(string message, int? timeout = null)
         {
-            using var namedPipeClientStream = new NamedPipeClientStream(".", $"{_otherAppName}ServerPipe", PipeDirection.InOut, PipeOptions.None);
+            var serverPipeName = $"{_otherAppName}ServerPipe-{_applicationId}";
+            using var namedPipeClientStream = new NamedPipeClientStream(".", serverPipeName, PipeDirection.InOut, PipeOptions.None);
             if (timeout != null)
             {
                 await namedPipeClientStream.ConnectAsync(timeout.Value);
@@ -69,7 +73,7 @@ namespace IPA.Bcfier.Ipc
         private async Task<string> ReadServerMessageAsync()
         {
             using var namedPipeServerStream = new NamedPipeServerStream(
-                $"{_thisAppName}ServerPipe",
+                $"{_thisAppName}ServerPipe-{_applicationId}",
                 PipeDirection.InOut,
                 maxNumberOfServerInstances: NamedPipeServerStream.MaxAllowedServerInstances,
                 PipeTransmissionMode.Message);

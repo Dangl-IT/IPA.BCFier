@@ -145,16 +145,23 @@ namespace IPA.Bcfier.Navisworks.Services
                 v.ClippingPlanes.AddRange(clippingPlanes);
             }
 
+            try
+            {
 #if NAVISWORKS_2023 || NAVISWORKS_2022 || NAVISWORKS_2021
                 var navisworksSnapshot = _doc.GenerateImage(ImageGenerationStyle.Scene, 1920, 1080);
 
 #else
-            var navisworksSnapshot = _doc.GenerateImage(ImageGenerationStyle.Scene, 1920, 1080, true);
+                var navisworksSnapshot = _doc.GenerateImage(ImageGenerationStyle.Scene, 1920, 1080, true);
 #endif
 
-            using var imageStream = new MemoryStream();
-            navisworksSnapshot.Save(imageStream, System.Drawing.Imaging.ImageFormat.Png);
-            v.SnapshotBase64 = Convert.ToBase64String(imageStream.ToArray());
+                using var imageStream = new MemoryStream();
+                navisworksSnapshot.Save(imageStream, System.Drawing.Imaging.ImageFormat.Png);
+                v.SnapshotBase64 = Convert.ToBase64String(imageStream.ToArray());
+            }
+            catch
+            {
+                // We're ignoring errors during snapshot generation
+            }
 
             return v;
         }
@@ -169,11 +176,9 @@ namespace IPA.Bcfier.Navisworks.Services
                 DisplayName = test.DisplayName,
                 IsGroup = test.IsGroup
             }).ToList();
-
         }
 
-        // Mostly taken from here:
-        // https://forums.autodesk.com/t5/navisworks-api/here-s-how-to-export-clash-result-images-using-navisworks-api/td-p/9089222
+        // Mostly taken from here: https://forums.autodesk.com/t5/navisworks-api/here-s-how-to-export-clash-result-images-using-navisworks-api/td-p/9089222
         public List<BcfTopic> CreateClashIssues(NavisworksClashCreationData clashCreationData)
         {
             var bcfTopics = new List<BcfTopic>();
@@ -231,7 +236,7 @@ namespace IPA.Bcfier.Navisworks.Services
 
                         foreach (var item in to_show)
                         {
-                            // If an item has no parent (root item) save the subtrees 
+                            // If an item has no parent (root item) save the subtrees
                             if (!NativeHandle.ReferenceEquals(item.Parent, null))
                                 to_hide.AddRange(item.Parent.Children);
                         }
@@ -265,7 +270,6 @@ namespace IPA.Bcfier.Navisworks.Services
                         doc.ActiveView.LookFromFrontRightTop();
                         // Prevent redraw for every test and item
                         doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
-
 
                         var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, selectedItems);
                         bcfViewpoint.Id = result.Guid;
@@ -315,7 +319,7 @@ namespace IPA.Bcfier.Navisworks.Services
 
                         foreach (var item in to_show)
                         {
-                            // If an item has no parent (root item) save the subtrees 
+                            // If an item has no parent (root item) save the subtrees
                             if (!NativeHandle.ReferenceEquals(item.Parent, null))
                                 to_hide.AddRange(item.Parent.Children);
                         }
@@ -350,13 +354,13 @@ namespace IPA.Bcfier.Navisworks.Services
                         }
                         catch
                         {
-                            // Sometimes setting a color of a component fails, but we don't want to crash the application for that
+                            // Sometimes setting a color of a component fails, but we don't want to
+                            // crash the application for that
                         }
                         // Adjust the camera angle
                         doc.ActiveView.LookFromFrontRightTop();
                         // Prevent redraw for every test and item
                         doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
-
 
                         var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, selectedItems);
                         bcfViewpoint.Id = resultGroup.Guid;
@@ -496,4 +500,3 @@ namespace IPA.Bcfier.Navisworks.Services
         }
     }
 }
-

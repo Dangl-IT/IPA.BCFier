@@ -18,7 +18,6 @@ namespace IPA.Bcfier.Navisworks
         private bool shouldUnregister = false;
         public ConcurrentQueue<string> CadErrorMessages { get; } = new ConcurrentQueue<string>();
 
-
         public void OnIdling(object sender, EventArgs args)
         {
             if (shouldUnregister)

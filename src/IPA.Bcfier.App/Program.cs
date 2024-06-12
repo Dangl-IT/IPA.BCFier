@@ -32,7 +32,7 @@ namespace IPA.Bcfier.App
 
                 var hasRevitIntegration = false;
                 var hasNavisworksIntegration = false;
-                string? appCorrelationId = null;
+                Guid? appCorrelationId = null;
                 using (var scope = host.Services.CreateScope())
                 {
                     scope.ServiceProvider.GetRequiredService<ElectronWindowProvider>().SetBrowserWindow(window);
@@ -40,7 +40,23 @@ namespace IPA.Bcfier.App
                     scope.ServiceProvider.GetRequiredService<RevitParameters>().IsConnectedToRevit = hasRevitIntegration;
                     hasNavisworksIntegration = await Electron.App.CommandLine.HasSwitchAsync("navisworks-integration");
                     scope.ServiceProvider.GetRequiredService<NavisworksParameters>().IsConnectedToNavisworks = hasNavisworksIntegration;
-                    appCorrelationId = await Electron.App.CommandLine.GetSwitchValueAsync("app-correlation-id");
+                    var appCorrelationIdString = await Electron.App.CommandLine.GetSwitchValueAsync("app-correlation-id");
+                    if (!string.IsNullOrWhiteSpace(appCorrelationIdString)
+                        && (args?.Any() ?? false)
+                        && Array.IndexOf(args, "--app-correlation-id") > -1)
+                    {
+                        var index = Array.IndexOf(args, "--app-correlation-id");
+                        if (args.Length > index + 1)
+                        {
+                            appCorrelationIdString = args[index + 1];
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(appCorrelationIdString) && Guid.TryParse(appCorrelationIdString, out var correlationId))
+                    {
+                        appCorrelationId = correlationId;
+                        scope.ServiceProvider.GetRequiredService<AppParameters>().ApplicationId = correlationId;
+                    }
 
                     var revitProjectPath = await Electron.App.CommandLine.GetSwitchValueAsync("revit-project-path");
                     if (!string.IsNullOrWhiteSpace(revitProjectPath))
@@ -55,51 +71,49 @@ namespace IPA.Bcfier.App
                     }
                     catch
                     {
-                        // Ignoring here, it's likely a problem since we're still using the InMemory db if no real
-                        // database is configured
+                        // Ignoring here, it's likely a problem since we're still using the InMemory
+                        // db if no real database is configured
                     }
                 }
 
                 await Electron.IpcMain.On("closeApp", async (e) =>
                 {
-                    if (!string.IsNullOrWhiteSpace(appCorrelationId))
+                    if (appCorrelationId != null)
                     {
                         if (hasRevitIntegration)
                         {
                             try
-                        {
-                            using var ipcHandler = new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit");
-                            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
                             {
-                                CorrelationId = Guid.NewGuid(),
-                                Command = IpcMessageCommand.AppClosed,
-                                    Data = appCorrelationId
-                            }), timeout: 500);
-                        }
-                        catch (Exception ex)
-                        {
-                            // We're not really handling failures here, just write them to
-                            // the console and then continue with closing the window
-                            Console.WriteLine(ex);
-                        }
-                    }
-                    if (hasNavisworksIntegration)
-                    {
-                        try
-                        {
-                            using var ipcHandler = new IpcHandler(thisAppName: "BcfierAppNavisworks", otherAppName: "Navisworks");
-                            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                using var ipcHandler = new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit", appCorrelationId.Value);
+                                await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                {
+                                    Command = IpcMessageCommand.AppClosed,
+                                    Data = appCorrelationId.ToString()
+                                }), timeout: 500);
+                            }
+                            catch (Exception ex)
                             {
-                                CorrelationId = Guid.NewGuid(),
-                                Command = IpcMessageCommand.AppClosed,
-                                    Data = appCorrelationId
-                            }), timeout: 500);
+                                // We're not really handling failures here, just write them to the
+                                // console and then continue with closing the window
+                                Console.WriteLine(ex);
+                            }
                         }
-                        catch (Exception ex)
+                        if (hasNavisworksIntegration)
                         {
-                            // We're not really handling failures here, just write them to
-                            // the console and then continue with closing the window
-                            Console.WriteLine(ex);
+                            try
+                            {
+                                using var ipcHandler = new IpcHandler(thisAppName: "BcfierAppNavisworks", otherAppName: "Navisworks", appCorrelationId.Value);
+                                await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                {
+                                    Command = IpcMessageCommand.AppClosed,
+                                    Data = appCorrelationId.ToString()
+                                }), timeout: 500);
+                            }
+                            catch (Exception ex)
+                            {
+                                // We're not really handling failures here, just write them to the
+                                // console and then continue with closing the window
+                                Console.WriteLine(ex);
                             }
                         }
                     }
