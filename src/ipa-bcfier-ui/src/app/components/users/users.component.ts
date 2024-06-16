@@ -158,4 +158,8 @@ export class UsersComponent implements AfterViewInit, OnDestroy, OnInit {
         },
       });
   }
+
+  refresh(): void {
+    this.usersService.forceRefresh();
+  }
 }
