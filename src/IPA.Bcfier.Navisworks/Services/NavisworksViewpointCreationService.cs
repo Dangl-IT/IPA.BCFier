@@ -211,8 +211,8 @@ namespace IPA.Bcfier.Navisworks.Services
                         var viewpoint = doc.CurrentViewpoint.Value;
                         // Create a collection of the 2 clashing items from the ClashResult
                         var items = new ModelItemCollection();
-                        items.Add(result.Item1);
-                        items.Add(result.Item2);
+                        items.Add(result.CompositeItem1);
+                        items.Add(result.CompositeItem2);
                         // Select the 2 clashing items
                         doc.CurrentSelection.Clear();
                         doc.CurrentSelection.CopyFrom(items);
