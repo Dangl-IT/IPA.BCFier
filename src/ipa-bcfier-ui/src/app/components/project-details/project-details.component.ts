@@ -142,6 +142,7 @@ export class ProjectDetailsComponent implements OnDestroy {
             this.notificationsService.success('User added');
             this.projectUsersService.setUsers(u);
             this.identifier = '';
+            this.filterUsers();
             this.cdr.detectChanges();
           },
           error: () => {
