@@ -87,7 +87,7 @@ namespace IPA.Bcfier.App.Controllers
                 .Select(p => new ProjectUserGet
                 {
                     Id = p.Id,
-                    Identifier = dbUser.Identifier
+                    Identifier = p.User!.Identifier
                 })
                 .ToListAsync();
             return Ok(projectUsers);
