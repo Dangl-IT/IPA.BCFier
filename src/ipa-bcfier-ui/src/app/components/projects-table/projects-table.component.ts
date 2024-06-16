@@ -190,7 +190,6 @@ export class ProjectsTableComponent
               take(1)
             );
         }),
-
         switchMap(([p, s]) => {
           return this.projectUsersClient
             .addUserToProject(p.id, {

@@ -20,10 +20,13 @@ export class BcfFilesMessengerService {
   private bcfFileSelectedSource = new ReplaySubject<BcfFileWrapper>(1);
   bcfFileSelected = this.bcfFileSelectedSource.asObservable();
 
-  constructor() {}
-
   setBcfFileSelected(bcfFileSelected: BcfFileWrapper): void {
     this.bcfFileSelectedSource.next(bcfFileSelected);
+  }
+  constructor() {
+    // We're initializing with an empty array just so other parts of the app
+    // that depend on loading the list of files initially get an empty list
+    this.bcfFilesSubject.next([]);
   }
 
   createNewBcfFile(): void {
