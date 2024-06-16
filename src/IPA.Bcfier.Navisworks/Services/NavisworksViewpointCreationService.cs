@@ -136,8 +136,8 @@ namespace IPA.Bcfier.Navisworks.Services
                 var maxY = elementBoundingBoxes.Max(b => b.Max.Y);
                 var maxZ = elementBoundingBoxes.Max(b => b.Max.Z);
 
-                var commonBoundingBox = new BoundingBox3D(new Point3D(minX.FromInternal(), minY.FromInternal(), minZ.FromInternal()),
-                    new Point3D(maxZ.FromInternal(), maxY.FromInternal(), maxZ.FromInternal()));
+                var commonBoundingBox = new BoundingBox3D(new Point3D(minX, minY, minZ),
+                    new Point3D(maxZ, maxY, maxZ));
 
                 var clippingPlanes = TransformBoundingBoxToClippingPlanes(commonBoundingBox);
 
@@ -434,9 +434,9 @@ namespace IPA.Bcfier.Navisworks.Services
             {
                 Location = new BcfViewpointPoint
                 {
-                    X = Convert.ToSingle(clippingBox.Min.X),
-                    Y = Convert.ToSingle(center.Y),
-                    Z = Convert.ToSingle(center.Z)
+                    X = Convert.ToSingle(clippingBox.Min.X.FromInternal()),
+                    Y = Convert.ToSingle(center.Y.FromInternal()),
+                    Z = Convert.ToSingle(center.Z.FromInternal())
                 },
                 Direction = new BcfViewpointVector { X = -1, Y = 0, Z = 0 }
             });
@@ -445,9 +445,9 @@ namespace IPA.Bcfier.Navisworks.Services
             {
                 Location = new BcfViewpointPoint
                 {
-                    X = Convert.ToSingle(center.X),
-                    Y = Convert.ToSingle(clippingBox.Min.Y),
-                    Z = Convert.ToSingle(center.Z)
+                    X = Convert.ToSingle(center.X.FromInternal()),
+                    Y = Convert.ToSingle(clippingBox.Min.Y.FromInternal()),
+                    Z = Convert.ToSingle(center.Z.FromInternal())
                 },
                 Direction = new BcfViewpointVector { X = 0, Y = -1, Z = 0 }
             });
@@ -456,9 +456,9 @@ namespace IPA.Bcfier.Navisworks.Services
             {
                 Location = new BcfViewpointPoint
                 {
-                    X = Convert.ToSingle(center.X),
-                    Y = Convert.ToSingle(center.Y),
-                    Z = Convert.ToSingle(clippingBox.Min.Z)
+                    X = Convert.ToSingle(center.X.FromInternal()),
+                    Y = Convert.ToSingle(center.Y.FromInternal()),
+                    Z = Convert.ToSingle(clippingBox.Min.Z.FromInternal())
                 },
                 Direction = new BcfViewpointVector { X = 0, Y = 0, Z = -1 }
             });
@@ -467,9 +467,9 @@ namespace IPA.Bcfier.Navisworks.Services
             {
                 Location = new BcfViewpointPoint
                 {
-                    X = Convert.ToSingle(clippingBox.Max.X),
-                    Y = Convert.ToSingle(center.Y),
-                    Z = Convert.ToSingle(center.Z)
+                    X = Convert.ToSingle(clippingBox.Max.X.FromInternal()),
+                    Y = Convert.ToSingle(center.Y.FromInternal()),
+                    Z = Convert.ToSingle(center.Z.FromInternal())
                 },
                 Direction = new BcfViewpointVector { X = 1, Y = 0, Z = 0 }
             });
@@ -478,9 +478,9 @@ namespace IPA.Bcfier.Navisworks.Services
             {
                 Location = new BcfViewpointPoint
                 {
-                    X = Convert.ToSingle(center.X),
-                    Y = Convert.ToSingle(clippingBox.Max.Y),
-                    Z = Convert.ToSingle(center.Z)
+                    X = Convert.ToSingle(center.X.FromInternal()),
+                    Y = Convert.ToSingle(clippingBox.Max.Y.FromInternal()),
+                    Z = Convert.ToSingle(center.Z.FromInternal())
                 },
                 Direction = new BcfViewpointVector { X = 0, Y = 1, Z = 0 }
             });
@@ -489,9 +489,9 @@ namespace IPA.Bcfier.Navisworks.Services
             {
                 Location = new BcfViewpointPoint
                 {
-                    X = Convert.ToSingle(center.X),
-                    Y = Convert.ToSingle(center.Y),
-                    Z = Convert.ToSingle(clippingBox.Max.Z)
+                    X = Convert.ToSingle(center.X.FromInternal()),
+                    Y = Convert.ToSingle(center.Y.FromInternal()),
+                    Z = Convert.ToSingle(clippingBox.Max.Z.FromInternal())
                 },
                 Direction = new BcfViewpointVector { X = 0, Y = 0, Z = 1 }
             });
