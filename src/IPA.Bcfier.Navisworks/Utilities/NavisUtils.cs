@@ -1,4 +1,4 @@
-﻿using Autodesk.Navisworks.Api;
+using Autodesk.Navisworks.Api;
 using IPA.Bcfier.Models.Bcf;
 
 namespace IPA.Bcfier.Navisworks.Utilities
@@ -29,6 +29,11 @@ namespace IPA.Bcfier.Navisworks.Utilities
         public static double FromInternal(this double intUnits)
         {
             return intUnits / _Units;
+        }
+
+        public static double FromInternal(this decimal intUnits)
+        {
+            return Convert.ToDouble(intUnits) / _Units;
         }
 
         public static void GetGunits(Document doc)
