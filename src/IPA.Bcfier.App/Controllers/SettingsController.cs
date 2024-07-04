@@ -84,5 +84,33 @@ namespace IPA.Bcfier.App.Controllers
             await _settingsService.SaveSettingsAsync(settings);
             return NoContent();
         }
+
+        [HttpGet("always-on-top")]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetIsAlwaysOnTopAsync()
+        {
+            var electronWindow = _electronWindowProvider.BrowserWindow;
+            if (electronWindow == null)
+            {
+                return BadRequest();
+            }
+
+            var isAlwaysOnTop = await electronWindow.IsAlwaysOnTopAsync();
+            return Ok(isAlwaysOnTop);
+        }
+
+        [HttpPut("always-on-top")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        public async Task<IActionResult> SetIsAlwaysOnTopAsync(bool isAlwaysOnTop)
+        {
+            var electronWindow = _electronWindowProvider.BrowserWindow;
+            if (electronWindow == null)
+            {
+                return BadRequest();
+            }
+
+            electronWindow.SetAlwaysOnTop(isAlwaysOnTop);
+            return NoContent();
+        }
     }
 }

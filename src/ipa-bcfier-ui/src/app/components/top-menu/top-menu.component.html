@@ -31,6 +31,12 @@
       <mat-icon>support</mat-icon>
       Help
     </button>
+    <mat-checkbox
+      [(ngModel)]="alwaysOnTop"
+      [disabled]="alwaysOnTopRequestRunning"
+    >
+      Always On Top
+    </mat-checkbox>
   </div>
   <div class="project-name">
     <span>{{ (selectedProject$ | async)?.name | uppercase }}</span>

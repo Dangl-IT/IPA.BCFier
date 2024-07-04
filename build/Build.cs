@@ -94,16 +94,20 @@ class Build : NukeBuild
         .Executes(() =>
         {
             WriteFileVersionProvider();
-
-            DotNetBuild(s => s
-               .SetProjectFile(Solution)
-               .SetConfiguration(Configuration)
-               .SetAssemblyVersion(GitVersion.AssemblySemVer)
-               .SetFileVersion(GitVersion.AssemblySemVer)
-               .SetInformationalVersion(GitVersion.InformationalVersion)
-               .EnableNoRestore());
+            CompileBackend();
         });
 
+    private void CompileBackend()
+    {
+        DotNetBuild(s => s
+            .SetProjectFile(Solution)
+            .SetConfiguration(Configuration)
+            .SetAssemblyVersion(GitVersion.AssemblySemVer)
+            .SetFileVersion(GitVersion.AssemblySemVer)
+            .SetInformationalVersion(GitVersion.InformationalVersion)
+            .EnableNoRestore());
+    }
+    
     private void WriteFileVersionProvider()
     {
         var fileVersionPath = RootDirectory / "src" / "IPA.BCFier" / "FileVersionProvider.cs";
@@ -505,6 +509,8 @@ export const version = {{
         .DependsOn(Restore)
         .Executes(() =>
         {
+            CompileBackend();
+
             var nSwagConfigPath = SourceDirectory / "ipa-bcfier-ui" / "src" / "nswag.json";
             var nSwagToolPath = NuGetToolPathResolver.GetPackageExecutable("NSwag.MSBuild", "tools/Net80/dotnet-nswag.dll");
             DotNetRun(x => x

@@ -3,8 +3,9 @@ import {
   BcfFileWrapper,
   LastOpenedFileGet,
   LastOpenedFilesClient,
+  SettingsClient,
 } from '../../generated-client/generated-client';
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   Subject,
@@ -19,8 +20,10 @@ import {
 
 import { BackendService } from '../../services/BackendService';
 import { BcfFilesMessengerService } from '../../services/bcf-files-messenger.service';
+import { FormsModule } from '@angular/forms';
 import { LastOpenedFilesComponent } from '../last-opened-files/last-opened-files.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { NotificationsService } from '../../services/notifications.service';
@@ -39,24 +42,75 @@ import { version } from '../../version';
     AsyncPipe,
     MatMenuModule,
     LastOpenedFilesComponent,
+    MatCheckboxModule,
+    FormsModule,
   ],
   templateUrl: './top-menu.component.html',
   styleUrl: './top-menu.component.scss',
 })
-export class TopMenuComponent implements OnDestroy {
+export class TopMenuComponent implements OnDestroy, OnInit {
   private destroyed$ = new Subject<void>();
   version = version.version;
   selectedProject$ = inject(SelectedProjectMessengerService).selectedProject;
   lastFileMenuOpened = false;
   lastOpenedFiles: LastOpenedFileGet[] = [];
+  alwaysOnTopRequestRunning = false;
+  private _alwaysOnTop = true;
+  set alwaysOnTop(value: boolean) {
+    this._alwaysOnTop = value;
+    this.changeAlwaysOnTopInBackend();
+  }
+  get alwaysOnTop(): boolean {
+    return this._alwaysOnTop;
+  }
+
   constructor(
     private backendService: BackendService,
     private notificationsService: NotificationsService,
     private bcfFilesMessengerService: BcfFilesMessengerService,
     private matDialog: MatDialog,
-    private lastOpenedFilesClient: LastOpenedFilesClient
+    private lastOpenedFilesClient: LastOpenedFilesClient,
+    private settingsClient: SettingsClient
   ) {
     this.checkOpenedFileAndSendInfo();
+  }
+
+  private changeAlwaysOnTopInBackend(): void {
+    const isAlwaysOnTop = this._alwaysOnTop;
+    this.alwaysOnTopRequestRunning = true;
+
+    this.settingsClient.getIsAlwaysOnTop().subscribe({
+      next: (serverIsAlwaysOnTop) => {
+        if (serverIsAlwaysOnTop === isAlwaysOnTop) {
+          this.alwaysOnTopRequestRunning = false;
+          return;
+        }
+
+        this.settingsClient.setIsAlwaysOnTop(isAlwaysOnTop).subscribe({
+          next: () => {
+            this.alwaysOnTopRequestRunning = false;
+          },
+          error: () => {
+            this.notificationsService.error(
+              'Could not change always on top setting.'
+            );
+            this.alwaysOnTopRequestRunning = false;
+          },
+        });
+      },
+      error: () => {
+        this.notificationsService.error(
+          'Could not change always on top setting.'
+        );
+        this.alwaysOnTopRequestRunning = false;
+      },
+    });
+  }
+
+  ngOnInit(): void {
+    this.settingsClient.getIsAlwaysOnTop().subscribe((isAlwaysOnTop) => {
+      this._alwaysOnTop = isAlwaysOnTop;
+    });
   }
 
   ngOnDestroy(): void {
