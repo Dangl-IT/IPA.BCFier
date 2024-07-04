@@ -285,6 +285,13 @@ namespace IPA.Bcfier.Revit.Services
 
         private void ApplyClippingPlanes(UIDocument uiDocument, View3D view, BcfViewpoint bcfViewpoint)
         {
+            if (bcfViewpoint.ClippingPlanes?.Count != 6)
+            {
+                // Don't apply section box if it's not a full box
+                view.IsSectionBoxActive = false;
+                return;
+            }
+
             AxisAlignedBoundingBox boundingBox = GetViewpointClippingBox(bcfViewpoint);
 
             if (!boundingBox.Equals(AxisAlignedBoundingBox.Infinite))
