@@ -137,7 +137,7 @@ namespace IPA.Bcfier.Navisworks.Services
                 var maxZ = elementBoundingBoxes.Max(b => b.Max.Z);
 
                 var commonBoundingBox = new BoundingBox3D(new Point3D(minX, minY, minZ),
-                    new Point3D(maxZ, maxY, maxZ));
+                    new Point3D(maxX, maxY, maxZ));
 
                 var clippingPlanes = TransformBoundingBoxToClippingPlanes(commonBoundingBox);
 

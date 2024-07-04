@@ -18,7 +18,6 @@ namespace IPA.Bcfier.Navisworks.Services
         {
             try
             {
-
                 NavisUtils.GetGunits(_doc);
                 Viewpoint viewpoint = new Viewpoint();
 
@@ -80,7 +79,6 @@ namespace IPA.Bcfier.Navisworks.Services
                     List<ModelItem> elems = _doc.Models.First.RootItem.DescendantsAndSelf.ToList<ModelItem>();
 
                     var selectedElements = v.ViewpointComponents.SelectedComponents;
-
                     foreach (var item in elems.Where(o => o.InstanceGuid != Guid.Empty))
                     {
                         string ifcguid = item.InstanceGuid.ToIfcGuid();
@@ -105,8 +103,8 @@ namespace IPA.Bcfier.Navisworks.Services
 
                         if (hiddenElements.Any())
                         {
-                        _doc.Models.ResetAllHidden();
-                        _doc.Models.SetHidden(hiddenElements, true);
+                            _doc.Models.ResetAllHidden();
+                            _doc.Models.SetHidden(hiddenElements, true);
                         }
                     }
                 }
