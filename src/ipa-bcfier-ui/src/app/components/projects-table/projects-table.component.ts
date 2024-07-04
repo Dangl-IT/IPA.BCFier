@@ -21,8 +21,10 @@ import {
 } from '../../generated-client/generated-client';
 import {
   Subject,
+  catchError,
   combineLatestWith,
   filter,
+  of,
   switchMap,
   take,
   takeUntil,
@@ -196,6 +198,18 @@ export class ProjectsTableComponent
               identifier: s.username,
             })
             .pipe(
+              catchError((err) => {
+                this.projectsService.forceRefresh();
+
+                if (this.filter) {
+                  this.applyFilter(this.filter);
+                }
+                this.notificationsService.success('Project created');
+                this.notificationsService.info(
+                  'Current user was not added, please add manually'
+                );
+                return of([]);
+              }),
               tap(() => {
                 this.selectedProjectMessengerService.setSelectedProject(p);
               })
