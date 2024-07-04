@@ -6,7 +6,7 @@
   </p>
 
   <mat-form-field class="dark-theme">
-    <mat-label>Status</mat-label>
+    <mat-label>Clash Check</mat-label>
     <mat-select [(value)]="selectedClashId">
       @for (clash of clashes; track clash) {
       <mat-option [value]="clash.id">{{ clash.displayName }}</mat-option>
