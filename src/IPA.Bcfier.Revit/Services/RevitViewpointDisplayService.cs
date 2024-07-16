@@ -68,6 +68,18 @@ namespace IPA.Bcfier.Revit.Services
                             }
 
                             orthoView.SetOrientation(orient3D);
+
+                            if (ShouldEnableSectionBox(bcfViewpoint))
+                            {
+                                orthoView.CropBoxActive = true;
+                                orthoView.CropBoxVisible = true;
+                            }
+                            else
+                            {
+                                orthoView.CropBoxActive = false;
+                                orthoView.CropBoxVisible = false;
+                            }
+
                             trans.Commit();
                         }
                     }
@@ -123,8 +135,17 @@ namespace IPA.Bcfier.Revit.Services
                                 Parameter m_farClip = perspView.get_Parameter(BuiltInParameter.VIEWER_BOUND_ACTIVE_FAR);
                                 m_farClip.Set(0);
                             }
-                            perspView.CropBoxActive = true;
-                            perspView.CropBoxVisible = true;
+
+                            if (ShouldEnableSectionBox(bcfViewpoint))
+                            {
+                                perspView.CropBoxActive = true;
+                                perspView.CropBoxVisible = true;
+                            }
+                            else
+                            {
+                                perspView.CropBoxActive = false;
+                                perspView.CropBoxVisible = false;
+                            }
 
                             trans.Commit();
                         }
@@ -283,12 +304,30 @@ namespace IPA.Bcfier.Revit.Services
         // https://github.com/opf/openproject-revit-add-in/blob/93e117ad10176f4fffa741116733a3ee113e9335/src/OpenProject.Revit/Entry/OpenViewpointEventHandler.cs#L212
         private const decimal _viewpointAngleThresholdRad = 0.087266462599716m;
 
+        private bool ShouldEnableSectionBox(BcfViewpoint bcfViewpoint)
+        {
+            if (bcfViewpoint.ClippingPlanes?.Count != 6)
+            {
+                return false;
+            }
+
+            AxisAlignedBoundingBox boundingBox = GetViewpointClippingBox(bcfViewpoint);
+            if (boundingBox.Equals(AxisAlignedBoundingBox.Infinite))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private void ApplyClippingPlanes(UIDocument uiDocument, View3D view, BcfViewpoint bcfViewpoint)
         {
             if (bcfViewpoint.ClippingPlanes?.Count != 6)
             {
                 // Don't apply section box if it's not a full box
                 view.IsSectionBoxActive = false;
+                view.CropBoxActive = false;
+                view.CropBoxVisible = false;
                 return;
             }
 
@@ -302,6 +341,8 @@ namespace IPA.Bcfier.Revit.Services
             else
             {
                 view.IsSectionBoxActive = false;
+                view.CropBoxActive = false;
+                view.CropBoxVisible = false;
             }
         }
 
