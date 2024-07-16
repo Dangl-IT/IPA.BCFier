@@ -73,11 +73,13 @@ namespace IPA.Bcfier.Revit.Services
                             {
                                 orthoView.CropBoxActive = true;
                                 orthoView.CropBoxVisible = true;
+                                orthoView.IsSectionBoxActive = true;
                             }
                             else
                             {
                                 orthoView.CropBoxActive = false;
                                 orthoView.CropBoxVisible = false;
+                                orthoView.IsSectionBoxActive = false;
                             }
 
                             trans.Commit();
@@ -140,11 +142,13 @@ namespace IPA.Bcfier.Revit.Services
                             {
                                 perspView.CropBoxActive = true;
                                 perspView.CropBoxVisible = true;
+                                perspView.IsSectionBoxActive = true;
                             }
                             else
                             {
                                 perspView.CropBoxActive = false;
                                 perspView.CropBoxVisible = false;
+                                perspView.IsSectionBoxActive = false;
                             }
 
                             trans.Commit();
