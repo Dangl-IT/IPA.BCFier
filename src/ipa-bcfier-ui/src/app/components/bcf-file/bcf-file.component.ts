@@ -9,6 +9,10 @@ import {
   IFilters,
   IssueFiltersComponent,
 } from '../issue-filters/issue-filters.component';
+import {
+  MessageType,
+  TeamsMessengerService,
+} from '../../services/teams-messenger.service';
 
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
@@ -30,7 +34,6 @@ import { NotificationsService } from '../../services/notifications.service';
 import { ProjectUsersService } from '../../services/project-users.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
-import { TeamsMessengerService } from '../../services/teams-messenger.service';
 import { TopicDetailComponent } from '../topic-detail/topic-detail.component';
 import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
 import { TopicMessengerService } from '../../services/topic-messenger.service';
@@ -256,6 +259,10 @@ export class BcfFileComponent {
                   this.bcfFile.topics.push(...createdTopics);
                   this.filteredTopics = [...this.bcfFile.topics];
                   this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
+
+                  this.teamsMessengerService.sendMessageToTeams(
+                    MessageType.AddNavisworksClashes
+                  );
                 });
             },
             error: (error) => {

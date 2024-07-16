@@ -1,4 +1,3 @@
-import { Injectable, OnDestroy, inject } from '@angular/core';
 import {
   EMPTY,
   Subject,
@@ -7,18 +6,21 @@ import {
   take,
   takeUntil,
 } from 'rxjs';
-import { TopicMessengerService } from './topic-messenger.service';
-import { SettingsMessengerService } from './settings-messenger.service';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import {
   TeamsMessagePost,
   TeamsMessagesClient,
 } from '../generated-client/generated-client';
+
 import { SelectedProjectMessengerService } from './selected-project-messenger.service';
+import { SettingsMessengerService } from './settings-messenger.service';
+import { TopicMessengerService } from './topic-messenger.service';
 
 export enum MessageType {
   AddComment = 'AddNomment',
   AddViewpoint = 'AddViewpoint',
   ChangeTitle = 'ChangeTitle',
+  AddNavisworksClashes = 'AddNavisworksClashes',
 }
 @Injectable({
   providedIn: 'root',
@@ -52,6 +54,9 @@ export class TeamsMessengerService implements OnDestroy {
         break;
       case MessageType.AddViewpoint:
         this.sendInfoAboutAddViewpoint();
+        break;
+      case MessageType.AddNavisworksClashes:
+        this.sendInfoAboutAddNavisworksClashes();
         break;
       case MessageType.ChangeTitle:
         this.sendInfoAboutChangeTitle();
@@ -95,6 +100,30 @@ export class TeamsMessengerService implements OnDestroy {
             const lastAddedViewpoint = t?.viewpoints[t?.viewpoints.length - 1];
             const model: TeamsMessagePost = {
               viewpointBase64: lastAddedViewpoint.snapshotBase64,
+              username: s.username,
+            };
+            return this.teamsMessagesClient.announceNewCommentInProjectTopic(
+              this.projectId,
+              t?.id,
+              model
+            );
+          }
+          return EMPTY;
+        })
+      )
+      .subscribe(() => {});
+  }
+
+  private sendInfoAboutAddNavisworksClashes(): void {
+    this.topicMessengerService.selectedTopic
+      .pipe(
+        take(1),
+        combineLatestWith(this.settingsMessengerService.settings),
+        switchMap(([t, s]) => {
+          if (this.projectId && t?.id) {
+            const lastAddedViewpoint = t?.viewpoints[t?.viewpoints.length - 1];
+            const model: TeamsMessagePost = {
+              comment: 'Clash Results from Navisworks added',
               username: s.username,
             };
             return this.teamsMessagesClient.announceNewCommentInProjectTopic(
