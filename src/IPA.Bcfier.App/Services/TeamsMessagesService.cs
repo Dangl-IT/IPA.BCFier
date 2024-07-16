@@ -42,40 +42,40 @@ namespace IPA.Bcfier.App.Services
             }
 
             var teamsMessage = new TeamsMessage();
-            var title = !string.IsNullOrWhiteSpace(message.TopicTitle)
+            var comment = !string.IsNullOrWhiteSpace(message.TopicTitle)
                 ? "New topic: " + message.TopicTitle
                 : (!string.IsNullOrWhiteSpace(message.Comment)
                     ? "New comment: " + message.Comment
                     : "New viewpoint");
 
-            var mainSection = new TeamsSection
+            var mainAttachment = new TeamsAttachment
             {
-                ActivityTitle = title,
-                ActivitySubtitle = "Project: " + dbProject.Name,
-                Facts = new List<TeamsFact>
+                Content = new TeamsAttachmentContent
                 {
-                    new TeamsFact
+                    Body = new List<TeamsAttachmentContentBody>
                     {
-                        Name = "Author",
-                        Value = message.Username
+                        new TeamsAttachmentContentBody
+                        {
+                            Type = "TextBlock",
+                            Text = $"**Project: {dbProject.Name}**"
+                                +Environment.NewLine
+                                +Environment.NewLine
+                                + $"**Author: {message.Username}**"
+                                + Environment.NewLine
+                                + Environment.NewLine
+                                + comment
+                        }
                     }
                 }
             };
-            teamsMessage.Sections = new List<TeamsSection> { mainSection };
-
-            teamsMessage.Summary = "Update via BCFier";
+            teamsMessage.Attachments.Add(mainAttachment);
 
             if (!string.IsNullOrWhiteSpace(message.ViewpointBase64))
             {
-                teamsMessage.Sections.Add(new TeamsSection
+                mainAttachment.Content.Body.Add(new TeamsAttachmentContentBody
                 {
-                    Images = new List<TeamsImage>
-                    {
-                        new TeamsImage
-                        {
-                            ImageBase64DataUrl = "data:image/png;base64," + message.ViewpointBase64
-                        }
-                    }
+                    Type = "Image",
+                    Url = "data:image/png;base64," + message.ViewpointBase64
                 });
             }
 
@@ -100,7 +100,7 @@ namespace IPA.Bcfier.App.Services
             var request = new HttpRequestMessage(HttpMethod.Post, teamsWebhookUrl);
             request.Content = body;
 
-            await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
         }
 
         private static string? GetTeamsMessageWithMaxSizeInBytes(TeamsMessage message,
@@ -122,21 +122,19 @@ namespace IPA.Bcfier.App.Services
             {
                 maxTries++;
                 // Let's compress the images
-                foreach (var section in message.Sections.Where(s => s.Images != null))
+                //foreach (var section in message.Attachments.Select(a => a.bo).Where(s => s.Images != null))
+                foreach (var imageBody in message.Attachments.SelectMany(a => a.Content.Body).Where(b => !string.IsNullOrWhiteSpace(b.Url)))
                 {
-                    foreach (var imageSection in section.Images!.Where(image => !string.IsNullOrWhiteSpace(image.ImageBase64DataUrl)))
-                    {
-                        var imageBase64 = imageSection.ImageBase64DataUrl.Substring(imageSection.ImageBase64DataUrl.IndexOf(",") + 1);
-                        var imageBytes = Convert.FromBase64String(imageBase64);
+                    var imageBase64 = imageBody.Url!.Substring(imageBody.Url.IndexOf(",") + 1);
+                    var imageBytes = Convert.FromBase64String(imageBase64);
 
-                        using var image = SixLabors.ImageSharp.Image.Load(new MemoryStream(imageBytes));
-                        var width = image.Width / 2;
-                        var height = image.Height / 2;
-                        image.Mutate(x => x.Resize(width, height));
-                        using var outMemStream = new MemoryStream();
-                        image.Save(outMemStream, new PngEncoder());
-                        imageSection.ImageBase64DataUrl = "data:image/png;base64," + Convert.ToBase64String(outMemStream.ToArray());
-                    }
+                    using var image = SixLabors.ImageSharp.Image.Load(new MemoryStream(imageBytes));
+                    var width = image.Width / 2;
+                    var height = image.Height / 2;
+                    image.Mutate(x => x.Resize(width, height));
+                    using var outMemStream = new MemoryStream();
+                    image.Save(outMemStream, new PngEncoder());
+                    imageBody.Url = "data:image/png;base64," + Convert.ToBase64String(outMemStream.ToArray());
                 }
 
                 messageJson = JsonConvert.SerializeObject(message, jsonOptions);

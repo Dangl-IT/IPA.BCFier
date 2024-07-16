@@ -29,6 +29,18 @@ To run the frontend part, you should run these commands then:
 
 Those ids are hardcoded when you're running a `Debug` build, and allow you to launch the app and the actual plugin independently of eachother.
 
+## Teams Webhooks
+
+When configuring projects, you can set up a webhook to a Microsoft Teams channel. This will send notifications to the channel when new issues are created or updated. Webhooks must be created via Teams workflows. To do this, follow these steps:
+
+1. Go to the channel you want to receive notifications in and select the _Workflows_ setting:
+   ![Teams Workflow](./images/TeamsChannelWebhookSetting.png)
+2. Create a new webhook:
+   ![Teams Webhook](./images/WebhookWorkflow.png)
+3. Configure the webhook:
+   ![Teams Webhook Configuration](./images/WebhookConfiguration.png)
+3. After creating the webhook, you can use this url in the project configuration
+
 ## License
 GNU General Public License v3 Extended
 This program uses the GNU General Public License v3, extended to support the use of BCFier as Plugin of the non-free main software Autodesk Revit.
