@@ -37,9 +37,8 @@ When configuring projects, you can set up a webhook to a Microsoft Teams channel
    ![Teams Workflow](./images/TeamsChannelWebhookSetting.png)
 2. Create a new webhook:
    ![Teams Webhook](./images/WebhookWorkflow.png)
-3. Configure the webhook:
-   ![Teams Webhook Configuration](./images/WebhookConfiguration.png)
-3. After creating the webhook, you can use this url in the project configuration
+3. Configure the webhook
+3. After creating the webhook, you can use its url in the project configuration
 
 ## License
 GNU General Public License v3 Extended
