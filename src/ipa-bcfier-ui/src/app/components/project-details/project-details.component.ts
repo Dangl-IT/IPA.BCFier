@@ -147,6 +147,9 @@ export class ProjectDetailsComponent implements OnDestroy {
           },
           error: () => {
             this.notificationsService.error('Failed to add the user');
+            this.users$ = this.getProjectUsers(this.data.id);
+            this.filterUsers();
+            this.cdr.detectChanges();
           },
         })
       );

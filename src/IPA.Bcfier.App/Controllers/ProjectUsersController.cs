@@ -78,6 +78,14 @@ namespace IPA.Bcfier.App.Controllers
                 UserId = dbUser.Id,
                 ProjectId = projectId
             };
+
+            identifierExistsAlready = await _context.ProjectUsers.AnyAsync(pu => pu.ProjectId == projectId
+                && pu.UserId == projectUser.UserId);
+            if (identifierExistsAlready)
+            {
+                return BadRequest(new ApiError("This user assignment already exists."));
+            }
+
             _context.ProjectUsers.Add(projectUser);
             await _context.SaveChangesAsync();
 
