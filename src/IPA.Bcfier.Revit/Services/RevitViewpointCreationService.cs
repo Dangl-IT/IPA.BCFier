@@ -208,6 +208,11 @@ namespace IPA.Bcfier.Revit.Services
                 return new List<BcfViewpointClippingPlane>();
             }
 
+            if (!view3D.IsSectionBoxActive)
+            {
+                return new List<BcfViewpointClippingPlane>();
+            }
+
             BoundingBoxXYZ sectionBox = view3D.GetSectionBox();
             XYZ transformedMin = sectionBox.Transform.OfPoint(sectionBox.Min);
             XYZ transformedMax = sectionBox.Transform.OfPoint(sectionBox.Max);
