@@ -52,7 +52,7 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             var hasReceived = false;
-            var start = DateTime.Now;
+            var start = DateTime.UtcNow;
             while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
             {
                 if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
@@ -98,7 +98,7 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             var hasReceived = false;
-            var start = DateTime.Now;
+            var start = DateTime.UtcNow;
             while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
             {
                 if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
@@ -143,7 +143,7 @@ namespace IPA.Bcfier.App.Controllers
             }));
 
             var hasReceived = false;
-            var start = DateTime.Now;
+            var start = DateTime.UtcNow;
             while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
             {
                 if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
@@ -193,7 +193,7 @@ namespace IPA.Bcfier.App.Controllers
             }));
 
             var hasReceived = false;
-            var start = DateTime.Now;
+            var start = DateTime.UtcNow;
             // We're waiting up to 20 minutes for the results here - could take a while for large clash results
             while (DateTime.UtcNow - start < TimeSpan.FromSeconds(1200) && !hasReceived)
             {
