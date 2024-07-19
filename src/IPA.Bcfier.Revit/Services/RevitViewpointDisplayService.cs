@@ -137,8 +137,8 @@ namespace IPA.Bcfier.Revit.Services
                                 m_farClip.Set(0);
                             }
 
-                            orthoView.CropBoxActive = false;
-                            orthoView.CropBoxVisible = false;
+                            perspView.CropBoxActive = false;
+                            perspView.CropBoxVisible = false;
 
                             if (ShouldEnableSectionBox(bcfViewpoint))
                             {
