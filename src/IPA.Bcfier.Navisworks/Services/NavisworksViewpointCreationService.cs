@@ -15,6 +15,12 @@ namespace IPA.Bcfier.Navisworks.Services
         {
             _doc = doc;
         }
+        private class ClashTestWrapper
+        {
+            public string? TestDisplayName { get; set; }
+
+            public SavedItem? SavedItem { get; set; }
+        }
 
         ///<summary>
         ///  Generate a VisualizationInfo of the current view
@@ -24,11 +30,13 @@ namespace IPA.Bcfier.Navisworks.Services
         {
             var viewpoint = _doc.CurrentViewpoint.Value;
             NavisUtils.GetGunits(_doc);
-            var v = GetViewpointFromNavisworksViewpoint(viewpoint);
+            var v = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints: true);
             return v;
         }
 
-        private BcfViewpoint GetViewpointFromNavisworksViewpoint(Viewpoint viewpoint, List<ModelItem> selectedItems = null)
+        private BcfViewpoint GetViewpointFromNavisworksViewpoint(Viewpoint viewpoint,
+            bool generateLargeViewpoints,
+            List<ModelItem> selectedItems = null)
         {
             var v = new BcfViewpoint();
             Vector3D vi = GetViewDirection(viewpoint);
@@ -148,10 +156,14 @@ namespace IPA.Bcfier.Navisworks.Services
             try
             {
 #if NAVISWORKS_2023 || NAVISWORKS_2022 || NAVISWORKS_2021
-                var navisworksSnapshot = _doc.GenerateImage(ImageGenerationStyle.Scene, 1920, 1080);
+                var navisworksSnapshot = generateLargeViewpoints
+                    ? _doc.GenerateImage(ImageGenerationStyle.Scene, 1920, 1080)
+                    : _doc.GenerateImage(ImageGenerationStyle.Scene, 600, 400);
 
 #else
-                var navisworksSnapshot = _doc.GenerateImage(ImageGenerationStyle.Scene, 1920, 1080, true);
+                var navisworksSnapshot = generateLargeViewpoints
+                    ? _doc.GenerateImage(ImageGenerationStyle.Scene, 1920, 1080, true)
+                    : _doc.GenerateImage(ImageGenerationStyle.Scene, 600, 400, true);
 #endif
 
                 using var imageStream = new MemoryStream();
@@ -187,195 +199,214 @@ namespace IPA.Bcfier.Navisworks.Services
             var doc = _doc;
             var tests = doc.GetClash().TestsData.Tests;
             // Assuming you've already run all Clash Tests and have the results
-            foreach (ClashTest test in tests)
-            {
-                if (test.Children.Count <= 0)
-                {
-                    continue;
-                }
 
-                if (test.Guid != clashCreationData.ClashId)
+            var testItems = tests
+                .OfType<ClashTest>()
+                .Where(t => t.Children.Count > 0
+                    && t.Guid == clashCreationData.ClashId)
+                .SelectMany(t => t.Children.Select(tt => new ClashTestWrapper
                 {
-                    continue;
-                }
-
-                foreach (var testItem in test.Children)
+                    TestDisplayName = t.DisplayName,
+                    SavedItem = tt
+                }))
+                .Where(t =>
                 {
-                    if (testItem is ClashResult result)
+                    if (t.SavedItem is ClashResult result)
                     {
-                        if (clashCreationData.ExcludedClashIds != null && clashCreationData.ExcludedClashIds.Contains(result.Guid))
-                        {
-                            continue;
-                        }
+                        return clashCreationData.ExcludedClashIds == null
+                            || !clashCreationData.ExcludedClashIds.Contains(result.Guid);
+                    }
 
-                        var viewpoint = doc.CurrentViewpoint.Value;
-                        // Create a collection of the 2 clashing items from the ClashResult
-                        var items = new ModelItemCollection();
-                        items.Add(result.CompositeItem1);
-                        items.Add(result.CompositeItem2);
-                        // Select the 2 clashing items
-                        doc.CurrentSelection.Clear();
-                        doc.CurrentSelection.CopyFrom(items);
-                        // Focus on the clashing items
-                        doc.ActiveView.FocusOnCurrentSelection();
-                        // Make all items visible
-                        doc.Models.ResetAllHidden();
+                    if (t.SavedItem is ClashResultGroup resultGroup)
+                    {
+                        return clashCreationData.ExcludedClashIds == null
+                            || !clashCreationData.ExcludedClashIds.Contains(resultGroup.Guid);
+                    }
 
-                        // Hide everything except for the 2 clashing items
-                        var to_hide = new ModelItemCollection();
-                        var to_show = new ModelItemCollection();
-                        foreach (var item in doc.CurrentSelection.SelectedItems)
-                        {
-                            // Collect all items upstream to the root
-                            if (item.AncestorsAndSelf != null)
-                                to_show.AddRange(item.AncestorsAndSelf);
-                            // Collect all subtrees of the item
-                            if (item.Descendants != null)
-                                to_show.AddRange(item.Descendants);
-                        }
+                    return false;
+                })
+                .ToList();
 
-                        foreach (var item in to_show)
-                        {
-                            // If an item has no parent (root item) save the subtrees
-                            if (!NativeHandle.ReferenceEquals(item.Parent, null))
-                                to_hide.AddRange(item.Parent.Children);
-                        }
-                        // Remove the to be shown items from list of the to be hidden items
-                        foreach (var item in to_show)
-                            to_hide.Remove(item);
-                        // Hide all explicitly to be hidden items
-                        doc.Models.SetHidden(to_hide, true);
-                        // Hide all other items except those already hidden and those to be shown
-                        doc.Models.SetHidden(doc.Models
-                                                .SelectMany<Model, ModelItem>(
-                                                    (Func<Model, ModelItemEnumerableCollection>)(c => c.RootItem.Children)
-                                                  )
-                                                .Except<ModelItem>(to_hide)
-                                                .Except<ModelItem>(to_show)
-                                              , true);
-                        // Remove selction color from the clashing items
-                        var selectedItems = doc.CurrentSelection.SelectedItems.ToList();
-                        doc.CurrentSelection.Clear();
+            // If there are less than 50 clashes to generate, we can generate large viewpoints.
+            // Otherwise, there are too many clashes and the generation would take too long
+            var generateLargeViewpoints = testItems.Count <= 50;
 
-                        // Adjust the camera and lighting
-                        var copy = viewpoint.CreateCopy();
-                        copy.Lighting = ViewpointLighting.None;
-                        doc.Models.ResetAllPermanentMaterials();
-                        doc.CurrentViewpoint.CopyFrom(copy);
+            foreach (var testItem in testItems)
+            {
+                if (testItem.SavedItem is ClashResult result)
+                {
+                    if (clashCreationData.ExcludedClashIds != null && clashCreationData.ExcludedClashIds.Contains(result.Guid))
+                    {
+                        continue;
+                    }
 
-                        // Paint the clashing items in Red and Green respectively
+                    var viewpoint = doc.CurrentViewpoint.Value;
+                    // Create a collection of the 2 clashing items from the ClashResult
+                    var items = new ModelItemCollection();
+                    items.Add(result.CompositeItem1);
+                    items.Add(result.CompositeItem2);
+                    // Select the 2 clashing items
+                    doc.CurrentSelection.Clear();
+                    doc.CurrentSelection.CopyFrom(items);
+                    // Focus on the clashing items
+                    doc.ActiveView.FocusOnCurrentSelection();
+                    // Make all items visible
+                    doc.Models.ResetAllHidden();
+
+                    // Hide everything except for the 2 clashing items
+                    var to_hide = new ModelItemCollection();
+                    var to_show = new ModelItemCollection();
+                    foreach (var item in doc.CurrentSelection.SelectedItems)
+                    {
+                        // Collect all items upstream to the root
+                        if (item.AncestorsAndSelf != null)
+                            to_show.AddRange(item.AncestorsAndSelf);
+                        // Collect all subtrees of the item
+                        if (item.Descendants != null)
+                            to_show.AddRange(item.Descendants);
+                    }
+
+                    foreach (var item in to_show)
+                    {
+                        // If an item has no parent (root item) save the subtrees
+                        if (!NativeHandle.ReferenceEquals(item.Parent, null))
+                            to_hide.AddRange(item.Parent.Children);
+                    }
+                    // Remove the to be shown items from list of the to be hidden items
+                    foreach (var item in to_show)
+                        to_hide.Remove(item);
+                    // Hide all explicitly to be hidden items
+                    doc.Models.SetHidden(to_hide, true);
+                    // Hide all other items except those already hidden and those to be shown
+                    doc.Models.SetHidden(doc.Models
+                                            .SelectMany<Model, ModelItem>(
+                                                (Func<Model, ModelItemEnumerableCollection>)(c => c.RootItem.Children)
+                                              )
+                                            .Except<ModelItem>(to_hide)
+                                            .Except<ModelItem>(to_show)
+                                          , true);
+                    // Remove selction color from the clashing items
+                    var selectedItems = doc.CurrentSelection.SelectedItems.ToList();
+                    doc.CurrentSelection.Clear();
+
+                    // Adjust the camera and lighting
+                    var copy = viewpoint.CreateCopy();
+                    copy.Lighting = ViewpointLighting.None;
+                    doc.Models.ResetAllPermanentMaterials();
+                    doc.CurrentViewpoint.CopyFrom(copy);
+
+                    // Paint the clashing items in Red and Green respectively
+                    doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(0) }, Color.Red);
+                    doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(1) }, Color.Green);
+                    // Adjust the camera angle
+                    doc.ActiveView.LookFromFrontRightTop();
+                    // Prevent redraw for every test and item
+                    doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
+
+                    var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints, selectedItems);
+                    bcfViewpoint.Id = result.Guid;
+                    bcfTopics.Add(new BcfTopic
+                    {
+                        ServerAssignedId = result.Guid.ToString(),
+                        Viewpoints = new List<BcfViewpoint>
+                            {
+                                bcfViewpoint
+                            },
+                        TopicStatus = result.Status.ToString(),
+                        Title = $"{testItem.TestDisplayName} - {result.DisplayName}"
+                    });
+                }
+                else if (testItem.SavedItem is ClashResultGroup resultGroup)
+                {
+                    if (clashCreationData.ExcludedClashIds != null && clashCreationData.ExcludedClashIds.Contains(resultGroup.Guid))
+                    {
+                        continue;
+                    }
+
+                    var viewpoint = doc.CurrentViewpoint.Value;
+                    // Create a collection of the 2 clashing items from the ClashResult
+                    var items = new ModelItemCollection();
+                    resultGroup.CompositeItemSelection1.CopyTo(items);
+                    resultGroup.CompositeItemSelection2.CopyTo(items);
+                    // Select the clashing items
+                    doc.CurrentSelection.Clear();
+                    doc.CurrentSelection.CopyFrom(items);
+                    // Focus on the clashing items
+                    doc.ActiveView.FocusOnCurrentSelection();
+                    // Make all items visible
+                    doc.Models.ResetAllHidden();
+
+                    // Hide everything except for the 2 clashing items
+                    var to_hide = new ModelItemCollection();
+                    var to_show = new ModelItemCollection();
+                    foreach (var item in doc.CurrentSelection.SelectedItems)
+                    {
+                        // Collect all items upstream to the root
+                        if (item.AncestorsAndSelf != null)
+                            to_show.AddRange(item.AncestorsAndSelf);
+                        // Collect all subtrees of the item
+                        if (item.Descendants != null)
+                            to_show.AddRange(item.Descendants);
+                    }
+
+                    foreach (var item in to_show)
+                    {
+                        // If an item has no parent (root item) save the subtrees
+                        if (!NativeHandle.ReferenceEquals(item.Parent, null))
+                            to_hide.AddRange(item.Parent.Children);
+                    }
+                    // Remove the to be shown items from list of the to be hidden items
+                    foreach (var item in to_show)
+                        to_hide.Remove(item);
+                    // Hide all explicitly to be hidden items
+                    doc.Models.SetHidden(to_hide, true);
+                    // Hide all other items except those already hidden and those to be shown
+                    doc.Models.SetHidden(doc.Models
+                                            .SelectMany<Model, ModelItem>(
+                                                (Func<Model, ModelItemEnumerableCollection>)(c => c.RootItem.Children)
+                                              )
+                                            .Except<ModelItem>(to_hide)
+                                            .Except<ModelItem>(to_show)
+                                          , true);
+                    // Remove selection color from the clashing items
+                    var selectedItems = doc.CurrentSelection.SelectedItems.ToList();
+                    doc.CurrentSelection.Clear();
+
+                    // Adjust the camera and lighting
+                    var copy = viewpoint.CreateCopy();
+                    copy.Lighting = ViewpointLighting.None;
+                    doc.Models.ResetAllPermanentMaterials();
+                    doc.CurrentViewpoint.CopyFrom(copy);
+
+                    // Paint the clashing items in Red and Green respectively
+                    try
+                    {
                         doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(0) }, Color.Red);
                         doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(1) }, Color.Green);
-                        // Adjust the camera angle
-                        doc.ActiveView.LookFromFrontRightTop();
-                        // Prevent redraw for every test and item
-                        doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
-
-                        var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, selectedItems);
-                        bcfViewpoint.Id = result.Guid;
-                        bcfTopics.Add(new BcfTopic
-                        {
-                            ServerAssignedId = result.Guid.ToString(),
-                            Viewpoints = new List<BcfViewpoint>
-                            {
-                                bcfViewpoint
-                            },
-                            TopicStatus = result.Status.ToString(),
-                            Title = $"{test.DisplayName} - {result.DisplayName}"
-                        });
                     }
-                    else if (testItem is ClashResultGroup resultGroup)
+                    catch
                     {
-                        if (clashCreationData.ExcludedClashIds != null && clashCreationData.ExcludedClashIds.Contains(resultGroup.Guid))
-                        {
-                            continue;
-                        }
+                        // Sometimes setting a color of a component fails, but we don't want to
+                        // crash the application for that
+                    }
+                    // Adjust the camera angle
+                    doc.ActiveView.LookFromFrontRightTop();
+                    // Prevent redraw for every test and item
+                    doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
 
-                        var viewpoint = doc.CurrentViewpoint.Value;
-                        // Create a collection of the 2 clashing items from the ClashResult
-                        var items = new ModelItemCollection();
-                        resultGroup.CompositeItemSelection1.CopyTo(items);
-                        resultGroup.CompositeItemSelection2.CopyTo(items);
-                        // Select the clashing items
-                        doc.CurrentSelection.Clear();
-                        doc.CurrentSelection.CopyFrom(items);
-                        // Focus on the clashing items
-                        doc.ActiveView.FocusOnCurrentSelection();
-                        // Make all items visible
-                        doc.Models.ResetAllHidden();
-
-                        // Hide everything except for the 2 clashing items
-                        var to_hide = new ModelItemCollection();
-                        var to_show = new ModelItemCollection();
-                        foreach (var item in doc.CurrentSelection.SelectedItems)
-                        {
-                            // Collect all items upstream to the root
-                            if (item.AncestorsAndSelf != null)
-                                to_show.AddRange(item.AncestorsAndSelf);
-                            // Collect all subtrees of the item
-                            if (item.Descendants != null)
-                                to_show.AddRange(item.Descendants);
-                        }
-
-                        foreach (var item in to_show)
-                        {
-                            // If an item has no parent (root item) save the subtrees
-                            if (!NativeHandle.ReferenceEquals(item.Parent, null))
-                                to_hide.AddRange(item.Parent.Children);
-                        }
-                        // Remove the to be shown items from list of the to be hidden items
-                        foreach (var item in to_show)
-                            to_hide.Remove(item);
-                        // Hide all explicitly to be hidden items
-                        doc.Models.SetHidden(to_hide, true);
-                        // Hide all other items except those already hidden and those to be shown
-                        doc.Models.SetHidden(doc.Models
-                                                .SelectMany<Model, ModelItem>(
-                                                    (Func<Model, ModelItemEnumerableCollection>)(c => c.RootItem.Children)
-                                                  )
-                                                .Except<ModelItem>(to_hide)
-                                                .Except<ModelItem>(to_show)
-                                              , true);
-                        // Remove selection color from the clashing items
-                        var selectedItems = doc.CurrentSelection.SelectedItems.ToList();
-                        doc.CurrentSelection.Clear();
-
-                        // Adjust the camera and lighting
-                        var copy = viewpoint.CreateCopy();
-                        copy.Lighting = ViewpointLighting.None;
-                        doc.Models.ResetAllPermanentMaterials();
-                        doc.CurrentViewpoint.CopyFrom(copy);
-
-                        // Paint the clashing items in Red and Green respectively
-                        try
-                        {
-                            doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(0) }, Color.Red);
-                            doc.Models.OverridePermanentColor(new ModelItem[1] { items.ElementAtOrDefault<ModelItem>(1) }, Color.Green);
-                        }
-                        catch
-                        {
-                            // Sometimes setting a color of a component fails, but we don't want to
-                            // crash the application for that
-                        }
-                        // Adjust the camera angle
-                        doc.ActiveView.LookFromFrontRightTop();
-                        // Prevent redraw for every test and item
-                        doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
-
-                        var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, selectedItems);
-                        bcfViewpoint.Id = resultGroup.Guid;
-                        bcfTopics.Add(new BcfTopic
-                        {
-                            ServerAssignedId = resultGroup.Guid.ToString(),
-                            CreationDate = DateTime.Now,
-                            Viewpoints = new List<BcfViewpoint>
+                    var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints, selectedItems);
+                    bcfViewpoint.Id = resultGroup.Guid;
+                    bcfTopics.Add(new BcfTopic
+                    {
+                        ServerAssignedId = resultGroup.Guid.ToString(),
+                        CreationDate = DateTime.Now,
+                        Viewpoints = new List<BcfViewpoint>
                             {
                                 bcfViewpoint
                             },
-                            TopicStatus = resultGroup.Status.ToString(),
-                            Title = $"{test.DisplayName} - {resultGroup.DisplayName} (Group)"
-                        });
-                    }
+                        TopicStatus = resultGroup.Status.ToString(),
+                        Title = $"{testItem.TestDisplayName} - {resultGroup.DisplayName} (Group)"
+                    });
                 }
             }
 
