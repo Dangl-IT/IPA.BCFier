@@ -69,16 +69,15 @@ namespace IPA.Bcfier.Revit.Services
 
                             orthoView.SetOrientation(orient3D);
 
+                            orthoView.CropBoxActive = false;
+                            orthoView.CropBoxVisible = false;
+
                             if (ShouldEnableSectionBox(bcfViewpoint))
                             {
-                                orthoView.CropBoxActive = true;
-                                orthoView.CropBoxVisible = true;
                                 orthoView.IsSectionBoxActive = true;
                             }
                             else
                             {
-                                orthoView.CropBoxActive = false;
-                                orthoView.CropBoxVisible = false;
                                 orthoView.IsSectionBoxActive = false;
                             }
 
@@ -138,16 +137,15 @@ namespace IPA.Bcfier.Revit.Services
                                 m_farClip.Set(0);
                             }
 
+                            orthoView.CropBoxActive = false;
+                            orthoView.CropBoxVisible = false;
+
                             if (ShouldEnableSectionBox(bcfViewpoint))
                             {
-                                perspView.CropBoxActive = true;
-                                perspView.CropBoxVisible = true;
                                 perspView.IsSectionBoxActive = true;
                             }
                             else
                             {
-                                perspView.CropBoxActive = false;
-                                perspView.CropBoxVisible = false;
                                 perspView.IsSectionBoxActive = false;
                             }
 
@@ -330,8 +328,6 @@ namespace IPA.Bcfier.Revit.Services
             {
                 // Don't apply section box if it's not a full box
                 view.IsSectionBoxActive = false;
-                view.CropBoxActive = false;
-                view.CropBoxVisible = false;
                 return;
             }
 
@@ -345,8 +341,6 @@ namespace IPA.Bcfier.Revit.Services
             else
             {
                 view.IsSectionBoxActive = false;
-                view.CropBoxActive = false;
-                view.CropBoxVisible = false;
             }
         }
 
