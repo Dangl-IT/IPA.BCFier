@@ -31,7 +31,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class NavisworksClashSelectionComponent {
   viewpointsClient = inject(ViewpointsClient);
   loadingService = inject(LoadingService);
-  onlyImportNew = true;
+  onlyImportNew = false;
   constructor(
     public dialogRef: MatDialogRef<NavisworksClashSelectionComponent>
   ) {

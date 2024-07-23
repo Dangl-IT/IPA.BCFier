@@ -26,7 +26,7 @@
   </mat-form-field>
   <mat-checkbox
     [(ngModel)]="onlyImportNew"
-    matTooltip="This option imports only clashes that were not previously imported, it does not restrict to only clashes with the status 'New'"
+    matTooltip="This option imports only clashes that were not previously imported, it does not restrict to only clashes with the status 'New'. Already imported clashes will be ignored, and their status will also not be updated."
     >Only Import New Clashes</mat-checkbox
   >
 </mat-dialog-content>

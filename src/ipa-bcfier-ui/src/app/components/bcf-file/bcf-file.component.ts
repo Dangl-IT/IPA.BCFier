@@ -278,7 +278,25 @@ export class BcfFileComponent {
                       );
                     }
 
-                    this.bcfFile.topics.push(...createdTopics);
+                    // Now we're trying to change topics that we have already imported if their status
+                    // has changed, so we don't import them again but just update their status
+
+                    const topicsToAdd: BcfTopic[] = [];
+                    createdTopics.forEach((createdTopic) => {
+                      // We'll check if it exists already, and if it does, we'll just update the status
+                      var existingTopic = this.bcfFile.topics.find(
+                        (existing) =>
+                          existing.serverAssignedId ===
+                          createdTopic.serverAssignedId
+                      );
+                      if (existingTopic) {
+                        existingTopic.topicStatus = createdTopic.topicStatus;
+                      } else {
+                        topicsToAdd.push(createdTopic);
+                      }
+                    });
+
+                    this.bcfFile.topics.push(...topicsToAdd);
                     this.filteredTopics = [...this.bcfFile.topics];
                     this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
 
