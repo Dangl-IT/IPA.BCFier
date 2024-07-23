@@ -2103,6 +2103,7 @@ export interface NavisworksClashSelection {
 
 export interface NavisworksClashCreationData {
     clashId?: string;
+    status?: string | null;
     excludedClashIds?: string[];
 }
 

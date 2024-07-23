@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'bcfier-navisworks-clash-selection',
@@ -22,6 +23,7 @@ import { MatSelectModule } from '@angular/material/select';
     MatSelectModule,
     MatCheckboxModule,
     FormsModule,
+    MatTooltipModule,
   ],
   templateUrl: './navisworks-clash-selection.component.html',
   styleUrl: './navisworks-clash-selection.component.scss',
@@ -47,11 +49,13 @@ export class NavisworksClashSelectionComponent {
 
   clashes: NavisworksClashSelection[] = [];
   selectedClashId: string | null = null;
+  selectedStatusType: string | null = null;
 
   save(): void {
     this.dialogRef.close({
       clashId: this.selectedClashId,
       onlyImportNew: this.onlyImportNew,
+      statusType: this.selectedStatusType,
     });
   }
 

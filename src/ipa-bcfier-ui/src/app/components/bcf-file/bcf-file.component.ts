@@ -211,86 +211,93 @@ export class BcfFileComponent {
     this.dialog
       .open(NavisworksClashSelectionComponent)
       .afterClosed()
-      .subscribe((selection?: { clashId: string; onlyImportNew: boolean }) => {
-        if (!selection) {
-          return;
-        }
-        this.notificationsService.info(
-          'If there are many clashes, generation of the data could take a few minutes.'
-        );
-        this.navisworksClashesLoadingService.showLoadingScreen();
-
-        const existingIds = selection.onlyImportNew
-          ? this.bcfFile.topics
-              .filter(
-                (topic) =>
-                  !!topic.serverAssignedId &&
-                  // We only want to take Guids, as other server assigned ids might not originate from Navisworks
-                  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-                    topic.serverAssignedId
-                  )
-              )
-              .map((topic) => topic.serverAssignedId!)
-          : [];
-
-        const cancellationSubscription =
-          this.navisworksClashProgressMessengerService.cancelGeneration.subscribe(
-            () => {
-              this.viewpointsClient
-                .cancelNavisworksClashDetection(selection.clashId)
-                .subscribe(() => {
-                  /* Not doing anything with the response, that's handled later */
-                });
-            }
+      .subscribe(
+        (selection?: {
+          clashId: string;
+          onlyImportNew: boolean;
+          statusType: string | null;
+        }) => {
+          if (!selection) {
+            return;
+          }
+          this.notificationsService.info(
+            'If there are many clashes, generation of the data could take a few minutes.'
           );
+          this.navisworksClashesLoadingService.showLoadingScreen();
 
-        this.viewpointsClient
-          .createNavisworksClashDetectionResultIssues({
-            clashId: selection.clashId,
-            excludedClashIds: existingIds,
-          })
-          .subscribe({
-            next: (createdTopics) => {
-              this.navisworksClashesLoadingService.hideLoadingScreen();
-              cancellationSubscription.unsubscribe();
-              this.settingsMessengerService.settings
-                .pipe(take(1))
-                .subscribe((s) => {
-                  createdTopics.forEach((topic) => {
-                    topic.creationAuthor = s.username;
+          const existingIds = selection.onlyImportNew
+            ? this.bcfFile.topics
+                .filter(
+                  (topic) =>
+                    !!topic.serverAssignedId &&
+                    // We only want to take Guids, as other server assigned ids might not originate from Navisworks
+                    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                      topic.serverAssignedId
+                    )
+                )
+                .map((topic) => topic.serverAssignedId!)
+            : [];
+
+          const cancellationSubscription =
+            this.navisworksClashProgressMessengerService.cancelGeneration.subscribe(
+              () => {
+                this.viewpointsClient
+                  .cancelNavisworksClashDetection(selection.clashId)
+                  .subscribe(() => {
+                    /* Not doing anything with the response, that's handled later */
                   });
+              }
+            );
 
-                  if (selection.onlyImportNew) {
-                    // In that case, we're filtering out those topics that already exist in the
-                    createdTopics = createdTopics.filter(
-                      (topic) =>
-                        !this.bcfFile.topics.some(
-                          (existingTopic) =>
-                            existingTopic.serverAssignedId ===
-                            topic.serverAssignedId
-                        )
+          this.viewpointsClient
+            .createNavisworksClashDetectionResultIssues({
+              clashId: selection.clashId,
+              excludedClashIds: existingIds,
+              status: selection.statusType,
+            })
+            .subscribe({
+              next: (createdTopics) => {
+                this.navisworksClashesLoadingService.hideLoadingScreen();
+                cancellationSubscription.unsubscribe();
+                this.settingsMessengerService.settings
+                  .pipe(take(1))
+                  .subscribe((s) => {
+                    createdTopics.forEach((topic) => {
+                      topic.creationAuthor = s.username;
+                    });
+
+                    if (selection.onlyImportNew) {
+                      // In that case, we're filtering out those topics that already exist in the
+                      createdTopics = createdTopics.filter(
+                        (topic) =>
+                          !this.bcfFile.topics.some(
+                            (existingTopic) =>
+                              existingTopic.serverAssignedId ===
+                              topic.serverAssignedId
+                          )
+                      );
+                    }
+
+                    this.bcfFile.topics.push(...createdTopics);
+                    this.filteredTopics = [...this.bcfFile.topics];
+                    this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
+
+                    this.teamsMessengerService.sendMessageToTeams(
+                      MessageType.AddNavisworksClashes
                     );
-                  }
-
-                  this.bcfFile.topics.push(...createdTopics);
-                  this.filteredTopics = [...this.bcfFile.topics];
-                  this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
-
-                  this.teamsMessengerService.sendMessageToTeams(
-                    MessageType.AddNavisworksClashes
-                  );
-                });
-            },
-            error: (error) => {
-              this.navisworksClashesLoadingService.hideLoadingScreen();
-              cancellationSubscription.unsubscribe();
-              console.error(error);
-              this.notificationsService.error(
-                'Failed to generate the clash data from Navisworks, this is probably a timeout issue'
-              );
-            },
-          });
-      });
+                  });
+              },
+              error: (error) => {
+                this.navisworksClashesLoadingService.hideLoadingScreen();
+                cancellationSubscription.unsubscribe();
+                console.error(error);
+                this.notificationsService.error(
+                  'Failed to generate the clash data from Navisworks, this is probably a timeout issue'
+                );
+              },
+            });
+        }
+      );
   }
 
   setResponsibleForAll(): void {

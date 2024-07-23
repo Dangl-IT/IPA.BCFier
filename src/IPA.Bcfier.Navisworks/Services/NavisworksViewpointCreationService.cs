@@ -217,14 +217,18 @@ namespace IPA.Bcfier.Navisworks.Services
                 {
                     if (t.SavedItem is ClashResult result)
                     {
-                        return clashCreationData.ExcludedClashIds == null
-                            || !clashCreationData.ExcludedClashIds.Contains(result.Guid);
+                        return (clashCreationData.ExcludedClashIds == null
+                            || !clashCreationData.ExcludedClashIds.Contains(result.Guid))
+                            && (clashCreationData.Status == null
+                             || clashCreationData.Status == result.Status.ToString());
                     }
 
                     if (t.SavedItem is ClashResultGroup resultGroup)
                     {
-                        return clashCreationData.ExcludedClashIds == null
-                            || !clashCreationData.ExcludedClashIds.Contains(resultGroup.Guid);
+                        return (clashCreationData.ExcludedClashIds == null
+                            || !clashCreationData.ExcludedClashIds.Contains(resultGroup.Guid))
+                            && (clashCreationData.Status == null
+                             || clashCreationData.Status == resultGroup.Status.ToString());
                     }
 
                     return false;

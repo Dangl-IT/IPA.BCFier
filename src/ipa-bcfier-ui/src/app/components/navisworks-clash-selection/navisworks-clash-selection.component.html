@@ -13,7 +13,22 @@
       }
     </mat-select>
   </mat-form-field>
-  <mat-checkbox [(ngModel)]="onlyImportNew">Only Import New</mat-checkbox>
+  <mat-form-field class="dark-theme">
+    <mat-label>Status</mat-label>
+    <mat-select [(value)]="selectedStatusType">
+      <mat-option [value]="null">All / No Filter</mat-option>
+      <mat-option [value]="'New'">New</mat-option>
+      <mat-option [value]="'Active'">Active</mat-option>
+      <mat-option [value]="'Reviewed'">Reviewed</mat-option>
+      <mat-option [value]="'Approved'">Approved</mat-option>
+      <mat-option [value]="'Resolved'">Resolved</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-checkbox
+    [(ngModel)]="onlyImportNew"
+    matTooltip="This option imports only clashes that were not previously imported, it does not restrict to only clashes with the status 'New'"
+    >Only Import New Clashes</mat-checkbox
+  >
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-raised-button (click)="save()" [disabled]="!selectedClashId">
