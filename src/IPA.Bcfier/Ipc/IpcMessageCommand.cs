@@ -22,6 +22,12 @@
 
         PluginErrorEncountered = 9,
 
-        CadClosing
+        CadClosing = 10,
+
+        NavisworksClashIssuesTotalCount = 11,
+
+        NavisworksClashIssuesCurrentCount = 12,
+
+        NavisworksClashIssuesCancellation = 13
     }
 }

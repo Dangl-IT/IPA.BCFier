@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>Generating clashes...</h2>
+@if(currentCount > 0 && totalCount > 0) {
+<p>{{ currentCount }} of {{ totalCount }}</p>
+}
+<mat-dialog-content class="loading-screen">
+  @if(currentCount > 0 && totalCount > 0) {
+  <mat-progress-spinner
+    [diameter]="200"
+    mode="determinate"
+    [value]="currentProgress"
+    color="primary"
+  ></mat-progress-spinner>
+  } @else {
+  <mat-progress-spinner
+    [diameter]="200"
+    mode="indeterminate"
+    color="primary"
+  ></mat-progress-spinner>
+  }
+</mat-dialog-content>
+<button mat-raised-button color="warn" (click)="cancelGeneration()">
+  Cancel
+</button>
+<p>
+  Cancelling still saves the generated clashes so far, but does stop generating
+  more issues.
+</p>

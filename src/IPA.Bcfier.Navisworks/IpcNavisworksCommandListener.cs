@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Navisworks.Models;
-using System.Collections.Concurrent;
 using IPA.Bcfier.Models.Clashes;
 
 namespace IPA.Bcfier.Navisworks
@@ -53,6 +52,11 @@ namespace IPA.Bcfier.Navisworks
                                 });
                                 break;
 
+                            case IpcMessageCommand.NavisworksClashIssuesCancellation:
+                                var clashIdToCancel = JsonConvert.DeserializeObject<Guid>(ipcMessage.Data!)!;
+                                _navisworksTaskHandler.NavisworksClashCancellationQueue.Enqueue(clashIdToCancel);
+                                break;
+
                             case IpcMessageCommand.CreateNavisworksClashDetectionIssues:
                                 var data = JsonConvert.DeserializeObject<NavisworksClashCreationData>(ipcMessage.Data!)!;
                                 _navisworksTaskHandler.CreateNavisworksClashIssuesCallbacks.Enqueue(new CreateClashIssuesQueueItem
@@ -66,7 +70,31 @@ namespace IPA.Bcfier.Navisworks
                                             Command = IpcMessageCommand.NavisworksClashDetectionIssuesCreated,
                                             Data = data
                                         }));
-                                    }
+                                    },
+                                    CallbackReportTotalCount = totalCount =>
+                                    {
+                                        Task.Run(async () =>
+                                        {
+                                            await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                            {
+                                                CorrelationId = ipcMessage.CorrelationId,
+                                                Command = IpcMessageCommand.NavisworksClashIssuesTotalCount,
+                                                Data = totalCount.ToString()
+                                            }));
+                                        });
+                                    },
+                                    CallbackReportCurrentCount = currentCount =>
+                                    {
+                                        Task.Run(async () =>
+                                        {
+                                            await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                            {
+                                                CorrelationId = ipcMessage.CorrelationId,
+                                                Command = IpcMessageCommand.NavisworksClashIssuesCurrentCount,
+                                                Data = currentCount.ToString()
+                                            }));
+                                        });
+                                    },
                                 });
                                 break;
 

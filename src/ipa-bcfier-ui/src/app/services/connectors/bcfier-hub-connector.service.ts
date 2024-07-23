@@ -8,6 +8,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { CadErrorDialogComponent } from '../../components/cad-error-dialog/cad-error-dialog.component';
 import { LoadingService } from '../loading.service';
 import { MatDialog } from '@angular/material/dialog';
+import { NavisworksClashProgressMessengerService } from '../messengers/navisworks-clash-progress-messenger.service';
 import { NotificationsService } from '../notifications.service';
 
 @Injectable({
@@ -20,7 +21,8 @@ export class BcfierHubConnectorService {
     private notificationsService: NotificationsService,
     private ngZone: NgZone,
     private loadingService: LoadingService,
-    private matDialog: MatDialog
+    private matDialog: MatDialog,
+    private navisworksClashProgressMessengerService: NavisworksClashProgressMessengerService
   ) {
     this.connection = new HubConnectionBuilder()
       .withAutomaticReconnect()
@@ -48,5 +50,27 @@ export class BcfierHubConnectorService {
         this.loadingService.hideLoadingScreen();
       });
     });
+
+    this.connection.on(
+      'NavisworksClashIssuesTotalCount',
+      (totalCount: number) => {
+        this.ngZone.run(() => {
+          this.navisworksClashProgressMessengerService.navisworksClashesTotalCount.next(
+            totalCount
+          );
+        });
+      }
+    );
+
+    this.connection.on(
+      'NavisworksClashIssuesCurrentCount',
+      (currentCount: number) => {
+        this.ngZone.run(() => {
+          this.navisworksClashProgressMessengerService.navisworksClashesCurrentCount.next(
+            currentCount
+          );
+        });
+      }
+    );
   }
 }

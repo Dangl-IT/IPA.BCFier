@@ -21,7 +21,6 @@ import { CommonModule } from '@angular/common';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
-import { LoadingService } from '../../services/loading.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -29,7 +28,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { NavisworksClashProgressMessengerService } from '../../services/messengers/navisworks-clash-progress-messenger.service';
 import { NavisworksClashSelectionComponent } from '../navisworks-clash-selection/navisworks-clash-selection.component';
+import { NavisworksClashesLoadingService } from '../../services/navisworks-clashes-loading.service';
 import { NotificationsService } from '../../services/notifications.service';
 import { ProjectUsersService } from '../../services/project-users.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
@@ -72,13 +73,16 @@ export class BcfFileComponent {
   teamsMessengerService = inject(TeamsMessengerService);
   topicMessengerService = inject(TopicMessengerService);
   settingsMessengerService = inject(SettingsMessengerService);
+  navisworksClashProgressMessengerService = inject(
+    NavisworksClashProgressMessengerService
+  );
   cdr = inject(ChangeDetectorRef);
   selectedTopic: BcfTopic | null = null;
   filteredTopics: BcfTopic[] = [];
   isInNavisworks =
     inject(AppConfigService).getFrontendConfig().isConnectedToNavisworks;
   viewpointsClient = inject(ViewpointsClient);
-  loadingService = inject(LoadingService);
+  navisworksClashesLoadingService = inject(NavisworksClashesLoadingService);
   notificationsService = inject(NotificationsService);
   private dialog = inject(MatDialog);
 
@@ -214,7 +218,7 @@ export class BcfFileComponent {
         this.notificationsService.info(
           'If there are many clashes, generation of the data could take a few minutes.'
         );
-        this.loadingService.showLoadingScreen();
+        this.navisworksClashesLoadingService.showLoadingScreen();
 
         const existingIds = selection.onlyImportNew
           ? this.bcfFile.topics
@@ -229,6 +233,17 @@ export class BcfFileComponent {
               .map((topic) => topic.serverAssignedId!)
           : [];
 
+        const cancellationSubscription =
+          this.navisworksClashProgressMessengerService.cancelGeneration.subscribe(
+            () => {
+              this.viewpointsClient
+                .cancelNavisworksClashDetection(selection.clashId)
+                .subscribe(() => {
+                  /* Not doing anything with the response, that's handled later */
+                });
+            }
+          );
+
         this.viewpointsClient
           .createNavisworksClashDetectionResultIssues({
             clashId: selection.clashId,
@@ -236,7 +251,8 @@ export class BcfFileComponent {
           })
           .subscribe({
             next: (createdTopics) => {
-              this.loadingService.hideLoadingScreen();
+              this.navisworksClashesLoadingService.hideLoadingScreen();
+              cancellationSubscription.unsubscribe();
               this.settingsMessengerService.settings
                 .pipe(take(1))
                 .subscribe((s) => {
@@ -266,8 +282,12 @@ export class BcfFileComponent {
                 });
             },
             error: (error) => {
-              this.loadingService.hideLoadingScreen();
+              this.navisworksClashesLoadingService.hideLoadingScreen();
+              cancellationSubscription.unsubscribe();
               console.error(error);
+              this.notificationsService.error(
+                'Failed to generate the clash data from Navisworks, this is probably a timeout issue'
+              );
             },
           });
       });

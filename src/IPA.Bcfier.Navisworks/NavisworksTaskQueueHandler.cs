@@ -18,6 +18,10 @@ namespace IPA.Bcfier.Navisworks
         private bool shouldUnregister = false;
         public ConcurrentQueue<string> CadErrorMessages { get; } = new ConcurrentQueue<string>();
 
+        public Queue<Guid> NavisworksClashCancellationQueue { get; } = new Queue<Guid>();
+
+        private Dictionary<Guid, CancellationTokenSource> _navisworksClashCancellationTokenSourcesByCorrelationId = new Dictionary<Guid, CancellationTokenSource>();
+
         public void OnIdling(object sender, EventArgs args)
         {
             if (shouldUnregister)
@@ -36,8 +40,23 @@ namespace IPA.Bcfier.Navisworks
             {
                 var uiDocument = Application.ActiveDocument;
                 var queueItem = CreateNavisworksClashIssuesCallbacks.Dequeue();
-                HandleCreateNavisworksClashIssuesCallback(queueItem.Callback, uiDocument, queueItem.ClashCreationData);
+
+                var cancellationTokenSource = new CancellationTokenSource();
+                if (!_navisworksClashCancellationTokenSourcesByCorrelationId.ContainsKey(queueItem.ClashCreationData.ClashId))
+                {
+                    _navisworksClashCancellationTokenSourcesByCorrelationId.Add(queueItem.ClashCreationData.ClashId, cancellationTokenSource);
+                }
+                
+                HandleCreateNavisworksClashIssuesCallback(queueItem.Callback,
+                    uiDocument,
+                    queueItem.ClashCreationData,
+                    queueItem.CallbackReportTotalCount,
+                    queueItem.CallbackReportCurrentCount,
+                    () => CheckForNavisworksClashCancellation(),
+                    cancellationTokenSource.Token);
             }
+
+            CheckForNavisworksClashCancellation();
 
             if (ShowViewpointQueueItems.Count > 0)
             {
@@ -51,6 +70,25 @@ namespace IPA.Bcfier.Navisworks
                 var uiDocument = Application.ActiveDocument;
                 var callback = GetAvailableNavisworksClashes.Dequeue();
                 HandleGetAvailableNavisworksClashes(callback, uiDocument);
+            }
+        }
+
+        /// <summary>
+        /// We're using a separate method for this, because when we're in the process of actually generating the clashes,
+        /// this all happens in the UI thread, so the OnIdling event won't be triggered until the clashes are generated.
+        /// By moving this to a separate method, we can pass it as a function down to the service where the clashes are
+        /// generated, so after every generated clash we can check if we should cancel / stop the generation process.
+        /// </summary>
+        private void CheckForNavisworksClashCancellation()
+        {
+            if (NavisworksClashCancellationQueue.Count > 0)
+            {
+                var correlationId = NavisworksClashCancellationQueue.Dequeue();
+                if (_navisworksClashCancellationTokenSourcesByCorrelationId.TryGetValue(correlationId, out var clashCancellationTokenSource))
+                {
+                    clashCancellationTokenSource.Cancel();
+                    _navisworksClashCancellationTokenSourcesByCorrelationId.Remove(correlationId);
+                }
             }
         }
 
@@ -120,12 +158,16 @@ namespace IPA.Bcfier.Navisworks
 
         private void HandleCreateNavisworksClashIssuesCallback(Func<string, Task> callback,
             Document uiDocument,
-            NavisworksClashCreationData clashCreationData)
+            NavisworksClashCreationData clashCreationData,
+            Action<int> reportTotalCount,
+            Action<int> reportCurrentCount,
+            Action checkForNavisworksClashCancellation,
+            CancellationToken cancellationToken)
         {
             try
             {
                 var viewpointService = new NavisworksViewpointCreationService(uiDocument);
-                var clashIssues = viewpointService.CreateClashIssues(clashCreationData);
+                var clashIssues = viewpointService.CreateClashIssues(clashCreationData, reportTotalCount, reportCurrentCount, checkForNavisworksClashCancellation, cancellationToken);
                 var contractResolver = new DefaultContractResolver
                 {
                     NamingStrategy = new CamelCaseNamingStrategy()
@@ -137,6 +179,11 @@ namespace IPA.Bcfier.Navisworks
                 };
                 Task.Run(async () =>
                 {
+                    if (_navisworksClashCancellationTokenSourcesByCorrelationId.ContainsKey(clashCreationData.ClashId))
+                    {
+                        _navisworksClashCancellationTokenSourcesByCorrelationId.Remove(clashCreationData.ClashId);
+                    }
+
                     if (clashIssues == null)
                     {
                         await callback("[]");

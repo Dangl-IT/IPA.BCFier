@@ -191,7 +191,11 @@ namespace IPA.Bcfier.Navisworks.Services
         }
 
         // Mostly taken from here: https://forums.autodesk.com/t5/navisworks-api/here-s-how-to-export-clash-result-images-using-navisworks-api/td-p/9089222
-        public List<BcfTopic> CreateClashIssues(NavisworksClashCreationData clashCreationData)
+        public List<BcfTopic> CreateClashIssues(NavisworksClashCreationData clashCreationData,
+            Action<int> reportTotalCount,
+            Action<int> reportCurrentCount,
+            Action checkForNavisworksClashCancellation,
+            CancellationToken cancellationToken)
         {
             var bcfTopics = new List<BcfTopic>();
             NavisUtils.GetGunits(_doc);
@@ -230,7 +234,9 @@ namespace IPA.Bcfier.Navisworks.Services
             // If there are less than 50 clashes to generate, we can generate large viewpoints.
             // Otherwise, there are too many clashes and the generation would take too long
             var generateLargeViewpoints = testItems.Count <= 50;
+            reportTotalCount(testItems.Count);
 
+            var currentCount = 0;
             foreach (var testItem in testItems)
             {
                 if (testItem.SavedItem is ClashResult result)
@@ -407,6 +413,13 @@ namespace IPA.Bcfier.Navisworks.Services
                         TopicStatus = resultGroup.Status.ToString(),
                         Title = $"{testItem.TestDisplayName} - {resultGroup.DisplayName} (Group)"
                     });
+                }
+            
+                reportCurrentCount(++currentCount);
+                checkForNavisworksClashCancellation();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
                 }
             }
 
