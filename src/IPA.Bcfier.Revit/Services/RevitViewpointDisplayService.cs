@@ -335,7 +335,8 @@ namespace IPA.Bcfier.Revit.Services
 
             if (!boundingBox.Equals(AxisAlignedBoundingBox.Infinite))
             {
-                view.SetSectionBox(ToRevitSectionBox(boundingBox));
+                var revitSectionBox = ToRevitSectionBox(boundingBox);
+                view.SetSectionBox(revitSectionBox);
                 view.IsSectionBoxActive = true;
             }
             else

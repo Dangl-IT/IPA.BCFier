@@ -254,6 +254,7 @@ export class BcfFileComponent {
               clashId: selection.clashId,
               excludedClashIds: existingIds,
               status: selection.statusType,
+              shouldMoveBoundingBoxToCenterOfClash: true,
             })
             .subscribe({
               next: (createdTopics) => {

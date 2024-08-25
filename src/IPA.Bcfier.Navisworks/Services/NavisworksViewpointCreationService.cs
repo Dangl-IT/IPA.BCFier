@@ -30,12 +30,13 @@ namespace IPA.Bcfier.Navisworks.Services
         {
             var viewpoint = _doc.CurrentViewpoint.Value;
             NavisUtils.GetGunits(_doc);
-            var v = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints: true);
+            var v = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints: true, centerForBoundingBox: null);
             return v;
         }
 
         private BcfViewpoint GetViewpointFromNavisworksViewpoint(Viewpoint viewpoint,
             bool generateLargeViewpoints,
+            Point3D centerForBoundingBox,
             List<ModelItem> selectedItems = null)
         {
             var v = new BcfViewpoint();
@@ -147,6 +148,38 @@ namespace IPA.Bcfier.Navisworks.Services
                 var commonBoundingBox = new BoundingBox3D(new Point3D(minX, minY, minZ),
                     new Point3D(maxX, maxY, maxZ));
 
+                if (centerForBoundingBox != null)
+                {
+                    // This means we want to move the bounding box to the center of the actual clash,
+                    // since there were issues where the camera coordinates were correct but the element
+                    // bounding boxes did not work properly
+                    // We're using the center of the clash as the center of the bounding box
+                    var elementBoundingBoxDeltaX = maxX - minX;
+                    var elementBoundingBoxDeltaY = maxY - minY;
+                    var elementBoundingBoxDeltaZ = maxZ - minZ;
+                    var clashBoundingBoxMinPoint = new Point3D(centerForBoundingBox.X - 20d.ToInternal(),
+                        centerForBoundingBox.Y - 20d.ToInternal(),
+                        centerForBoundingBox.Z - 20d.ToInternal());
+                    var clashBoundingBoxMaxPoint = new Point3D(centerForBoundingBox.X + 20d.ToInternal(),
+                        centerForBoundingBox.Y + 20d.ToInternal(),
+                        centerForBoundingBox.Z + 20d.ToInternal());
+
+                    commonBoundingBox = new BoundingBox3D(clashBoundingBoxMinPoint, clashBoundingBoxMaxPoint);
+
+                    try
+                    {
+                        var translation = _doc.Models.FirstOrDefault().Transform.Translation?.Negate();
+                        if (translation != null)
+                        {
+                            commonBoundingBox = commonBoundingBox.Translate(translation);
+                        }
+                    }
+                    catch
+                    {
+                        // Ignoring errors here, that means there's no translation
+                    }
+                }
+
                 var clippingPlanes = TransformBoundingBoxToClippingPlanes(commonBoundingBox);
 
                 v.ClippingPlanes ??= new List<BcfViewpointClippingPlane>();
@@ -197,6 +230,7 @@ namespace IPA.Bcfier.Navisworks.Services
             Action checkForNavisworksClashCancellation,
             CancellationToken cancellationToken)
         {
+            var shouldMoveBoundingBox = clashCreationData.ShouldMoveBoundingBoxToCenterOfClash;
             var bcfTopics = new List<BcfTopic>();
             NavisUtils.GetGunits(_doc);
 
@@ -313,7 +347,7 @@ namespace IPA.Bcfier.Navisworks.Services
                     // Prevent redraw for every test and item
                     doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
 
-                    var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints, selectedItems);
+                    var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints, shouldMoveBoundingBox ? result.Center : null, selectedItems);
                     bcfViewpoint.Id = result.Guid;
                     bcfTopics.Add(new BcfTopic
                     {
@@ -404,7 +438,7 @@ namespace IPA.Bcfier.Navisworks.Services
                     // Prevent redraw for every test and item
                     doc.ActiveView.RequestDelayedRedraw(ViewRedrawRequests.All);
 
-                    var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints, selectedItems);
+                    var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints, shouldMoveBoundingBox ? resultGroup.Center : null, selectedItems);
                     bcfViewpoint.Id = resultGroup.Guid;
                     bcfTopics.Add(new BcfTopic
                     {

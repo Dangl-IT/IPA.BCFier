@@ -13,5 +13,7 @@ namespace IPA.Bcfier.Models.Clashes
         public string? Status { get; set; }
 
         public List<Guid> ExcludedClashIds { get; set; } = new List<Guid>();
+
+        public bool ShouldMoveBoundingBoxToCenterOfClash { get; set; }
     }
 }

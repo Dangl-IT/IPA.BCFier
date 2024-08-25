@@ -2105,6 +2105,7 @@ export interface NavisworksClashCreationData {
     clashId?: string;
     status?: string | null;
     excludedClashIds?: string[];
+    shouldMoveBoundingBoxToCenterOfClash?: boolean;
 }
 
 export interface FileResponse {
