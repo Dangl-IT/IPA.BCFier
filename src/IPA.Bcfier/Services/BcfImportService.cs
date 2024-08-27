@@ -10,6 +10,15 @@ namespace IPA.Bcfier.Services
 {
     public class BcfImportService
     {
+        public BcfFile ImportBcfFile(Stream bcfFileStream, string fileName)
+        {
+            using var bcfStreamCopy = new MemoryStream();
+            bcfFileStream.CopyTo(bcfStreamCopy);
+            var bcfContainer = ReadBcfFile(bcfStreamCopy);
+            var bcfConversionService = new BcfConversionToModelService();
+            return bcfConversionService.ConvertBcfContainerToBcfFile(bcfContainer, fileName);
+        }
+
         public async Task<BcfFile> ImportBcfFileAsync(Stream bcfFileStream, string fileName)
         {
             using var bcfStreamCopy = new MemoryStream();
