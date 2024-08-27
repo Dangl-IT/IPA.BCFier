@@ -157,27 +157,14 @@ namespace IPA.Bcfier.Navisworks.Services
                     var elementBoundingBoxDeltaX = maxX - minX;
                     var elementBoundingBoxDeltaY = maxY - minY;
                     var elementBoundingBoxDeltaZ = maxZ - minZ;
-                    var clashBoundingBoxMinPoint = new Point3D(centerForBoundingBox.X - 20d.ToInternal(),
-                        centerForBoundingBox.Y - 20d.ToInternal(),
-                        centerForBoundingBox.Z - 20d.ToInternal());
-                    var clashBoundingBoxMaxPoint = new Point3D(centerForBoundingBox.X + 20d.ToInternal(),
-                        centerForBoundingBox.Y + 20d.ToInternal(),
-                        centerForBoundingBox.Z + 20d.ToInternal());
+                    var clashBoundingBoxMinPoint = new Point3D(centerForBoundingBox.X - 1d.ToInternal(),
+                        centerForBoundingBox.Y - 1d.ToInternal(),
+                        centerForBoundingBox.Z - 1d.ToInternal());
+                    var clashBoundingBoxMaxPoint = new Point3D(centerForBoundingBox.X + 1d.ToInternal(),
+                        centerForBoundingBox.Y + 1d.ToInternal(),
+                        centerForBoundingBox.Z + 1d.ToInternal());
 
                     commonBoundingBox = new BoundingBox3D(clashBoundingBoxMinPoint, clashBoundingBoxMaxPoint);
-
-                    try
-                    {
-                        var translation = _doc.Models.FirstOrDefault().Transform.Translation?.Negate();
-                        if (translation != null)
-                        {
-                            commonBoundingBox = commonBoundingBox.Translate(translation);
-                        }
-                    }
-                    catch
-                    {
-                        // Ignoring errors here, that means there's no translation
-                    }
                 }
 
                 var clippingPlanes = TransformBoundingBoxToClippingPlanes(commonBoundingBox);

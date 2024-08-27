@@ -336,8 +336,15 @@ namespace IPA.Bcfier.Revit.Services
             if (!boundingBox.Equals(AxisAlignedBoundingBox.Infinite))
             {
                 var revitSectionBox = ToRevitSectionBox(boundingBox);
+                var transform = _uiDocument.Document.ActiveProjectLocation.GetTransform();
+                revitSectionBox.Transform = transform;
+
                 view.SetSectionBox(revitSectionBox);
                 view.IsSectionBoxActive = true;
+
+                // We want to zoom to the section box, but then also zoom a bit out of it
+                _uiDocument.GetOpenUIViews().First().ZoomAndCenterRectangle(transform.OfPoint(revitSectionBox.Min), transform.OfPoint(revitSectionBox.Max));
+                _uiDocument.GetOpenUIViews().First().Zoom(0.7);
             }
             else
             {
