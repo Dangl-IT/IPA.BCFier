@@ -1,0 +1,81 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  height: 100%;
+}
+
+.issue-list {
+  margin-top: 4px;
+  margin-left: 4px;
+  display: flex;
+  width: 30%;
+  height: 100%;
+  overflow: auto;
+}
+
+.issue-list-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-bottom: 4px;
+  gap: 8px;
+
+  button {
+    flex: 1;
+  }
+}
+
+.topic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-card-content {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.topic-info {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+}
+
+.issue-details {
+  padding-left: 12px;
+  width: 70%;
+  overflow: auto;
+}
+
+.filter-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+mat-drawer-container {
+  width: 100%;
+}
+
+mat-drawer {
+  width: 90%;
+  padding: 5px;
+}
+
+mat-drawer-content {
+  padding: 10px;
+  overflow: hidden;
+}
+
+.filter-container {
+  height: inherit;
+}

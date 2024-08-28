@@ -1,5 +1,6 @@
 ![](/Assets/bcfier-text.png)
 
+[Documentation](https://docs.dangl-it.com/Projects/IPA.BCFier)
 
 
 ## Intro
@@ -14,77 +15,37 @@ Ready to start developing BCFier? Keep reading!
 
 **If you are looking for a Guide on how to use the installed version of BCFier instedad, refer to the [UserGuide](http://bcfier.com/userguide/)**
 
-## Disclaimer
-The project in not actively maintained, I will regularly check issues and pull requests but cannot guarantee regular support and maintenance.
+This project is a fork of the original BCFier project by Matteo Cominetti.
 
-## Getting Started
+## Local Development
 
-To get started fork the repo, if you are going to extend the Revit Project make sure the Autodesk dlls are referenced correctly, otherwise there are no other dependencies that need to be added.
+For **Revit** and **Navisworks**, the best way to launch the plugin in development mode is to use the `AddinManager´ extension.
 
-### Structure
+To run the frontend part, you should run these commands then:
+* **Revit**
+  `electronize start /watch /args --revit-integration --app-correlation-id="3136262a-5f6b-41b0-ba89-6a8c4212b699"`
+* **Navisworks**
+  `electronize start /watch /args --navisworks-integration --app-correlation-id="65ef2104-64ca-4390-bae3-3de4901a53dc"`
 
-The core of BCFier is under `Bcfier`, it contains all the logic and UI that is used by all the different integrations (modules). All modules will reference that project and extend it adding specific commands for the software they are integrating with.
+Those ids are hardcoded when you're running a `Debug` build, and allow you to launch the app and the actual plugin independently of eachother.
 
-The control `Bcfier.UserControls.BcfierPanel` contains the logic and UI for the main panel, while `Bcfier.UserControls.BcfReportPanel` for each BCF opened inside the TabControl.
+## Teams Webhooks
 
-All controls bind to ModelViews defined in `Bcfier.Bcf`, it's not a perfect MVVM models since I use the same classes to serialize/deserialize BCFs, but it works great.
+When configuring projects, you can set up a webhook to a Microsoft Teams channel. This will send notifications to the channel when new issues are created or updated. Webhooks must be created via Teams workflows. To do this, follow these steps:
 
-### Creating a new Module
+1. Go to the channel you want to receive notifications in and select the _Workflows_ setting:
+   ![Teams Workflow](./images/TeamsChannelWebhookSetting.png)
+2. Create a new webhook:
+   ![Teams Webhook](./images/WebhookWorkflow.png)
+3. Configure the webhook
+3. After creating the webhook, you can use its url in the project configuration
 
-To create a new Module, for instance, an Achicad plugin, follow these steps:
-- create a new project with the namespace `Bcfier.Archicad`
-- reference the `Bcfier` project
-- add the specific Archicad methods and structure to fire the plugin (like the Entry folder in the Revit plugin)
-- create a main WPF window that contains the `Bcfier.UserControls.BcfierPanel`
-- create a command for adding a new view (`data:Commands.AddView`), this will have to generate a BCF ViewPoint (see Revit plugin for reference)
-- create a command for and opening a view (`data:Commands.OpenView`)
-- extend the installer to copy these new dlls where needed
-
-### Settings
-The settings file is stored in `%localappdata%\BCFier\settings.config` so that it can be accessible by all modules, the Settingd Window UI will has different tabs for each module and ideally those will show up only if that specific module is installed.
-The class that handles the settings file is under `Bcfier.Data.Utils.UserSettings`, and stores the file as a `ExeConfigurationFileMap` for easy management. The same class provides methods to automatically save/retrieve settings based on the UserControl name.
-
-## Autodesk Revit Addin
-The module for Autodesk Revit is in `Bcfier.Revit`,.
-
-### Building the Revit Project
-
-Before building the Revit project, select the corresponding build configuration. 
-
-![image](https://user-images.githubusercontent.com/2679513/33550628-93d0661e-d8e6-11e7-819d-b486b55db05c.png)
-
-For each there are snippets of code in Bcfier.Revit.csproj with post built event that copy the dll and manifest to the Revit Addin folder.
-
-![image](https://user-images.githubusercontent.com/2679513/33550664-b19fb028-d8e6-11e7-8453-3210d022d0db.png)
-
-
-
-To seamlessly debug the project set a Debug start action to start your version of revit.exe.ree and awesome [InnoSetup](http://www.jrsoftware.org/isinfo.php) to generate .exe files, extending the .iss files is pretty straightforward.
-
-## Backlog
-A more detailed list of things that need to be done can be found in the [issues page](https://github.com/teocomi/BCFier/issues), but to start:
-
-**New BCFier features**
-- support of the BCF REST API
-- integration with issue tracking platforms (JIRA, redmine...)
-
-**New modules**
-- Archicad
-- Navisworks
-
-**New Autodesk Revit module Features**
-- support for crop boxes
-- a setting to apply vew templates to new view
-
-### Contact
-You can contact Matteo Cominetti at: hello@teocomi.com
-
-### License
+## License
 GNU General Public License v3 Extended
 This program uses the GNU General Public License v3, extended to support the use of BCFier as Plugin of the non-free main software Autodesk Revit.
 See <http://www.gnu.org/licenses/gpl-faq.en.html#GPLPluginsInNF>.
 
-Copyright (c) 2013-2016 Matteo Cominetti
+Copyright (c) 2013-2024 Matteo Cominetti & Georg Dangl
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

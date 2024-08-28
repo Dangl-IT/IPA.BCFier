@@ -1,0 +1,56 @@
+<div class="menu-band">
+  <div class="menu-buttons">
+    <button mat-raised-button (click)="newBcfFile()">
+      <mat-icon>edit_document</mat-icon>
+      New BCF
+    </button>
+    <button mat-raised-button (click)="saveBcfAs()">
+      <mat-icon>save</mat-icon>
+      Save as...
+    </button>
+    <button mat-raised-button (click)="openBcf()">
+      <mat-icon>folder_open</mat-icon>
+      Open BCF
+    </button>
+    <button mat-raised-button (click)="openSettings()">
+      <mat-icon>settings</mat-icon>
+      Settings
+    </button>
+    <div #lastFilesBtn>
+      <button
+        mat-raised-button
+        [matMenuTriggerFor]="menu"
+        (onMenuOpen)="showLastOpenedFiles()"
+        (onMenuClose)="lastFileMenuOpened = false"
+      >
+        <mat-icon>cloud_circle</mat-icon>
+        Last opened files
+      </button>
+    </div>
+    <button mat-raised-button (click)="openDocumentation()">
+      <mat-icon>support</mat-icon>
+      Help
+    </button>
+    <mat-checkbox
+      [(ngModel)]="alwaysOnTop"
+      [disabled]="alwaysOnTopRequestRunning"
+    >
+      Always On Top
+    </mat-checkbox>
+  </div>
+  <div class="project-name">
+    <span>{{ (selectedProject$ | async)?.name | uppercase }}</span>
+  </div>
+  <div>
+    <span class="version-label">
+      <strong>IPA.</strong>BCFier v{{ version }}
+    </span>
+  </div>
+</div>
+<mat-menu #menu="matMenu">
+  <bcfier-last-opened-files
+    [lastOpenedFiles]="lastOpenedFiles"
+    [btnWidth]="lastFilesBtn.offsetWidth"
+    [isOpen]="lastFileMenuOpened"
+  ></bcfier-last-opened-files>
+</mat-menu>

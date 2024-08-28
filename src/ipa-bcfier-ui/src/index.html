@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>IPA.BCFier</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script src="/api/frontend-config/config.js"></script>
+
+    <script>
+      if (
+        window.ipaBcfierFrontendConfig &&
+        window.ipaBcfierFrontendConfig.environment !== "Development" &&
+        window.ipaBcfierFrontendConfig.isInElectronMode &&
+        (window.ipaBcfierFrontendConfig.isConnectedToRevit ||
+          window.ipaBcfierFrontendConfig.isConnectedToNavisworks)
+      ) {
+        const { ipcRenderer } = require("electron");
+        let hasUnloaded = false;
+        window.onbeforeunload = (e) => {
+          if (!hasUnloaded) {
+            hasUnloaded = true;
+            e.returnValue = true;
+            ipcRenderer.send("closeApp");
+          }
+        };
+      }
+    </script>
+  </head>
+  <body class="mat-typography">
+    <bcfier-root></bcfier-root>
+  </body>
+</html>

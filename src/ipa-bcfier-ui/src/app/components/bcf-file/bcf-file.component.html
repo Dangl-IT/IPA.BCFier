@@ -1,0 +1,117 @@
+<div class="wrapper">
+  <div class="issue-list">
+    <mat-drawer-container [hasBackdrop]="true">
+      <mat-drawer #drawer mode="over">
+        <div class="filter-container">
+          <bcfier-issue-filters
+            [issueStatuses$]="issueStatuses$"
+            [issueTypes$]="issueTypes$"
+            [users$]="users$"
+            (acceptedFilters)="filterIssues($event); drawer.close()"
+          ></bcfier-issue-filters>
+        </div>
+      </mat-drawer>
+      <mat-drawer-content>
+        <div #filterWrap>
+          <div class="issue-list-buttons">
+            <button mat-raised-button color="primary" (click)="addIssue()">
+              Add Issue
+            </button>
+            <button
+              mat-raised-button
+              color="warn"
+              [disabled]="!selectedTopic"
+              (click)="removeIssue()"
+            >
+              Delete Issue
+            </button>
+          </div>
+          @if(isInNavisworks) {
+          <div class="issue-list-buttons">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="addNavisworksClashIssues()"
+            >
+              Add Navisworks Clash Issues
+            </button>
+          </div>
+          } @if(filteredTopics && filteredTopics.length > 1) {
+          <div class="issue-list-buttons">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="setResponsibleForAll()"
+            >
+              Bulk Topic Edit
+            </button>
+          </div>
+          }
+
+          <div class="filter-wrapper">
+            <mat-form-field class="dark-theme">
+              <mat-label>Search</mat-label>
+              <input
+                matInput
+                placeholder="Title or description"
+                [(ngModel)]="search"
+              />
+              @if (search) {
+              <button matSuffix mat-icon-button (click)="search = ''">
+                <mat-icon>close</mat-icon>
+              </button>
+              }
+            </mat-form-field>
+            <mat-icon (click)="drawer.toggle()">filter_list</mat-icon>
+          </div>
+        </div>
+
+        <div
+          class="topic-list"
+          [style.height]="
+            'calc(100% - ' + filterWrap.offsetHeight + 'px - 20px)'
+              | bcfierSafeUrl : 'style'
+          "
+        >
+          <mat-card
+            *ngFor="let topic of filteredTopics | topicFilter : search"
+            (click)="selectTopic(topic)"
+          >
+            <mat-progress-bar
+              mode="determinate"
+              [color]="selectedTopic?.id === topic.id ? 'primary' : 'accent'"
+              value="100"
+            ></mat-progress-bar>
+            <mat-card-header>
+              <mat-card-title-group>
+                <mat-card-title>{{ topic.title }}</mat-card-title>
+                <mat-card-subtitle>{{
+                  topic.creationDate | date : "dd.MM.yyyy"
+                }}</mat-card-subtitle>
+
+                <img mat-card-md-image [bcfierTopicPreviewImage]="topic" />
+              </mat-card-title-group>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="topic-info dark-theme">
+                <mat-icon color="primary">chat</mat-icon>
+                {{ topic.comments.length }}
+              </div>
+              <div class="topic-info dark-theme">
+                <mat-icon color="primary">visibility</mat-icon>
+                {{ topic.viewpoints.length }}
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-drawer-content>
+    </mat-drawer-container>
+  </div>
+  <div class="issue-details">
+    <bcfier-topic-detail
+      *ngIf="selectedTopic"
+      [topic]="selectedTopic"
+      [bcfFile]="bcfFile"
+    ></bcfier-topic-detail>
+  </div>
+</div>

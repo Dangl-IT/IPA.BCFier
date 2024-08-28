@@ -1,0 +1,32 @@
+<mat-toolbar color="primary">
+  <img src="assets/images/ipa-bcfier-logo.png" alt="Logo" class="logo" />
+  <bcfier-top-menu></bcfier-top-menu>
+</mat-toolbar>
+
+<mat-tab-group
+  *ngIf="bcfFiles"
+  dynamicHeight
+  #tabGroup
+  backgroundColor="primary"
+  (selectedIndexChange)="changeSelectedTabIndex($event)"
+>
+  <mat-tab *ngFor="let bcfFile of bcfFiles | async; let index = index">
+    <ng-template mat-tab-label *ngIf="bcfFile.bcfFile">
+      {{ bcfFile.bcfFile.fileName }}
+      <button
+        class="file-close-button"
+        color="warn"
+        mat-icon-button
+        (click)="closeBcfFile(bcfFile.bcfFile)"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </ng-template>
+    <ng-template matTabContent>
+      <bcfier-bcf-file
+        *ngIf="bcfFile.bcfFile"
+        [bcfFile]="bcfFile.bcfFile"
+      ></bcfier-bcf-file>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>

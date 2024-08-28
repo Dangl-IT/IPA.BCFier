@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Add User</h2>
+<mat-dialog-content>
+  <ng-container [formGroup]="newUserForm">
+    <div class="field-container">
+      <mat-form-field class="dark-theme">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+    </div>
+  </ng-container>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button
+    color="primary"
+    mat-flat-button
+    (click)="closeDialog(true)"
+    [disabled]="newUserForm.invalid"
+  >
+    Save
+  </button>
+  <button color="warn" mat-button (click)="closeDialog(false)" color="warn">
+    Cancel
+  </button>
+</mat-dialog-actions>

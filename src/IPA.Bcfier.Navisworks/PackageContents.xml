@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage SchemaVersion="1.0" Name="IPA.BCFier" AppVersion="1.0.0" ProductType="Application" Author="Dangl IT" ProductCode="{81a64bce-ec3d-4cbf-b91b-0ca78fd78da5}">
+  <Components Description="Navisworks 2021 parts">
+    <RuntimeRequirements OS="Win64" Platform="NAVMAN|NAVSIM" SeriesMin="Nw18" SeriesMax="Nw18" />
+    <ComponentEntry AppName="IPA.BCFier" AppType="ManagedPlugin" ModuleName="./Release-2021/IPA.Bcfier.Navisworks.dll" />
+  </Components>
+  <Components Description="Navisworks 2022 parts">
+    <RuntimeRequirements OS="Win64" Platform="NAVMAN|NAVSIM" SeriesMin="Nw19" SeriesMax="Nw19" />
+    <ComponentEntry AppName="IPA.BCFier" AppType="ManagedPlugin" ModuleName="./Release-2022/IPA.Bcfier.Navisworks.dll" />
+  </Components>
+  <Components Description="Navisworks 2023 parts">
+    <RuntimeRequirements OS="Win64" Platform="NAVMAN|NAVSIM" SeriesMin="Nw20" SeriesMax="Nw20" />
+    <ComponentEntry AppName="IPA.BCFier" AppType="ManagedPlugin" ModuleName="./Release-2023/IPA.Bcfier.Navisworks.dll" />
+  </Components>
+  <Components Description="Navisworks 2024 parts">
+    <RuntimeRequirements OS="Win64" Platform="NAVMAN|NAVSIM" SeriesMin="Nw21" SeriesMax="Nw21" />
+    <ComponentEntry AppName="IPA.BCFier" AppType="ManagedPlugin" ModuleName="./Release-2024/IPA.Bcfier.Navisworks.dll" />
+  </Components>
+</ApplicationPackage>

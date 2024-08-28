@@ -1,0 +1,39 @@
+<h1 mat-dialog-title>Bulk Set Topic Data</h1>
+<div mat-dialog-content>
+  <p>You can set data for all currently filtered topics.</p>
+
+  <div class="info-select">
+    <mat-form-field class="dark-theme">
+      <mat-label>Responsible</mat-label>
+      <mat-select [(value)]="selectedUser" (opened)="refreshUsers()">
+        @for (user of (users$ | async)?.values(); track user.id) {
+        <mat-option [value]="user">{{
+          user.identifier || "No Responsible"
+        }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="dark-theme">
+      <mat-label>Type</mat-label>
+      <mat-select [(value)]="selectedType">
+        @for (type of (issueTypes$ | async)?.values(); track type) {
+        <mat-option [value]="type">{{ type || "No Type" }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="dark-theme">
+      <mat-label>Status</mat-label>
+      <mat-select [(value)]="selectedStatus">
+        @for (status of (issueStatuses$ | async)?.values(); track status) {
+        <mat-option [value]="status">{{ status || "No Status" }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-flat-button (click)="save()">Save</button>
+  <button mat-flat-button color="warn" (click)="close()">Cancel</button>
+</div>

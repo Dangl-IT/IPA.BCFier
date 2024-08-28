@@ -1,0 +1,38 @@
+<h2 mat-dialog-title>Select Clash Test</h2>
+<mat-dialog-content>
+  <p>
+    You can select which clash to export. Large tests may take some time to
+    generate.
+  </p>
+
+  <mat-form-field class="dark-theme">
+    <mat-label>Clash Check</mat-label>
+    <mat-select [(value)]="selectedClashId">
+      @for (clash of clashes; track clash) {
+      <mat-option [value]="clash.id">{{ clash.displayName }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field class="dark-theme">
+    <mat-label>Status</mat-label>
+    <mat-select [(value)]="selectedStatusType">
+      <mat-option [value]="null">All / No Filter</mat-option>
+      <mat-option [value]="'New'">New</mat-option>
+      <mat-option [value]="'Active'">Active</mat-option>
+      <mat-option [value]="'Reviewed'">Reviewed</mat-option>
+      <mat-option [value]="'Approved'">Approved</mat-option>
+      <mat-option [value]="'Resolved'">Resolved</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-checkbox
+    [(ngModel)]="onlyImportNew"
+    matTooltip="This option imports only clashes that were not previously imported, it does not restrict to only clashes with the status 'New'. Already imported clashes will be ignored, and their status will also not be updated."
+    >Only Import New Clashes</mat-checkbox
+  >
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button (click)="save()" [disabled]="!selectedClashId">
+    Save
+  </button>
+  <button mat-raised-button (click)="close()" color="warn">Cancel</button>
+</mat-dialog-actions>
