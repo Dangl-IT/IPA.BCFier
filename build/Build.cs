@@ -476,8 +476,6 @@ export const version = {{
             var completeChangeLog = $"## {releaseTag}" + Environment.NewLine + latestChangeLog;
 
             var repositoryInfo = GetGitHubRepositoryInfo(GitRepository);
-            var nuGetPackages = OutputDirectory.GlobFiles("*.nupkg").Select(p => p.ToString()).ToArray();
-            Assert.NotEmpty(nuGetPackages);
 
             await PublishRelease(x => x
                 .SetCommitSha(GitVersion.Sha)
