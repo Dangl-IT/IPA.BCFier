@@ -9,7 +9,11 @@ import {
   inject,
 } from '@angular/core';
 import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import {
@@ -40,6 +44,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { NotificationsService } from '../../services/notifications.service';
+import { PaginationResult } from 'ng-lightquery';
 import { ProjectDetailsComponent } from '../project-details/project-details.component';
 import { ProjectsService } from '../../services/light-query/projects.service';
 import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
@@ -82,23 +87,17 @@ export class ProjectsTableComponent
   appConfigService = inject(AppConfigService);
 
   private destroyed$ = new Subject<void>();
-  dataSource!: MatTableDataSource<ProjectGet>;
   displayedColumns = ['name', 'createdAtUtc', 'actions'];
   filter = '';
   selectedProject: ProjectGet | null = null;
   shouldEnableProjectManagement =
     this.appConfigService.shouldEnableProjectManagementFeatures();
-
-  constructor() {
-    this.projectsService
-      .connect()
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe((projects) => {
-        this.dataSource = new MatTableDataSource(projects);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      });
-  }
+  paginationResult: PaginationResult<ProjectGet> = {
+    data: [],
+    page: 1,
+    pageSize: 20,
+    totalCount: 0,
+  };
 
   ngOnInit(): void {
     this.selectedProjectMessengerService.selectedProject
@@ -110,6 +109,12 @@ export class ProjectsTableComponent
       active: 'createdAtUtc',
       direction: 'desc',
     });
+
+    this.projectsService.paginationResult
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((paginationResult) => {
+        this.paginationResult = paginationResult;
+      });
   }
 
   ngOnDestroy(): void {
@@ -118,10 +123,7 @@ export class ProjectsTableComponent
   }
 
   ngAfterViewInit() {
-    if (this.dataSource) {
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    }
+    this.paginator.pageSize = this.projectsService.pageSize;
   }
 
   applyFilter(filter: string) {
@@ -129,9 +131,6 @@ export class ProjectsTableComponent
       'filter',
       filter.trim().toLowerCase()
     );
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
   }
 
   projectClicked(project: ProjectGet): void {
@@ -262,5 +261,10 @@ export class ProjectsTableComponent
 
   refresh(): void {
     this.projectsService.forceRefresh();
+  }
+
+  onPage(pageEvent: PageEvent): void {
+    this.projectsService.page = pageEvent.pageIndex + 1;
+    this.projectsService.pageSize = pageEvent.pageSize;
   }
 }

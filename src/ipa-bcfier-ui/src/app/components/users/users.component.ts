@@ -9,7 +9,11 @@ import {
   inject,
 } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Subject, filter, switchMap, takeUntil } from 'rxjs';
@@ -25,6 +29,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { NotificationsService } from '../../services/notifications.service';
+import { PaginationResult } from 'ng-lightquery';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { UsersService } from '../../services/light-query/users.service';
 
@@ -59,29 +64,29 @@ export class UsersComponent implements AfterViewInit, OnDestroy, OnInit {
   cdr = inject(ChangeDetectorRef);
   appConfigService = inject(AppConfigService);
 
+  paginationResult: PaginationResult<UserGet> = {
+    data: [],
+    page: 1,
+    pageSize: 20,
+    totalCount: 0,
+  };
+
   private destroyed$ = new Subject<void>();
-  dataSource!: MatTableDataSource<UserGet>;
   displayedColumns = ['identifier', 'actions'];
   filter = '';
   shouldEnableProjectManagement =
     this.appConfigService.shouldEnableProjectManagementFeatures();
-
-  constructor() {
-    this.usersService
-      .connect()
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe((users) => {
-        this.dataSource = new MatTableDataSource(users);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      });
-  }
 
   ngOnInit(): void {
     this.usersService.onSort({
       active: 'identifier',
       direction: 'desc',
     });
+    this.usersService.paginationResult
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((paginationResult) => {
+        this.paginationResult = paginationResult;
+      });
   }
 
   ngOnDestroy(): void {
@@ -90,17 +95,11 @@ export class UsersComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   ngAfterViewInit() {
-    if (this.dataSource) {
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    }
+    this.paginator.pageSize = this.usersService.pageSize;
   }
 
   applyFilter(filter: string) {
     this.usersService.setQueryParameter('filter', filter.trim().toLowerCase());
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
   }
 
   createUser(): void {
@@ -161,5 +160,10 @@ export class UsersComponent implements AfterViewInit, OnDestroy, OnInit {
 
   refresh(): void {
     this.usersService.forceRefresh();
+  }
+
+  onPage(pageEvent: PageEvent): void {
+    this.usersService.page = pageEvent.pageIndex + 1;
+    this.usersService.pageSize = pageEvent.pageSize;
   }
 }

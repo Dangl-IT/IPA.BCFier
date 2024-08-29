@@ -17,7 +17,7 @@
 <div class="table-wrap mat-elevation-z8">
   <table
     mat-table
-    [dataSource]="dataSource"
+    [dataSource]="projectsService"
     matSort
     matSortActive="createdAtUtc"
     matSortDirection="desc"
@@ -79,6 +79,11 @@
 
   <mat-paginator
     [pageSizeOptions]="[5, 10, 25, 100]"
+    [length]="paginationResult?.totalCount"
+    [pageSize]="paginationResult?.pageSize"
+    [pageIndex]="paginationResult.page - 1"
+    (page)="onPage($event)"
+    [showFirstLastButtons]="true"
     class="dark-theme"
   ></mat-paginator>
 </div>
