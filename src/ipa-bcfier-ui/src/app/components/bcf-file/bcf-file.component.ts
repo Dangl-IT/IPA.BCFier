@@ -73,6 +73,7 @@ export class BcfFileComponent {
   teamsMessengerService = inject(TeamsMessengerService);
   topicMessengerService = inject(TopicMessengerService);
   settingsMessengerService = inject(SettingsMessengerService);
+  appConfigService = inject(AppConfigService);
   navisworksClashProgressMessengerService = inject(
     NavisworksClashProgressMessengerService
   );
@@ -129,6 +130,12 @@ export class BcfFileComponent {
         modifiedAuthor: '',
         creationDate: new Date(),
       };
+
+      if (this.appConfigService.getFrontendConfig().isConnectedToRevit) {
+        // We'll add a server assigned id like "Revit_<GUID>"
+        newIssue.serverAssignedId = `Revit_${getNewRandomGuid()}`;
+      }
+
       this.bcfFile.topics.push(newIssue);
       this.selectedTopic = newIssue;
       this.topicMessengerService.setSelectedTopic(this.selectedTopic);

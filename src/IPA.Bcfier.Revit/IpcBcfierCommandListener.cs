@@ -1,6 +1,8 @@
 using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Bcf;
+using IPA.Bcfier.Models.Ipc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace IPA.Bcfier.Revit
 {
@@ -51,6 +53,7 @@ namespace IPA.Bcfier.Revit
                                 break;
 
                             case IpcMessageCommand.ShowViewpoint:
+                                var messageData = JsonConvert.DeserializeObject<ViewpointDisplayIpcModel>(ipcMessage.Data!)!;
                                 _revitTaskQueueHandler.ShowViewpointQueueItems.Enqueue(new Models.ShowViewpointQueueItem
                                 {
                                     Callback = async () =>
@@ -61,7 +64,8 @@ namespace IPA.Bcfier.Revit
                                             Command = IpcMessageCommand.ViewpointShown
                                         }));
                                     },
-                                    Viewpoint = JsonConvert.DeserializeObject<BcfViewpoint>(ipcMessage.Data!)
+                                    Viewpoint = messageData.BcfViewpoint,
+                                    ViewpointOriginatesFromRevit = messageData.ViewpointOriginatesFromRevit
                                 });
                                 break;
 

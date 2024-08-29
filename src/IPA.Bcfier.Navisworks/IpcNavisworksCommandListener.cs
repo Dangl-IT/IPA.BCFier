@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Navisworks.Models;
 using IPA.Bcfier.Models.Clashes;
+using IPA.Bcfier.Models.Ipc;
 
 namespace IPA.Bcfier.Navisworks
 {
@@ -109,7 +110,7 @@ namespace IPA.Bcfier.Navisworks
                                             Command = IpcMessageCommand.ViewpointShown
                                         }));
                                     },
-                                    Viewpoint = JsonConvert.DeserializeObject<BcfViewpoint>(ipcMessage.Data!)
+                                    Viewpoint = JsonConvert.DeserializeObject<ViewpointDisplayIpcModel>(ipcMessage.Data!)!.BcfViewpoint
                                 });
                                 break;
 

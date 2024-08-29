@@ -50,7 +50,10 @@ namespace IPA.Bcfier.Revit
             {
                 var uiDocument = uiApplication.ActiveUIDocument;
                 var showViewpointQueueItem = ShowViewpointQueueItems.Dequeue();
-                HandleShowRevitViewpointCallback(showViewpointQueueItem.Callback, showViewpointQueueItem.Viewpoint, uiDocument);
+                HandleShowRevitViewpointCallback(showViewpointQueueItem.Callback,
+                    showViewpointQueueItem.Viewpoint,
+                    showViewpointQueueItem.ViewpointOriginatesFromRevit,
+                    uiDocument);
             }
 
             if (AfterViewCreationCallbackQueue.Count > 0)
@@ -171,7 +174,10 @@ namespace IPA.Bcfier.Revit
             }
         }
 
-        private void HandleShowRevitViewpointCallback(Func<Task>? callback, BcfViewpoint? viewpoint, UIDocument uiDocument)
+        private void HandleShowRevitViewpointCallback(Func<Task>? callback,
+            BcfViewpoint? viewpoint,
+            bool viewpointOriginatesFromRevit,
+            UIDocument uiDocument)
         {
             if (callback == null || viewpoint == null)
             {
@@ -181,7 +187,7 @@ namespace IPA.Bcfier.Revit
             try
             {
                 var viewpointService = new RevitViewpointDisplayService(uiDocument);
-                var afterViewInitCallback = viewpointService.DisplayViewpoint(viewpoint);
+                var afterViewInitCallback = viewpointService.DisplayViewpoint(viewpoint, viewpointOriginatesFromRevit);
                 if (afterViewInitCallback?.ViewId == null)
                 {
                     Task.Run(async () =>

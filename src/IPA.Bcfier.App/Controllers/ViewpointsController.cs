@@ -6,6 +6,7 @@ using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Models.Clashes;
+using IPA.Bcfier.Models.Ipc;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
@@ -36,7 +37,7 @@ namespace IPA.Bcfier.App.Controllers
         [HttpPost("visualization")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ShowViewpointAsync([FromBody] BcfViewpoint viewpoint)
+        public async Task<IActionResult> ShowViewpointAsync([FromBody] BcfViewpoint viewpoint, [FromQuery]bool viewpointOriginatesFromRevit)
         {
             using var ipcHandler = GetIpcHandler();
             await ipcHandler.InitializeAsync();
@@ -46,7 +47,11 @@ namespace IPA.Bcfier.App.Controllers
             {
                 CorrelationId = correlationId,
                 Command = IpcMessageCommand.ShowViewpoint,
-                Data = JsonConvert.SerializeObject(viewpoint)
+                Data = JsonConvert.SerializeObject(new ViewpointDisplayIpcModel
+                {
+                    BcfViewpoint = viewpoint,
+                    ViewpointOriginatesFromRevit = viewpointOriginatesFromRevit
+                })
             }));
 
             if (_revitParameters.IsConnectedToRevit)

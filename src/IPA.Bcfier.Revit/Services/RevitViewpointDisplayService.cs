@@ -16,7 +16,8 @@ namespace IPA.Bcfier.Revit.Services
             _uiDocument = uiDocument;
         }
 
-        public ViewContinuationInstructions? DisplayViewpoint(BcfViewpoint bcfViewpoint)
+        public ViewContinuationInstructions? DisplayViewpoint(BcfViewpoint bcfViewpoint,
+            bool viewpointOriginatesFromRevit)
         {
             try
             {
@@ -259,7 +260,7 @@ namespace IPA.Bcfier.Revit.Services
 
                             if (uiDocument.ActiveView is View3D view3d)
                             {
-                                ApplyClippingPlanes(uiDocument, view3d, bcfViewpoint);
+                                ApplyClippingPlanes(uiDocument, view3d, bcfViewpoint, viewpointOriginatesFromRevit);
                             }
                         }
 
@@ -322,7 +323,10 @@ namespace IPA.Bcfier.Revit.Services
             return true;
         }
 
-        private void ApplyClippingPlanes(UIDocument uiDocument, View3D view, BcfViewpoint bcfViewpoint)
+        private void ApplyClippingPlanes(UIDocument uiDocument,
+            View3D view,
+            BcfViewpoint bcfViewpoint,
+            bool viewpointOriginatesFromRevit)
         {
             if (bcfViewpoint.ClippingPlanes?.Count != 6)
             {
@@ -336,15 +340,27 @@ namespace IPA.Bcfier.Revit.Services
             if (!boundingBox.Equals(AxisAlignedBoundingBox.Infinite))
             {
                 var revitSectionBox = ToRevitSectionBox(boundingBox);
-                var transform = _uiDocument.Document.ActiveProjectLocation.GetTransform();
-                revitSectionBox.Transform = transform;
+                var useTransform = !viewpointOriginatesFromRevit;
+                if (useTransform)
+                {
+                    var transform = _uiDocument.Document.ActiveProjectLocation.GetTransform();
+                    revitSectionBox.Transform = transform;
+                    view.SetSectionBox(revitSectionBox);
+                    view.IsSectionBoxActive = true;
 
-                view.SetSectionBox(revitSectionBox);
-                view.IsSectionBoxActive = true;
+                    // We want to zoom to the section box, but then also zoom a bit out of it
+                    _uiDocument.GetOpenUIViews().First().ZoomAndCenterRectangle(transform.OfPoint(revitSectionBox.Min), transform.OfPoint(revitSectionBox.Max));
+                    _uiDocument.GetOpenUIViews().First().Zoom(0.7);
+                }
+                else
+                {
+                    view.SetSectionBox(revitSectionBox);
+                    view.IsSectionBoxActive = true;
 
-                // We want to zoom to the section box, but then also zoom a bit out of it
-                _uiDocument.GetOpenUIViews().First().ZoomAndCenterRectangle(transform.OfPoint(revitSectionBox.Min), transform.OfPoint(revitSectionBox.Max));
-                _uiDocument.GetOpenUIViews().First().Zoom(0.7);
+                    // We want to zoom to the section box, but then also zoom a bit out of it
+                    _uiDocument.GetOpenUIViews().First().ZoomAndCenterRectangle(revitSectionBox.Min, revitSectionBox.Max);
+                    _uiDocument.GetOpenUIViews().First().Zoom(0.7);
+                }
             }
             else
             {

@@ -1564,7 +1564,7 @@ export class UsersClient implements IUsersClient {
 }
 
 export interface IViewpointsClient {
-    showViewpoint(viewpoint: BcfViewpoint): Observable<void>;
+    showViewpoint(viewpointOriginatesFromRevit: boolean | undefined, viewpoint: BcfViewpoint): Observable<void>;
     createViewpoint(): Observable<BcfViewpoint>;
     getAvailableNavisworksClashes(): Observable<NavisworksClashSelection[]>;
     createNavisworksClashDetectionResultIssues(model: NavisworksClashCreationData): Observable<BcfTopic[]>;
@@ -1584,8 +1584,12 @@ export class ViewpointsClient implements IViewpointsClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    showViewpoint(viewpoint: BcfViewpoint): Observable<void> {
-        let url_ = this.baseUrl + "/api/viewpoints/visualization";
+    showViewpoint(viewpointOriginatesFromRevit: boolean | undefined, viewpoint: BcfViewpoint): Observable<void> {
+        let url_ = this.baseUrl + "/api/viewpoints/visualization?";
+        if (viewpointOriginatesFromRevit === null)
+            throw new Error("The parameter 'viewpointOriginatesFromRevit' cannot be null.");
+        else if (viewpointOriginatesFromRevit !== undefined)
+            url_ += "viewpointOriginatesFromRevit=" + encodeURIComponent("" + viewpointOriginatesFromRevit) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(viewpoint);

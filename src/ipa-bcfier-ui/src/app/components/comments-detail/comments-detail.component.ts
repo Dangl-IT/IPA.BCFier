@@ -119,7 +119,14 @@ export class CommentsDetailComponent implements OnInit {
 
   selectViewpoint(): void {
     if (this.viewpoint) {
-      this.backendService.selectViewpoint(this.viewpoint);
+      const viewpointOriginatesFromRevit =
+        !!this.topic &&
+        !!this.topic.serverAssignedId &&
+        /^Revit_/i.test(this.topic.serverAssignedId);
+      this.backendService.selectViewpoint(
+        viewpointOriginatesFromRevit,
+        this.viewpoint
+      );
     }
   }
 }

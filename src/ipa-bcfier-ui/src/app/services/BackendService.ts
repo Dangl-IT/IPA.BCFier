@@ -103,19 +103,24 @@ export class BackendService {
     }
   }
 
-  selectViewpoint(viewpoint: BcfViewpoint): void {
+  selectViewpoint(
+    viewpointOriginatesFromRevit: boolean,
+    viewpoint: BcfViewpoint
+  ): void {
     if (
       this.appConfigService.getFrontendConfig().isConnectedToRevit ||
       this.appConfigService.getFrontendConfig().isConnectedToNavisworks
     ) {
       this.loadingService.showLoadingScreen();
-      this.viewpointsClient.showViewpoint(viewpoint).subscribe({
-        next: () => this.loadingService.hideLoadingScreen(),
-        error: () => {
-          this.loadingService.hideLoadingScreen();
-          this.notificationsService.error('Failed to select viewpoint.');
-        },
-      });
+      this.viewpointsClient
+        .showViewpoint(viewpointOriginatesFromRevit, viewpoint)
+        .subscribe({
+          next: () => this.loadingService.hideLoadingScreen(),
+          error: () => {
+            this.loadingService.hideLoadingScreen();
+            this.notificationsService.error('Failed to select viewpoint.');
+          },
+        });
     } else {
       // Not doing anything in the standalone version
     }
