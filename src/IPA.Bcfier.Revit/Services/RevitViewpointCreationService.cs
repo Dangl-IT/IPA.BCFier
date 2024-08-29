@@ -214,6 +214,10 @@ namespace IPA.Bcfier.Revit.Services
             }
 
             BoundingBoxXYZ sectionBox = view3D.GetSectionBox();
+
+            var transform = uiDocument.Document.ActiveProjectLocation.GetTransform().Inverse;
+            sectionBox.Transform = transform;
+
             XYZ transformedMin = sectionBox.Transform.OfPoint(sectionBox.Min);
             XYZ transformedMax = sectionBox.Transform.OfPoint(sectionBox.Max);
             Vector3 minCorner = transformedMin.ToVector3().ToMeters();
