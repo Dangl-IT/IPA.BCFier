@@ -6,6 +6,7 @@ using IPA.Bcfier.App.Hubs;
 using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Converters;
@@ -42,6 +43,12 @@ namespace IPA.Bcfier.App
 
             services.AddSignalR()
                 .AddNewtonsoftJsonProtocol(c => c.PayloadSerializerSettings.Converters.Add(new StringEnumConverter()));
+
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                // We want to basically not limit how large the files can be when posted to the local app
+                options.Limits.MaxRequestBodySize = int.MaxValue;
+            });
         }
 
         private static void AddDatabaseServices(IServiceCollection services)
