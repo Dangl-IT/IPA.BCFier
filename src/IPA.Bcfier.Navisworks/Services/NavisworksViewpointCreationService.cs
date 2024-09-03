@@ -186,7 +186,7 @@ namespace IPA.Bcfier.Navisworks.Services
 #else
                 var navisworksSnapshot = generateLargeViewpoints
                     ? _doc.GenerateImage(ImageGenerationStyle.Scene, 1920, 1080, true)
-                    : _doc.GenerateImage(ImageGenerationStyle.Scene, 600, 400, true);
+                    : _doc.GenerateImage(ImageGenerationStyle.Scene, 300, 200, true);
 #endif
 
                 using var imageStream = new MemoryStream();
