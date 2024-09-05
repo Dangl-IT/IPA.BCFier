@@ -247,7 +247,9 @@ export class ProjectsTableComponent
             this.applyFilter(this.filter);
           }
         },
-        error: () => {},
+        error: () => {
+          this.notificationsService.error('Failed to delete the project.');
+        },
       });
   }
 
