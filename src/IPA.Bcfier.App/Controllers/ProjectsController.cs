@@ -114,6 +114,12 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             _context.Projects.Remove(dbProject);
+
+            var lastOpenedFiles = await _context.LastOpenedUserFiles
+                .Where(f => f.ProjectId == projectId)
+                .ToListAsync();
+            _context.LastOpenedUserFiles.RemoveRange(lastOpenedFiles);
+
             await _context.SaveChangesAsync();
             return NoContent();
         }
