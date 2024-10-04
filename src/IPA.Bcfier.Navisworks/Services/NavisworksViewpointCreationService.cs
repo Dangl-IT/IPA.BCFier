@@ -148,8 +148,8 @@ namespace IPA.Bcfier.Navisworks.Services
                 var maxY = elementBoundingBoxes.Max(b => b.Max.Y);
                 var maxZ = elementBoundingBoxes.Max(b => b.Max.Z);
 
-                var commonBoundingBox = new BoundingBox3D(new Point3D(minX, minY, minZ),
-                    new Point3D(maxX, maxY, maxZ));
+                var commonBoundingBox = new BoundingBox3D(new Point3D(minX - 1d.ToInternal(), minY - 1d.ToInternal(), minZ - 1d.ToInternal()),
+                    new Point3D(maxX + 1d.ToInternal(), maxY + 1d.ToInternal(), maxZ + 1d.ToInternal()));
 
                 if (centerForBoundingBox != null)
                 {
