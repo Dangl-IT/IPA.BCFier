@@ -335,7 +335,8 @@ namespace IPA.Bcfier.Navisworks.Services
                     doc.Models.ResetAllPermanentMaterials();
                     doc.CurrentViewpoint.CopyFrom(copy);
 
-                    var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints, shouldMoveBoundingBox ? resultGroup.Center : null, selectedItems);
+                    var bcfViewpoint = GetViewpointFromNavisworksViewpoint(viewpoint, generateLargeViewpoints,
+                        null, selectedItems);
                     bcfViewpoint.Id = resultGroup.Guid;
                     bcfTopics.Add(new BcfTopic
                     {
