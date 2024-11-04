@@ -131,6 +131,11 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SaveBcfFileAsync([FromBody] BcfFileWrapper bcfFileWrapper)
         {
+            if (bcfFileWrapper?.BcfFile == null)
+            {
+                return BadRequest();
+            }
+
             var bcfFileResult = new BcfExportService().ExportBcfFile(bcfFileWrapper.BcfFile);
             if (bcfFileResult == null)
             {

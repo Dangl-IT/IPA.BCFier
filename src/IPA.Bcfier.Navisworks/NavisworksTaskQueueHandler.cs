@@ -40,6 +40,10 @@ namespace IPA.Bcfier.Navisworks
             {
                 var uiDocument = Application.ActiveDocument;
                 var queueItem = CreateNavisworksClashIssuesCallbacks.Dequeue();
+                if (queueItem?.ClashCreationData == null)
+                {
+                    return;
+                }
 
                 var cancellationTokenSource = new CancellationTokenSource();
                 if (!_navisworksClashCancellationTokenSourcesByCorrelationId.ContainsKey(queueItem.ClashCreationData.ClashId))

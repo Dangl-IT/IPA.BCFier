@@ -22,7 +22,7 @@ namespace IPA.Bcfier.Navisworks.Services
 
             public SavedItem? SavedItem { get; set; }
 
-            public ClashTest ClashTest { get; set; }
+            public ClashTest? ClashTest { get; set; }
         }
 
         ///<summary>
@@ -39,8 +39,8 @@ namespace IPA.Bcfier.Navisworks.Services
 
         private BcfViewpoint GetViewpointFromNavisworksViewpoint(Viewpoint viewpoint,
             bool generateLargeViewpoints,
-            Point3D centerForBoundingBox,
-            List<ModelItem> selectedItems = null)
+            Point3D? centerForBoundingBox,
+            List<ModelItem>? selectedItems = null)
         {
             var v = new BcfViewpoint();
             Vector3D vi = GetViewDirection(viewpoint);

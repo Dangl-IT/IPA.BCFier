@@ -10,6 +10,6 @@ namespace IPA.Bcfier.Navisworks.Models
 
         public Action<int>? CallbackReportCurrentCount { get; set; }
 
-        public NavisworksClashCreationData ClashCreationData { get; set; }
+        public NavisworksClashCreationData? ClashCreationData { get; set; }
     }
 }

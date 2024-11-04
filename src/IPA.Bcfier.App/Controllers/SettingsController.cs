@@ -101,7 +101,7 @@ namespace IPA.Bcfier.App.Controllers
 
         [HttpPut("always-on-top")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        public async Task<IActionResult> SetIsAlwaysOnTopAsync(bool isAlwaysOnTop)
+        public IActionResult SetIsAlwaysOnTop(bool isAlwaysOnTop)
         {
             var electronWindow = _electronWindowProvider.BrowserWindow;
             if (electronWindow == null)
