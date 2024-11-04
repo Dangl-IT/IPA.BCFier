@@ -255,9 +255,11 @@ export const version = {{
         .DependsOn(BuildElectronApp)
         .Executes(() =>
         {
-            (SourceDirectory / "ipa-bcfier-ui" / "dist" / "ipa-bcfier-ui" / "browser")
-                .Copy(SourceDirectory / "IPA.Bcfier.Revit" / "Resources" / "Browser",
-                ExistsPolicy.MergeAndOverwrite);
+
+            CopyDirectoryRecursively(SourceDirectory / "ipa-bcfier-ui" / "dist" / "ipa-bcfier-ui" / "browser",
+                SourceDirectory / "IPA.Bcfier.Revit" / "Resources" / "Browser",
+                DirectoryExistsPolicy.Merge,
+                FileExistsPolicy.Overwrite);
             var revitPluginOutputDirectory = OutputDirectory / "RevitPlugin";
             var navisworksPluginOutputDirectory = OutputDirectory / "NavisworksPlugin";
 
@@ -304,7 +306,7 @@ export const version = {{
             using var zipStream = File.OpenRead(OutputDirectory / "electron" / "IPA.Bcfier_Unzipped_Windows_X64.zip");
             ZipFile.ExtractToDirectory(zipStream, installerDirectory / "bcfier-app");
 
-            (SourceDirectory / "IPA.Bcfier.Revit" / "InstallerAssets").Copy(installerDirectory / "InstallerAssets", ExistsPolicy.MergeAndOverwrite);
+            CopyDirectoryRecursively(SourceDirectory / "IPA.Bcfier.Revit" / "InstallerAssets", installerDirectory / "InstallerAssets", DirectoryExistsPolicy.Merge, FileExistsPolicy.Overwrite);
             foreach (var configuration in configurations)
             {
                 (installerDirectory / configuration).CreateOrCleanDirectory();
@@ -352,7 +354,7 @@ export const version = {{
         .DependsOn(Compile)
         .Executes(() =>
         {
-            (SourceDirectory / "ipa-bcfier-ui" / "dist" / "ipa-bcfier-ui" / "browser").Copy(SourceDirectory / "IPA.Bcfier.App" / "wwwroot" / "dist" / "en", ExistsPolicy.MergeAndOverwrite);
+            CopyDirectoryRecursively(SourceDirectory / "ipa-bcfier-ui" / "dist" / "ipa-bcfier-ui" / "browser", SourceDirectory / "IPA.Bcfier.App" / "wwwroot" / "dist" / "en", DirectoryExistsPolicy.Merge, FileExistsPolicy.Overwrite);
 
             // To ensure the tool is always up to date
             DotNet("tool update ElectronNET.CLI -g");
@@ -423,7 +425,7 @@ export const version = {{
                 );
 
             var exeFile = (SourceDirectory / "IPA.Bcfier.App" / "bin" / "Desktop").GlobFiles("IPA.Bcfier*.exe").Single();
-            exeFile.Move(OutputDirectory / "electron" / $"IPA.Bcfier.Setup_{releaseIdentifier}.exe");
+            MoveFile(exeFile, OutputDirectory / "electron" / $"IPA.Bcfier.Setup_{releaseIdentifier}.exe");
 
             var unpackedDir = (SourceDirectory / "IPA.Bcfier.App" / "bin" / "Desktop").GlobDirectories("*unpacked").Single();
             (SourceDirectory / "IPA.Bcfier.App" / "bin" / "Desktop").GlobFiles("**/*.pdb").ForEach(f => f.DeleteFile());
