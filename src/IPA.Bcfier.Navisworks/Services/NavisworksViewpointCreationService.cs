@@ -290,8 +290,16 @@ namespace IPA.Bcfier.Navisworks.Services
                     var viewpoint = doc.CurrentViewpoint.Value;
                     // Create a collection of the 2 clashing items from the ClashResult
                     var items = new ModelItemCollection();
-                    items.Add(result.CompositeItem1);
-                    items.Add(result.CompositeItem2);
+                    if (result.CompositeItem1 != null)
+                    {
+                        items.Add(result.CompositeItem1);
+                    }
+
+                    if (result.CompositeItem2 != null)
+                    {
+                        items.Add(result.CompositeItem2);
+                    }
+
                     var selectedItems = items.ToList();
 
                     // Prevent redraw for every test and item
@@ -325,8 +333,16 @@ namespace IPA.Bcfier.Navisworks.Services
                     var viewpoint = doc.CurrentViewpoint.Value;
                     // Create a collection of the 2 clashing items from the ClashResult
                     var items = new ModelItemCollection();
-                    resultGroup.CompositeItemSelection1.CopyTo(items);
-                    resultGroup.CompositeItemSelection2.CopyTo(items);
+                    if (resultGroup.CompositeItemSelection1 != null)
+                    {
+                        resultGroup.CompositeItemSelection1.CopyTo(items);
+                    }
+
+                    if (resultGroup.CompositeItemSelection2 != null)
+                    {
+                        resultGroup.CompositeItemSelection2.CopyTo(items);
+                    }
+
                     var selectedItems = items.ToList();
 
                     // Adjust the camera and lighting
