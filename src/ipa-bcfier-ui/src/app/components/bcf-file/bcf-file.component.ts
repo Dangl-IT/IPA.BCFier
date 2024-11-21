@@ -88,6 +88,7 @@ export class BcfFileComponent {
   private dialog = inject(MatDialog);
 
   ngOnInit() {
+    if (!this.bcfFile) return;
     this.selectedTopic = this.bcfFile.topics[0] || null;
     this.topicMessengerService.setSelectedTopic(this.selectedTopic);
     this.cdr.detectChanges();

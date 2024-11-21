@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CommentsDetailComponent } from './comments-detail.component';
+import { AppTestingModule } from '../../app.testing.module';
 
 describe('CommentsDetailComponent', () => {
   let component: CommentsDetailComponent;
@@ -8,7 +9,7 @@ describe('CommentsDetailComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CommentsDetailComponent],
+      imports: [CommentsDetailComponent, AppTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CommentsDetailComponent);

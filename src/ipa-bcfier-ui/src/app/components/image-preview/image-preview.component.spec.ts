@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ImagePreviewComponent } from './image-preview.component';
+import { AppTestingModule } from '../../app.testing.module';
 
 describe('ImagePreviewComponent', () => {
   let component: ImagePreviewComponent;
@@ -8,10 +9,10 @@ describe('ImagePreviewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ImagePreviewComponent]
+      imports: [ImagePreviewComponent, AppTestingModule]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(ImagePreviewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

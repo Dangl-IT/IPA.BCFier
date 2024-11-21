@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BulkTopicEditComponent } from './bulk-edit-topic.component';
+import { AppTestingModule } from '../../app.testing.module';
 
 describe('BulkTopicEditComponent', () => {
   let component: BulkTopicEditComponent;
@@ -8,7 +9,7 @@ describe('BulkTopicEditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BulkTopicEditComponent],
+      imports: [BulkTopicEditComponent, AppTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BulkTopicEditComponent);
