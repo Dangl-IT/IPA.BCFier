@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "npm run install-fonts && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "ng test --no-watch",
     "install-fonts": "node ./copyFonts.js"
   },
   "private": true,
