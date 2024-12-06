@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TopMenuComponent } from './top-menu.component';
+import { AppTestingModule } from '../../app.testing.module';
 
 describe('TopMenuComponent', () => {
   let component: TopMenuComponent;
@@ -8,10 +9,10 @@ describe('TopMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TopMenuComponent]
+      imports: [TopMenuComponent, AppTestingModule]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(TopMenuComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -43,7 +43,6 @@ import { UsersService } from '../../services/light-query/users.service';
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
-    AsyncPipe,
     MatIconModule,
     MatButtonModule,
     FormsModule,

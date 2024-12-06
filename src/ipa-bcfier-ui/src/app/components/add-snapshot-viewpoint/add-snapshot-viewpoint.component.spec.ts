@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AddSnapshotViewpointComponent } from './add-snapshot-viewpoint.component';
+import { AppTestingModule } from '../../app.testing.module';
 
 describe('AddSnapshotViewpointComponent', () => {
   let component: AddSnapshotViewpointComponent;
@@ -8,10 +9,10 @@ describe('AddSnapshotViewpointComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddSnapshotViewpointComponent]
+      imports: [AddSnapshotViewpointComponent, AppTestingModule]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(AddSnapshotViewpointComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

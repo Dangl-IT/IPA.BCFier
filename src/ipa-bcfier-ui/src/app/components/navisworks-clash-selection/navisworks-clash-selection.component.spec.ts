@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NavisworksClashSelectionComponent } from './navisworks-clash-selection.component';
+import { AppTestingModule } from '../../app.testing.module';
 
 describe('NavisworksClashSelectionComponent', () => {
   let component: NavisworksClashSelectionComponent;
@@ -8,10 +9,10 @@ describe('NavisworksClashSelectionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NavisworksClashSelectionComponent]
+      imports: [NavisworksClashSelectionComponent, AppTestingModule]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(NavisworksClashSelectionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
