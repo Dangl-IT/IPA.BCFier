@@ -12,20 +12,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nuke.GitHub" Version="6.0.0" />
-    <PackageReference Include="Nuke.WebDocu" Version="6.0.0" />
+    <PackageReference Include="Nuke.GitHub" Version="7.0.0" />
+    <PackageReference Include="Nuke.WebDocu" Version="7.0.0" />
     <PackageDownload Include="GitVersion.CommandLine" Version="[5.12.0]" />
-    <PackageReference Include="Nuke.Common" Version="8.1.3" />
+    <PackageReference Include="Nuke.Common" Version="9.0.4" />
     <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="14.0.7" />
     <PackageReference Include="NSwag.MSBuild" Version="14.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="docfx.console" Version="2.59.4">
-      <ExcludeAssets>build</ExcludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+    <PackageDownload Include="docfx" Version="[2.77.0]" />
     <PackageDownload Include="AzureSignTool" Version="[5.0.0]" />
     <PackageDownload Include="Tools.InnoSetup" Version="[6.2.2]" />
   </ItemGroup>

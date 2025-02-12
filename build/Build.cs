@@ -7,15 +7,12 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities.Collections;
-using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.Coverlet;
 using System.IO;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
 using static Nuke.GitHub.GitHubTasks;
-using Nuke.Common.Tools.DocFX;
-using static Nuke.Common.Tools.DocFX.DocFXTasks;
 using Nuke.GitHub;
 using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.WebDocu.WebDocuTasks;
@@ -162,7 +159,8 @@ namespace IPA.Bcfier
          .DependsOn(Restore)
          .Executes(() =>
          {
-             DocFXMetadata(x => x.SetProjects(DocFxFile));
+             var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net8.0/any/docfx.dll");
+             DotNet($"{docFxPath} metadata {DocFxFile}");
          });
 
     private Target BuildDocumentation => _ => _
@@ -178,11 +176,11 @@ namespace IPA.Bcfier
 
              File.Copy(RootDirectory / "README.md", RootDirectory / "index.md");
 
-             DocFXBuild(x => x.SetConfigFile(DocFxFile));
+             var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net8.0/any/docfx.dll");
+             DotNet($"{docFxPath} {DocFxFile}");
 
              File.Delete(RootDirectory / "index.md");
              Directory.Delete(RootDirectory / "api", true);
-             Directory.Delete(RootDirectory / "obj", true);
          });
 
     Target UploadDocumentation => _ => _
@@ -386,18 +384,16 @@ export const version = {{
 
         try
         {
-            var azureSignArguments = new Arguments()
-                .Add("sign")
-                .Add("--azure-key-vault-url {0}", CodeSigningCertificateKeyVaultBaseUrl)
-                .Add("--azure-key-vault-client-id {0}", KeyVaultClientId)
-                .Add("--azure-key-vault-client-secret {0}", KeyVaultClientSecret)
-                .Add("--azure-key-vault-tenant-id {0}", CodeSigningKeyVaultTenantId)
-                .Add("--azure-key-vault-certificate {0}", CodeSigningCertificateName)
-                .Add("--input-file-list {0}", filesListPath)
-                .Add("--timestamp-rfc3161 {0}", "http://timestamp.digicert.com")
-                .ToString();
-
-            AzureSign(azureSignArguments);
+            var azureSignArguments = string.Empty;
+            azureSignArguments += "sign";
+            azureSignArguments += $" --azure-key-vault-url \"{CodeSigningCertificateKeyVaultBaseUrl}\"";
+            azureSignArguments += $" --azure-key-vault-client-id \"{KeyVaultClientId}\"";
+            azureSignArguments += $" --azure-key-vault-client-secret \"{KeyVaultClientSecret}\"";
+            azureSignArguments += $" --azure-key-vault-tenant-id \"{CodeSigningKeyVaultTenantId}\"";
+            azureSignArguments += $" --azure-key-vault-certificate \"{CodeSigningCertificateName}\"";
+            azureSignArguments += $" --input-file-list \"{filesListPath}\"";
+            azureSignArguments += $" --timestamp-rfc3161 \"{"http://timestamp.digicert.com"}\"";
+            AzureSign($"{azureSignArguments:nq}");
         }
         finally
         {
@@ -513,8 +509,7 @@ export const version = {{
                 .SetProcessToolPath(nSwagToolPath)
                 .SetProcessWorkingDirectory(SourceDirectory / "ipa-bcfier-ui" / "src")
                 .AddProcessEnvironmentVariable("BCFIER_USE_SQLITE_DESIGN_TIME_CONTEXT", "true")
-                .SetProcessArgumentConfigurator(y => y
-                    .Add($"/Input:\"{nSwagConfigPath}\"")));
+                .AddProcessAdditionalArguments($"/Input:\"{nSwagConfigPath}\""));
         });
 
     private bool IsOnBranch(string branchName)
