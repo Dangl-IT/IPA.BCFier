@@ -18,12 +18,6 @@ using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.WebDocu.WebDocuTasks;
 using Nuke.WebDocu;
 using Nuke.Common.Tools.NSwag;
-using System.Text.RegularExpressions;
-using NJsonSchema.Generation;
-using NJsonSchema;
-using NSwag;
-using NSwag.CodeGeneration.TypeScript;
-using NJsonSchema.CodeGeneration.TypeScript;
 using System.Collections.Generic;
 using static Nuke.Common.Tools.Npm.NpmTasks;
 using Nuke.Common.Tools.Npm;
@@ -31,7 +25,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.IO.Compression;
 using Nuke.Common.Utilities;
-using System.Configuration;
 
 class Build : NukeBuild
 {
@@ -505,11 +498,7 @@ export const version = {{
 
             var nSwagConfigPath = SourceDirectory / "ipa-bcfier-ui" / "src" / "nswag.json";
             var nSwagToolPath = NuGetToolPathResolver.GetPackageExecutable("NSwag.MSBuild", "tools/Net80/dotnet-nswag.dll");
-            DotNetRun(x => x
-                .SetProcessToolPath(nSwagToolPath)
-                .SetProcessWorkingDirectory(SourceDirectory / "ipa-bcfier-ui" / "src")
-                .AddProcessEnvironmentVariable("BCFIER_USE_SQLITE_DESIGN_TIME_CONTEXT", "true")
-                .AddProcessAdditionalArguments($"/Input:\"{nSwagConfigPath}\""));
+            DotNet($"{nSwagToolPath} run \"{nSwagConfigPath}\"", SourceDirectory / "ipa-bcfier-ui" / "src");
         });
 
     private bool IsOnBranch(string branchName)
