@@ -5,11 +5,14 @@ using IPA.Bcfier.App.Data;
 using IPA.Bcfier.App.Hubs;
 using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Services;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace IPA.Bcfier.App
 {
@@ -28,6 +31,7 @@ namespace IPA.Bcfier.App
             services.AddSingleton(new AppParameters());
             services.AddHttpClient<TeamsMessagesService>();
             services.AddTransient<LastOpenedFilesService>();
+            services.AddTransient<ErrorLogsService>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -83,6 +87,30 @@ namespace IPA.Bcfier.App
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context =>
+                {
+                    var exceptionHandlerPathFeature =
+                        context.Features.Get<IExceptionHandlerPathFeature>();
+
+                    var settingsService = context.RequestServices.GetRequiredService<SettingsService>();
+                    var settings = await settingsService.LoadSettingsAsync();
+
+                    var errorDetails = new
+                    {
+                        Date = DateTime.UtcNow,
+                        Settings = settings,
+                        Error = exceptionHandlerPathFeature?.Error,
+                        RouteValues = exceptionHandlerPathFeature?.RouteValues,
+                        Path = exceptionHandlerPathFeature?.Path
+                    };
+
+                    var errorLogsService = context.RequestServices.GetRequiredService<ErrorLogsService>();
+                    await errorLogsService.SaveErrorAsync(errorDetails);
+                });
+            });
+
             app.UseStaticFiles();
             app.UseRouting();
 
