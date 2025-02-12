@@ -3,6 +3,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
+import { ErrorLogsComponent } from '../error-logs/error-logs.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -24,6 +25,7 @@ import { UsersComponent } from '../users/users.component';
     MatTabsModule,
     ProjectsTableComponent,
     UsersComponent,
+    ErrorLogsComponent,
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
