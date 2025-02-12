@@ -7,10 +7,9 @@ import {
 
 import { BcfViewpoint } from '../../generated-client/generated-client';
 import { Component } from '@angular/core';
-import { DropzoneCdkModule } from '@ngx-dropzone/cdk';
-import { DropzoneMaterialModule } from '@ngx-dropzone/material';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDropzone } from '@ngx-dropzone/material';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { getNewRandomGuid } from '../../functions/uuid';
@@ -26,8 +25,7 @@ import { getNewRandomGuid } from '../../functions/uuid';
     MatDialogModule,
     MatIconModule,
     MatButtonModule,
-    DropzoneCdkModule,
-    DropzoneMaterialModule,
+    MatDropzone,
   ],
   templateUrl: './add-snapshot-viewpoint.component.html',
   styleUrl: './add-snapshot-viewpoint.component.scss',
