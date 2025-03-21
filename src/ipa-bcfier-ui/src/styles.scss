@@ -1,3 +1,4 @@
+@use "sass:map";
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
@@ -82,7 +83,7 @@ $ipa-bcfier-ui-dark-theme: mat.m2-define-light-theme((
 /* You can add global styles to this file, and also import other style files */
 
 :root {
-  --primary-color:#{map-get($ipa-bcfier-ui-primary, 500)};
+  --primary-color:#{map.get($ipa-bcfier-ui-primary, 500)};
 }
 
 html, body { height: 100%; }

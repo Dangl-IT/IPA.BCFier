@@ -1,14 +1,13 @@
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { JsonPipe } from '@angular/common';
 
 import { Component } from '@angular/core';
 import { ErrorLogsClient } from '../../generated-client/generated-client';
 import { MatButtonModule } from '@angular/material/button';
 import { NotificationsService } from '../../services/notifications.service';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'bcfier-error-logs',
-  imports: [AsyncPipe, JsonPipe, MatButtonModule],
+  imports: [JsonPipe, MatButtonModule],
   templateUrl: './error-logs.component.html',
   styleUrl: './error-logs.component.scss',
 })
