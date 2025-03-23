@@ -39,7 +39,6 @@ import { ProjectUsersService } from '../../services/project-users.service';
     CommonModule,
     MatSelectModule,
     MatDialogModule,
-    AddStringValueComponent,
     CommentsViewpointFilterPipe,
     CommentsDetailComponent,
     MatDatepickerModule,

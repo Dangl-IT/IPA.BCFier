@@ -8,14 +8,14 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   MatPaginator,
   MatPaginatorModule,
   PageEvent,
 } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import {
   ProjectGet,
   ProjectPost,
@@ -61,7 +61,6 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
     MatSortModule,
     MatPaginatorModule,
     DatePipe,
-    AsyncPipe,
     MatIconModule,
     MatButtonModule,
     FormsModule,
