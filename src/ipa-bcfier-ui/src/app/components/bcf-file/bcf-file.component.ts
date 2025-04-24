@@ -41,6 +41,7 @@ import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
+import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -59,6 +60,7 @@ import { take } from 'rxjs';
     MatSidenavModule,
     IssueFiltersComponent,
     SafeUrlPipe,
+    TriangleCornerDirective,
   ],
   templateUrl: './bcf-file.component.html',
   styleUrl: './bcf-file.component.scss',
@@ -86,7 +88,13 @@ export class BcfFileComponent {
   navisworksClashesLoadingService = inject(NavisworksClashesLoadingService);
   notificationsService = inject(NotificationsService);
   private dialog = inject(MatDialog);
-
+  readonly STATUS_COLOR_MAP: Record<string, string> = {
+    New: '#ff0000', // Red
+    Active: '#ffa500', // Orange
+    Reviewed: '#00cfff', // Cyan
+    Approved: '#00ff00', // Green
+    Resolved: '#ffff00', // Yellow
+  };
   ngOnInit() {
     if (!this.bcfFile) return;
     this.selectedTopic = this.bcfFile.topics[0] || null;

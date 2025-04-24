@@ -76,6 +76,11 @@
           <mat-card
             *ngFor="let topic of filteredTopics | topicFilter : search"
             (click)="selectTopic(topic)"
+            bcfierTriangleCorner
+            [config]="{
+              status: topic.topicStatus || '',
+              colors: STATUS_COLOR_MAP
+            }"
           >
             <mat-progress-bar
               mode="determinate"
