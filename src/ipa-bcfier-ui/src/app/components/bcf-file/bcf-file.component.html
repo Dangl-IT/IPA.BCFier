@@ -42,6 +42,7 @@
               mat-raised-button
               color="primary"
               (click)="setResponsibleForAll()"
+              [disabled]="(filteredTopics | topicFilter : search).length < 1"
             >
               Bulk Topic Edit
             </button>
