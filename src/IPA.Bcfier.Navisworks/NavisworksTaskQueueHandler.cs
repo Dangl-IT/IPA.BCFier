@@ -46,9 +46,15 @@ namespace IPA.Bcfier.Navisworks
                 }
 
                 var cancellationTokenSource = new CancellationTokenSource();
-                if (!_navisworksClashCancellationTokenSourcesByCorrelationId.ContainsKey(queueItem.ClashCreationData.ClashId))
+                if (queueItem.ClashCreationData.ClashIds.Count != 0)
                 {
-                    _navisworksClashCancellationTokenSourcesByCorrelationId.Add(queueItem.ClashCreationData.ClashId, cancellationTokenSource);
+                    foreach (var clashId in queueItem.ClashCreationData.ClashIds)
+                    {
+                        if (!_navisworksClashCancellationTokenSourcesByCorrelationId.ContainsKey(clashId))
+                        {
+                            _navisworksClashCancellationTokenSourcesByCorrelationId.Add(clashId, cancellationTokenSource);
+                        }
+                    }
                 }
                 
                 HandleCreateNavisworksClashIssuesCallback(queueItem.Callback,
@@ -183,9 +189,15 @@ namespace IPA.Bcfier.Navisworks
                 };
                 Task.Run(async () =>
                 {
-                    if (_navisworksClashCancellationTokenSourcesByCorrelationId.ContainsKey(clashCreationData.ClashId))
+                    if (clashCreationData.ClashIds.Count != 0)
                     {
-                        _navisworksClashCancellationTokenSourcesByCorrelationId.Remove(clashCreationData.ClashId);
+                        foreach (var clashId in clashCreationData.ClashIds)
+                        {
+                            if (_navisworksClashCancellationTokenSourcesByCorrelationId.ContainsKey(clashId))
+                            {
+                                _navisworksClashCancellationTokenSourcesByCorrelationId.Remove(clashId);
+                            }
+                        }
                     }
 
                     if (clashIssues == null)

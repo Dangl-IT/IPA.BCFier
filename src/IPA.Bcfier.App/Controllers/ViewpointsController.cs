@@ -208,7 +208,7 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest(new ApiError("The app is currently not connected to Navisworks"));
             }
 
-            if (model == null || model.ClashId == Guid.Empty)
+            if (model == null || model.ClashIds.Count == 0)
             {
                 return BadRequest(new ApiError("The model is invalid"));
             }
@@ -226,7 +226,10 @@ namespace IPA.Bcfier.App.Controllers
             using (var scope = _serviceProvider.CreateScope())
             {
                 var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<BcfierHub>>();
-                await hubContext.Clients.All.SendAsync("NavisworksClashIssuesCorrelationId", correlationId, model.ClashId);
+                foreach (var clashId in model.ClashIds)
+                {
+                    await hubContext.Clients.All.SendAsync("NavisworksClashIssuesCorrelationId", correlationId, clashId);
+                }
             }
 
             var hasReceived = false;

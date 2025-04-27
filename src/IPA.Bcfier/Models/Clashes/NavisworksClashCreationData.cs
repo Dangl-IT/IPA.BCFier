@@ -5,7 +5,7 @@ namespace IPA.Bcfier.Models.Clashes
 {
     public class NavisworksClashCreationData
     {
-        public Guid ClashId { get; set; }
+        public List<Guid> ClashIds { get; set; } = new List<Guid>();
 
         /// <summary>
         /// This is used to filter for only a specific status of clashes
