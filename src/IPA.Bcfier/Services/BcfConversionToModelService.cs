@@ -1,5 +1,6 @@
 ﻿using IPA.Bcfier.Models.Bcf;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace IPA.Bcfier.Services
@@ -79,7 +80,11 @@ namespace IPA.Bcfier.Services
 
                     if (topic.Markup.Topic != null)
                     {
-                        bcfTopic.AssignedTo = topic.Markup.Topic.AssignedTo;
+                        if (!string.IsNullOrWhiteSpace(topic.Markup.Topic.AssignedTo))
+                        {
+                            bcfTopic.AssignedToList = topic.Markup.Topic.AssignedTo.Split(';').ToList();
+                        }
+
                         bcfTopic.CreationAuthor = topic.Markup.Topic.CreationAuthor;
                         if (topic.Markup.Topic.ShouldSerializeCreationDate())
                         {
@@ -96,7 +101,11 @@ namespace IPA.Bcfier.Services
                         bcfTopic.Title = topic.Markup.Topic.Title;
                         bcfTopic.Stage = topic.Markup.Topic.Stage;
                         bcfTopic.Priority = topic.Markup.Topic.Priority;
-                        bcfTopic.TopicType = topic.Markup.Topic.TopicType;
+
+                        if (!string.IsNullOrWhiteSpace(topic.Markup.Topic.TopicType))
+                        {
+                            bcfTopic.TopicTypes = topic.Markup.Topic.TopicType.Split(';').ToList();
+                        }
 
                         if (topic.Markup.Topic.ShouldSerializeDueDate() && topic.Markup.Topic.DueDateSpecified)
                         {

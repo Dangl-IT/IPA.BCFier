@@ -1,9 +1,7 @@
 ﻿using Dangl.BCF.BCFv3.Schemas;
 using IPA.Bcfier.Models.Bcf;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace IPA.Bcfier.Services
 {
@@ -69,7 +67,11 @@ namespace IPA.Bcfier.Services
                     bcfTopic.Markup.Header.Files.Add(bcfHeaderFile);
                 }
 
-                bcfTopic.Markup.Topic.AssignedTo = topic.AssignedTo;
+                if (topic.AssignedToList != null && topic.AssignedToList.Count > 0)
+                {
+                    bcfTopic.Markup.Topic.AssignedTo = string.Join(";", topic.AssignedToList);
+                }
+
                 bcfTopic.Markup.Topic.CreationAuthor = topic.CreationAuthor;
                 if (topic.CreationDate != null)
                 {
@@ -86,7 +88,12 @@ namespace IPA.Bcfier.Services
                 bcfTopic.Markup.Topic.Title = topic.Title;
                 bcfTopic.Markup.Topic.Stage = topic.Stage;
                 bcfTopic.Markup.Topic.Priority = topic.Priority;
-                bcfTopic.Markup.Topic.TopicType = topic.TopicType;
+
+                if (topic.TopicTypes != null && topic.TopicTypes.Count > 0)
+                {
+                    bcfTopic.Markup.Topic.TopicType = string.Join(";", topic.TopicTypes);
+                }
+
                 if (topic.DueDate != null)
                 {
                     bcfTopic.Markup.Topic.DueDate = topic.DueDate.Value;
