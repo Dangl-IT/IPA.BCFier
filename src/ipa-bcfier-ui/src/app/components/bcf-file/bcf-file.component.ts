@@ -129,14 +129,14 @@ export class BcfFileComponent {
         documentReferences: [],
         relatedTopicIds: [],
         viewpoints: [],
-        assignedTo: [],
+        assignedToList: [],
         creationAuthor: s.username,
         description: '',
         priority: '',
         title: 'New Issue',
         topicStatus: '',
         stage: '',
-        topicType: [],
+        topicTypes: [],
         serverAssignedId: '',
         modifiedAuthor: '',
         creationDate: new Date(),
@@ -359,23 +359,23 @@ export class BcfFileComponent {
             if (bulkOptions.type.length) {
               if (bulkOptions.additionalMode) {
                 bulkOptions.type.forEach((type) => {
-                  if (!topic.topicType?.includes(type)) {
-                    topic.topicType = [...topic.topicType, type]
+                  if (!topic.topicTypes?.includes(type)) {
+                    topic.topicTypes = [...topic.topicTypes, type]
                   }
                 });
               } else {
-                topic.topicType = bulkOptions.type[0] === '' ? [] : bulkOptions.type;
+                topic.topicTypes = bulkOptions.type[0] === '' ? [] : bulkOptions.type;
               }
             }
             if (bulkOptions.responsibleUser.length) {
               if (bulkOptions.additionalMode) {
                 bulkOptions.responsibleUser.forEach((user) => {
-                  if (!topic.assignedTo?.includes(user)) {
-                    topic.assignedTo = [...topic.assignedTo, user]
+                  if (!topic.assignedToList?.includes(user)) {
+                    topic.assignedToList = [...topic.assignedToList, user]
                   }
                 });
               } else {
-                topic.assignedTo = bulkOptions.responsibleUser[0] === '' ? [] : bulkOptions.responsibleUser;
+                topic.assignedToList = bulkOptions.responsibleUser[0] === '' ? [] : bulkOptions.responsibleUser;
               }
             }
           });

@@ -124,7 +124,7 @@ export class TopicDetailComponent implements OnInit {
       .subscribe((result) => {
         if (result) {
           this.extensions.topicTypes.push(result);
-          this.topic.topicType = result;
+          this.topic.topicTypes = result;
         }
       });
   }
