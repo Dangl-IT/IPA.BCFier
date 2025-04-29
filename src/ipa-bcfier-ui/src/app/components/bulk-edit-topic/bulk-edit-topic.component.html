@@ -5,20 +5,22 @@
   <div class="info-select">
     <mat-form-field class="dark-theme">
       <mat-label>Responsible</mat-label>
-      <mat-select [(value)]="selectedUser" (opened)="refreshUsers()">
+      <mat-select [(value)]="selectedUser" (opened)="refreshUsers()" multiple>
         @for (user of (users$ | async)?.values(); track user.id) {
-        <mat-option [value]="user">{{
-          user.identifier || "No Responsible"
-        }}</mat-option>
+          @if (!additionalMode || user.identifier) {
+            <mat-option [value]="user" (click)="changeUser(user)">{{ user.identifier || "No Responsible" }}</mat-option>
+          }
         }
       </mat-select>
     </mat-form-field>
 
     <mat-form-field class="dark-theme">
       <mat-label>Type</mat-label>
-      <mat-select [(value)]="selectedType">
+      <mat-select [(value)]="selectedType" multiple>
         @for (type of (issueTypes$ | async)?.values(); track type) {
-        <mat-option [value]="type">{{ type || "No Type" }}</mat-option>
+          @if (!additionalMode || type) {
+            <mat-option [value]="type" (click)="changeType(type)">{{ type || "No Type" }}</mat-option>
+          }
         }
       </mat-select>
     </mat-form-field>
@@ -27,11 +29,16 @@
       <mat-label>Status</mat-label>
       <mat-select [(value)]="selectedStatus">
         @for (status of (issueStatuses$ | async)?.values(); track status) {
-        <mat-option [value]="status">{{ status || "No Status" }}</mat-option>
+          @if (!additionalMode || status) {
+            <mat-option [value]="status">{{ status || "No Status" }}</mat-option>
+          }
         }
       </mat-select>
     </mat-form-field>
   </div>
+  <p>
+    <mat-checkbox [(ngModel)]="additionalMode" matTooltip="items will add to other" (ngModelChange)="clearSelecting()">Additional mode</mat-checkbox>
+  </p>
 </div>
 <div mat-dialog-actions>
   <button mat-flat-button (click)="save()">Save</button>
