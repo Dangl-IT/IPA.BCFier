@@ -28,7 +28,7 @@
 
     <mat-form-field class="dark-theme">
       <mat-label>Type</mat-label>
-      <mat-select [(value)]="topic.topicType" (selectionChange)="changeIssue()">
+      <mat-select [(value)]="topic.topicType" (selectionChange)="changeIssue()" multiple>
         @for (type of (issueTypes$ | async)?.values(); track type) {
         <mat-option [value]="type">{{ type }}</mat-option>
         }
@@ -41,6 +41,7 @@
         [(value)]="topic.assignedTo"
         (selectionChange)="changeIssue()"
         (opened)="refreshUsers()"
+        multiple
       >
         @for (user of (users$ | async)?.values(); track user.id) {
         <mat-option [value]="user.identifier">{{ user.identifier }}</mat-option>
