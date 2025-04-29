@@ -1968,7 +1968,7 @@ export interface BcfTopic {
     viewpoints: BcfViewpoint[];
     documentReferences: BcfDocumentReference[];
     comments: BcfComment[];
-    assignedToList: string[];
+    assignedToList?: string[];
     creationAuthor?: string;
     creationDate?: Date | null;
     description?: string;
@@ -1979,7 +1979,7 @@ export interface BcfTopic {
     title?: string;
     stage?: string;
     priority?: string;
-    topicTypes: string[];
+    topicTypes?: string[];
     dueDate?: Date | null;
     index?: number;
     labels: string[];

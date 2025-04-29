@@ -497,7 +497,7 @@ export const version = {{
             CompileBackend();
 
             var nSwagConfigPath = SourceDirectory / "ipa-bcfier-ui" / "src" / "nswag.json";
-            var nSwagToolPath = NuGetToolPathResolver.GetPackageExecutable("NSwag.MSBuild", "tools/Net80/dotnet-nswag.dll");
+            var nSwagToolPath = NuGetToolPathResolver.GetPackageExecutable("NSwag.MSBuild", "tools/Net90/dotnet-nswag.dll");
             DotNet($"{nSwagToolPath} run \"{nSwagConfigPath}\"", SourceDirectory / "ipa-bcfier-ui" / "src");
         });
 
