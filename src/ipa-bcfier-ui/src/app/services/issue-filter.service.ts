@@ -33,19 +33,19 @@ export class IssueFilterService {
       }
 
       if (withoutType) {
-        passesType = !issue.topicType;
-      } else if (type && issue.topicType !== type) {
+        passesType = !issue.topicType?.length;
+      } else if (type && !issue.topicType?.includes(type)) {
         passesType = false;
       }
 
       if (withoutUser) {
-        passesUsers = !issue.assignedTo;
+        passesUsers = !issue.assignedTo?.length;
       } else if (
         (users &&
           users.length > 0 &&
-          issue.assignedTo &&
-          !users.includes(issue.assignedTo)) ||
-        (users.length > 0 && !issue.assignedTo)
+          issue.assignedTo && issue.assignedTo.length > 0 &&
+          !users.some((user) => issue.assignedTo?.includes(user))) ||
+        (users.length > 0 && !issue.assignedTo?.length)
       ) {
         passesUsers = false;
       }
