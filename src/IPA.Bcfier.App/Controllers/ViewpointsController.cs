@@ -178,7 +178,7 @@ namespace IPA.Bcfier.App.Controllers
         [HttpDelete("navisworks-clashes/{clashId}")]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        public async Task<IActionResult> CancelNavisworksClashDetectionAsync(Guid clashId)
+        public async Task<IActionResult> CancelNavisworksClashDetectionAsync(List<Guid> clashIds)
         {
             if (!_navisworksParameters.IsConnectedToNavisworks)
             {
@@ -187,13 +187,16 @@ namespace IPA.Bcfier.App.Controllers
 
             var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
-            var correlationId = Guid.NewGuid();
-            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            foreach (var clashId in clashIds)
             {
-                CorrelationId = correlationId,
-                Command = IpcMessageCommand.NavisworksClashIssuesCancellation,
-                Data = JsonConvert.SerializeObject(clashId)
-            }));
+                var correlationId = Guid.NewGuid();
+                await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                {
+                    CorrelationId = correlationId,
+                    Command = IpcMessageCommand.NavisworksClashIssuesCancellation,
+                    Data = JsonConvert.SerializeObject(clashId)
+                }));
+            }
 
             return NoContent();
         }

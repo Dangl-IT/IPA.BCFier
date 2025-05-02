@@ -1796,7 +1796,7 @@ export interface IViewpointsClient {
     createViewpoint(): Observable<BcfViewpoint>;
     getAvailableNavisworksClashes(): Observable<NavisworksClashSelection[]>;
     createNavisworksClashDetectionResultIssues(model: NavisworksClashCreationData): Observable<BcfTopic[]>;
-    cancelNavisworksClashDetection(clashId: string): Observable<void>;
+    cancelNavisworksClashDetection(clashId: string, clashIds: string[]): Observable<void>;
 }
 
 @Injectable({
@@ -2033,17 +2033,21 @@ export class ViewpointsClient implements IViewpointsClient {
         return _observableOf(null as any);
     }
 
-    cancelNavisworksClashDetection(clashId: string): Observable<void> {
+    cancelNavisworksClashDetection(clashId: string, clashIds: string[]): Observable<void> {
         let url_ = this.baseUrl + "/api/viewpoints/navisworks-clashes/{clashId}";
         if (clashId === undefined || clashId === null)
             throw new Error("The parameter 'clashId' must be defined.");
         url_ = url_.replace("{clashId}", encodeURIComponent("" + clashId));
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(clashIds);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
             })
         };
 
@@ -2343,7 +2347,7 @@ export interface NavisworksClashSelection {
 }
 
 export interface NavisworksClashCreationData {
-    clashId?: string;
+    clashIds?: string[];
     status?: string | null;
     excludedClashIds?: string[];
     shouldMoveBoundingBoxToCenterOfClash?: boolean;
