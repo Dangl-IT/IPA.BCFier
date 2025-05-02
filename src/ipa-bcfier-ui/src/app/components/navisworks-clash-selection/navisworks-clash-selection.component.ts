@@ -48,12 +48,12 @@ export class NavisworksClashSelectionComponent {
   }
 
   clashes: NavisworksClashSelection[] = [];
-  selectedClashId: string | null = null;
+  selectedClashIds: string[] | null = null;
   selectedStatusType: string | null = null;
 
   save(): void {
     this.dialogRef.close({
-      clashId: this.selectedClashId,
+      clashIds: this.selectedClashIds,
       onlyImportNew: this.onlyImportNew,
       statusType: this.selectedStatusType,
     });
