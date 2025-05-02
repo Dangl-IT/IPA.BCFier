@@ -175,7 +175,7 @@ namespace IPA.Bcfier.App.Controllers
             return BadRequest();
         }
 
-        [HttpDelete("navisworks-clashes/{clashId}")]
+        [HttpDelete("navisworks-clashes")]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> CancelNavisworksClashDetectionAsync(List<Guid> clashIds)
