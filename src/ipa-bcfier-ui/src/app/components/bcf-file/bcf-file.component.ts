@@ -55,6 +55,7 @@ import { TopicPreviewImageDirective } from '../../directives/topic-preview-image
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
+import { ClashGroupingOptionsComponent } from '../clash-grouping-options/clash-grouping-options.component';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -386,7 +387,11 @@ export class BcfFileComponent {
     (document.activeElement as HTMLElement)?.blur();
 
     this.dialog
-      .open(BulkTopicEditComponent, { data: { selectingMode } })
+      .open(BulkTopicEditComponent, {
+        data: { selectingMode },
+        autoFocus: false,
+        restoreFocus: false,
+      })
       .afterClosed()
       .subscribe(
         (bulkOptions?: {
@@ -400,7 +405,9 @@ export class BcfFileComponent {
             return;
           }
 
-          const list = selectingMode ? this.selectedListTopic : this.filterPipe(this.filteredTopics, this.search);
+          const list = selectingMode
+            ? this.selectedListTopic
+            : this.filterPipe(this.filteredTopics, this.search);
 
           list.forEach((topic) => {
             if (bulkOptions.status) {
@@ -521,8 +528,12 @@ export class BcfFileComponent {
 
   addRangeToSelectedList(topic: BcfTopic): void {
     if (this.selectedTopic) {
-      const indexFirst = this.filteredTopics.findIndex(item => item.id === this.selectedTopic?.id);
-      const indexLast = this.filteredTopics.findIndex(item => item.id === topic.id);
+      const indexFirst = this.filteredTopics.findIndex(
+        (item) => item.id === this.selectedTopic?.id
+      );
+      const indexLast = this.filteredTopics.findIndex(
+        (item) => item.id === topic.id
+      );
       const direction = indexFirst < indexLast ? 1 : -1;
       for (let i = indexFirst; i !== indexLast + direction; i += direction) {
         const topic = this.filteredTopics[i];
@@ -537,5 +548,17 @@ export class BcfFileComponent {
 
   inSelectedList(id: string): boolean {
     return !!this.selectedListTopic.find((item) => item.id === id);
+  }
+
+  openGroupingDialog(): void {
+    this.dialog
+      .open(ClashGroupingOptionsComponent, {
+        autoFocus: false,
+        restoreFocus: false,
+      })
+      .afterClosed()
+      .subscribe((groupingOptions) => {
+        //TODO add call to backend
+      });
   }
 }

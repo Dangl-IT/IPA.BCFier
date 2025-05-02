@@ -1,0 +1,14 @@
+<mat-form-field class="dark-theme" appearance="fill">
+  <mat-label>{{ label() }}</mat-label>
+  <mat-select
+    [value]="selectedIds()"
+    (selectionChange)="onSelectionChange($event.value)"
+    multiple
+  >
+    @for (clash of clashes(); track clash.id) {
+    <mat-option [value]="clash.id">
+      {{ clash.displayName }}
+    </mat-option>
+    }
+  </mat-select>
+</mat-form-field>

@@ -37,7 +37,7 @@
             </button>
           </div>
           } @if(filteredTopics && filteredTopics.length > 1) {
-          <div class="issue-list-buttons">
+          <div class="issue-list-buttons flex-direction-column">
             <button
               mat-raised-button
               color="primary"
@@ -45,6 +45,13 @@
               [disabled]="(filteredTopics | topicFilter : search).length < 1"
             >
               Bulk Topic Edit
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="openGroupingDialog()"
+            >
+              Auto Group Clashes
             </button>
           </div>
           } @if(selectedListTopic.length > 1) {

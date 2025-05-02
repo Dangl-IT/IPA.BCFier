@@ -1,0 +1,70 @@
+<h1 mat-dialog-title>Choose options for grouping clashes</h1>
+<div mat-dialog-content>
+  <div>
+    <label id="grouping-type-label">Choose the grouping type</label>
+    <mat-radio-group
+      color="primary"
+      class="dark-theme"
+      [(ngModel)]="selectedGroupingType"
+    >
+      @for (type of groupingTypes; track type) {
+      <mat-radio-button class="dark-theme" [value]="type" color="primary">
+        {{ type | titlecase }}
+      </mat-radio-button>
+      }
+    </mat-radio-group>
+
+    @switch (selectedGroupingType()) { @case ('proximity') {
+    <div class="container">
+      <bcfier-clash-select
+        [clashes]="clashes"
+        (selectedIdsChange)="onSelectedIdsChange($event)"
+      ></bcfier-clash-select>
+      <mat-form-field class="dark-theme" appearance="fill">
+        <mat-label>Radius</mat-label>
+        <input
+          matInput
+          type="number"
+          placeholder="Enter radius"
+          pattern="[0-9]*"
+          [(ngModel)]="proximityRadius"
+        />
+      </mat-form-field>
+    </div>
+    } @case ('level') {
+    <div class="container">
+      <bcfier-clash-select
+        [clashes]="clashes"
+        (selectedIdsChange)="onSelectedIdsChange($event)"
+      ></bcfier-clash-select>
+      <mat-form-field class="dark-theme" appearance="fill">
+        <mat-label>Tolerance </mat-label>
+        <input
+          matInput
+          type="number"
+          placeholder="Enter Tolerance"
+          pattern="[0-9]*"
+          [(ngModel)]="levelTolerance"
+        />
+      </mat-form-field>
+    </div>
+    } @case ('selection') {
+    <bcfier-clash-select
+      [clashes]="clashes"
+      (selectedIdsChange)="onSelectedIdsChange($event)"
+    ></bcfier-clash-select>
+    } @default {
+    <p>Please select a grouping type.</p>
+    } }
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button
+    mat-flat-button
+    (click)="save()"
+    [disabled]="!selectedGroupingType() || selectedClashIds.length === 0"
+  >
+    Applay
+  </button>
+  <button mat-flat-button color="warn" (click)="close()">Cancel</button>
+</div>
