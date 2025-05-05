@@ -54,3 +54,14 @@ mat-expansion-panel-header.mat-expanded:focus {
 mat-icon {
   cursor: pointer;
 }
+.folder-container {
+  display: flex;
+  align-items: top;
+  gap:10px;
+  mat-form-field {
+    width: 100%;
+  }
+}
+::ng-deep .material-3 {
+  border-radius: 10px;
+}

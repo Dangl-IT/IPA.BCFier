@@ -4,6 +4,7 @@ import {
   Component,
   Inject,
   OnDestroy,
+  OnInit,
   inject,
 } from '@angular/core';
 import {
@@ -35,6 +36,7 @@ import { MatListModule } from '@angular/material/list';
 import { AsyncPipe } from '@angular/common';
 import {
   ProjectGet,
+  ProjectsClient,
   ProjectUserGet,
   ProjectUsersClient,
   UserGet,
@@ -47,6 +49,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { ProjectUsersService } from '../../services/project-users.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NotificationsService } from '../../services/notifications.service';
+import { AppConfigService } from '../../services/AppConfigService';
 @Component({
   selector: 'bcfier-project-details',
   standalone: true,
@@ -67,11 +70,13 @@ import { NotificationsService } from '../../services/notifications.service';
   styleUrl: './project-details.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProjectDetailsComponent implements OnDestroy {
+export class ProjectDetailsComponent implements OnInit, OnDestroy {
   users$: Observable<ProjectUserGet[]> | null = null;
   projectDetailsForm = this.fb.group({
     name: ['', Validators.required],
+    projectNumber: [''],
     teamsWebhook: [''],
+    selectedPathFolder: [{ value: '', disabled: true }],
   });
   panelOpenState = false;
   identifier = '';
@@ -86,16 +91,29 @@ export class ProjectDetailsComponent implements OnDestroy {
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private matDialog: MatDialog,
-    private projectUsersService: ProjectUsersService
-  ) {
-    if (data) {
+    private projectUsersService: ProjectUsersService,
+    private appConfigService: AppConfigService,
+    private projectsClient: ProjectsClient
+  ) {}
+
+  ngOnInit(): void {
+    if (this.data) {
       this.projectDetailsForm.patchValue({
-        name: data.name,
-        teamsWebhook: data?.teamsWebhook,
+        name: this.data.name,
+        teamsWebhook: this.data?.teamsWebhook,
       });
-      this.users$ = this.getProjectUsers(data.id);
+      this.users$ = this.getProjectUsers(this.data.id);
     }
     this.filterUsers();
+
+    if (this.appConfigService.getFrontendConfig().isConnectedToRevit) {
+      //TODO replace with backend request
+      of({
+        name: 'Mock name',
+        projectNumber: 'Mock number',
+        teamsWebhook: 'Mock teamsWebhook',
+      });
+    }
   }
 
   filterUsers(): void {
@@ -171,5 +189,11 @@ export class ProjectDetailsComponent implements OnDestroy {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  chooseFolderForStorageBCFFiles(): void {
+    this.projectsClient.choseProjectLocation().subscribe((path) => {
+      this.projectDetailsForm.get('selectedPathFolder')?.setValue(path);
+    });
   }
 }
