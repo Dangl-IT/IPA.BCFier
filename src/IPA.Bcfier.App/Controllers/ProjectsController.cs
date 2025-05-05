@@ -1,8 +1,11 @@
 ﻿using Dangl.Data.Shared;
 using Dangl.Data.Shared.QueryUtilities;
+using ElectronNET.API.Entities;
+using ElectronNET.API;
 using IPA.Bcfier.App.Data;
 using IPA.Bcfier.App.Data.Models;
 using IPA.Bcfier.App.Models.Controllers.Projects;
+using IPA.Bcfier.App.Services;
 using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Projects;
 using LightQuery.Client;
@@ -19,10 +22,12 @@ namespace IPA.Bcfier.App.Controllers
     public class ProjectsController : ControllerBase
     {
         private readonly BcfierDbContext _context;
+        private readonly ElectronWindowProvider _electronWindowProvider;
 
-        public ProjectsController(BcfierDbContext context)
+        public ProjectsController(BcfierDbContext context, ElectronWindowProvider electronWindowProvider)
         {
             _context = context;
+            _electronWindowProvider = electronWindowProvider;
         }
 
         [AsyncLightQuery(forcePagination: true)]
@@ -163,6 +168,33 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpGet("project-location")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ChoseProjectLocationAsync()
+        {
+            var electronWindow = _electronWindowProvider.BrowserWindow;
+            if (electronWindow == null)
+            {
+                return BadRequest();
+            }
+
+            var dialogOptions = new OpenDialogOptions
+            {
+                Title = "Select a folder",
+                Properties = new[] { OpenDialogProperty.openDirectory },
+                DefaultPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            var result = await Electron.Dialog.ShowOpenDialogAsync(electronWindow, dialogOptions);
+            if (result == null || result.Count() == 0)
+            {
+                return BadRequest();
+            }
+
+            return Ok(result[0]);
         }
     }
 }
