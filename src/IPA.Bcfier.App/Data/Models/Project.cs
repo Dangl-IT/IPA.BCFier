@@ -6,6 +6,10 @@
 
         public string Name { get; set; } = string.Empty;
 
+        public string Number { get; set; } = string.Empty;
+
+        public string FilePath { get; set; } = string.Empty;
+
         public string RevitIdentifer { get; set; } = string.Empty;
 
         public string? TeamsWebhook { get; set; }

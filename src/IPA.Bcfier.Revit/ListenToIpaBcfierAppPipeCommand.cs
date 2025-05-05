@@ -2,10 +2,10 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using IPA.Bcfier.Ipc;
+using IPA.Bcfier.Models.Projects;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Reflection;
-using System.Windows;
 
 namespace IPA.Bcfier.Revit
 {
@@ -52,6 +52,16 @@ namespace IPA.Bcfier.Revit
                     })).ConfigureAwait(true).GetAwaiter().GetResult();
                 }
             };
+
+            ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            {
+                Command = IpcMessageCommand.GetProjectNumberAndFilePath,
+                Data = JsonConvert.SerializeObject(new ProjectData
+                {
+                    ProjectNumber = commandData.Application.ActiveUIDocument.Document.ProjectInformation.Number,
+                    FilePath = commandData.Application.ActiveUIDocument.Document.PathName
+                })
+            })).ConfigureAwait(true).GetAwaiter().GetResult();
 
             return Result.Succeeded;
         }

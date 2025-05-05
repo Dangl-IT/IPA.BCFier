@@ -1,5 +1,4 @@
 ﻿using Dangl.Data.Shared;
-using ElectronNET.API;
 using IPA.Bcfier.App.Configuration;
 using IPA.Bcfier.App.Hubs;
 using IPA.Bcfier.App.Services;

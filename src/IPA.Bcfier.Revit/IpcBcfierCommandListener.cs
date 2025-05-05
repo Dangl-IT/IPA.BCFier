@@ -1,8 +1,6 @@
 using IPA.Bcfier.Ipc;
-using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Models.Ipc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace IPA.Bcfier.Revit
 {

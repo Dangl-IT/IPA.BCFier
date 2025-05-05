@@ -3,10 +3,13 @@ using Dangl.Data.Shared.QueryUtilities;
 using IPA.Bcfier.App.Data;
 using IPA.Bcfier.App.Data.Models;
 using IPA.Bcfier.App.Models.Controllers.Projects;
+using IPA.Bcfier.Ipc;
+using IPA.Bcfier.Models.Projects;
 using LightQuery.Client;
 using LightQuery.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Net;
 
 namespace IPA.Bcfier.App.Controllers
@@ -60,6 +63,8 @@ namespace IPA.Bcfier.App.Controllers
             var project = new Project
             {
                 Name = model.Name,
+                Number = model.Number,
+                FilePath = model.FilePath,
                 RevitIdentifer = model.RevitIdentifier ?? string.Empty,
                 TeamsWebhook = model.TeamsWebhook
             };
@@ -122,6 +127,42 @@ namespace IPA.Bcfier.App.Controllers
 
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpGet("project-number-and-file-path")]
+        [ProducesResponseType(typeof(ProjectData), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetProjectNumberAndFilePathAsync()
+        {
+            var hasReceived = false;
+            var start = DateTime.UtcNow;
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
+            {
+                if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
+                {
+                    var ipcMessage = JsonConvert.DeserializeObject<IpcMessage>(message)!;
+                    if (ipcMessage.Command == IpcMessageCommand.GetProjectNumberAndFilePath)
+                    {
+                        if (string.IsNullOrWhiteSpace(ipcMessage.Data))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            hasReceived = true;
+                            IpcHandler.ReceivedMessages.Enqueue(message);
+                            return Ok(JsonConvert.DeserializeObject<ProjectData>(ipcMessage.Data));
+                        }
+                    }
+                    else
+                    {
+                        IpcHandler.ReceivedMessages.Enqueue(message);
+                        await Task.Delay(100);
+                    }
+                }
+            }
+
+            return BadRequest();
         }
     }
 }
