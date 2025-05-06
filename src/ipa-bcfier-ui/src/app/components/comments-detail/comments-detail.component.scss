@@ -2,12 +2,34 @@
   width: 100%;
 }
 
-.image-title {
-  display: flex;
-  justify-content: center;
+.image {
+  &-wrapper {
+    margin-top: 40px;
+    display: flex;
+  }
+
+  &-elements {
+    width: 0px;
+    flex-grow: 0;
+    margin-right: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+
+    &.list-elements {
+      width: calc(50% - 10px);
+    }
+  }
+
+  &-viewpoint {
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+    flex-shrink: 0;
+  }
 }
 
-.viewpoint-image {
+.viewpoint {
   max-width: 100%;
   max-height: 300px;
   cursor: pointer;
@@ -24,6 +46,7 @@ mat-card-content {
 .image-buttons {
   position: absolute;
   right: 0px;
+  top: 0px;
 }
 
 mat-card {

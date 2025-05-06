@@ -23,7 +23,12 @@ import { NotificationsService } from '../../services/notifications.service';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { ViewpointImageDirective } from '../../directives/viewpoint-image.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
-import { take } from 'rxjs';
+import { of, take, throwError } from 'rxjs';
+import {
+  ElementsViewpointComponent,
+  elementClash,
+} from '../elements-viewpoint/elements-viewpoint.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'bcfier-comments-detail',
@@ -36,6 +41,8 @@ import { take } from 'rxjs';
     MatIconModule,
     MatInputModule,
     ViewpointImageDirective,
+    ElementsViewpointComponent,
+    MatTooltipModule,
   ],
   templateUrl: './comments-detail.component.html',
   styleUrl: './comments-detail.component.scss',
@@ -44,6 +51,7 @@ export class CommentsDetailComponent implements OnInit {
   @Input() comments!: BcfComment[];
   @Input() viewpoint: BcfViewpoint | null = null;
   @Input() topic!: BcfTopic;
+  viewpointElements: elementClash[] = [];
 
   newComment = '';
 
@@ -56,7 +64,11 @@ export class CommentsDetailComponent implements OnInit {
     private teamsMessengerService: TeamsMessengerService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.viewpoint) {
+      this.getListElement();
+    }
+  }
 
   addComment(): void {
     if (!this.newComment) {
@@ -128,5 +140,49 @@ export class CommentsDetailComponent implements OnInit {
         this.viewpoint
       );
     }
+  }
+
+  trySelectElement(element: elementClash): void {
+    // TODO: remove this mock request and use the real request from the backend
+    of(element)
+    // throwError(() => new Error()) // error case
+      .subscribe({
+        next: () => {
+          this.notificationsService.success('Element selected: ' + element.name);
+        },
+        error: () => {
+          this.notificationsService.error('Error selecting element: ' + element.name);
+        },
+      });
+  }
+
+  getListElement(): void {
+    //TODO: remove this mock data and use the real data from the backend
+    of([
+      { name: 'name1', id: '1' },
+      { name: 'name2', id: '2' },
+      { name: 'name3', id: '3' },
+      { name: 'name4', id: '4' },
+      { name: 'name5', id: '5' },
+      { name: 'name6', id: '6' },
+      { name: 'name7', id: '7' },
+      { name: 'name8', id: '8' },
+      { name: 'name9', id: '9' },
+      { name: 'name10', id: '10' },
+      { name: 'name11', id: '11' },
+      { name: 'name12', id: '12' },
+      { name: 'name13', id: '13' },
+      { name: 'name14', id: '14' },
+      { name: 'name15', id: '15' },
+    ])
+    // throwError(() => new Error()) // error case
+    .subscribe({
+      next: (list) => {
+        this.viewpointElements = list;
+      },
+      error: () => {
+        this.notificationsService.error('Error fetching list of elements');
+      },
+    });
   }
 }
