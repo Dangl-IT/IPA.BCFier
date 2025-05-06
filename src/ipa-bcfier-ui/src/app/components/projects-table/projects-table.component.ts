@@ -232,7 +232,7 @@ export class ProjectsTableComponent
       .open(ConfirmDialogComponent, {
         autoFocus: false,
         restoreFocus: false,
-        data: 'delete this project',
+        data: { action: 'delete this project' },
       })
       .afterClosed()
       .pipe(

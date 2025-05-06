@@ -178,7 +178,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       .open(ConfirmDialogComponent, {
         autoFocus: false,
         restoreFocus: false,
-        data: 'delete',
+        data: { action: 'delete' },
       })
       .afterClosed()
       .subscribe((confirm) => {

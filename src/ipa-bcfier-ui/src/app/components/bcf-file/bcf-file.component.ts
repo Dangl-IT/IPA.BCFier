@@ -1,9 +1,18 @@
 import {
   BcfFile,
   BcfTopic,
+  ProjectGet,
+  ProjectsClient,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
-import { ChangeDetectorRef, Component, Input, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  TemplateRef,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { FormGroup, FormsModule } from '@angular/forms';
 import {
   IFilters,
@@ -42,6 +51,9 @@ import { TopicPreviewImageDirective } from '../../directives/topic-preview-image
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
+import { ReviteProjectMessengerService } from '../../services/messengers/revite-project-messenger.service';
+import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -68,6 +80,10 @@ import { take } from 'rxjs';
 })
 export class BcfFileComponent {
   @Input() bcfFile!: BcfFile;
+
+  @ViewChild('revitDialogContent', { static: true })
+  revitDialogContent!: TemplateRef<unknown>;
+
   issueStatuses$ = inject(IssueStatusesService).issueStatuses;
   issueTypes$ = inject(IssueTypesService).issueTypes;
   users$ = inject(ProjectUsersService).users;
@@ -88,6 +104,7 @@ export class BcfFileComponent {
     inject(AppConfigService).getFrontendConfig().isConnectedToNavisworks;
   viewpointsClient = inject(ViewpointsClient);
   navisworksClashesLoadingService = inject(NavisworksClashesLoadingService);
+  private reviteProjectMessengerService = inject(ReviteProjectMessengerService);
   notificationsService = inject(NotificationsService);
   private dialog = inject(MatDialog);
   readonly STATUS_COLOR_MAP: Record<string, string> = {
@@ -99,12 +116,25 @@ export class BcfFileComponent {
     approved: '#00ff00', // Green
     resolved: '#ffff00', // Yellow
   };
+  private projectsClient = inject(ProjectsClient);
+  private selectedProjectMessengerService = inject(
+    SelectedProjectMessengerService
+  );
+  selectedProject: ProjectGet | null = null;
+
   ngOnInit() {
     if (!this.bcfFile) return;
     this.selectedTopic = this.bcfFile.topics[0] || null;
     this.topicMessengerService.setSelectedTopic(this.selectedTopic);
     this.cdr.detectChanges();
     this.filteredTopics = [...this.bcfFile.topics];
+
+    //Here we get messages only if app is connected to Revit
+    this.reviteProjectMessengerService.reviteProject.subscribe((project) => {
+      if (project) {
+        this.findRevitProjectInDatabase(project.filePath);
+      }
+    });
   }
 
   private _search = '';
@@ -400,5 +430,37 @@ export class BcfFileComponent {
           this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
         }
       );
+  }
+
+  findRevitProjectInDatabase(filePath: string): void {
+    this.projectsClient.getAllProjects(null, filePath).subscribe((projects) => {
+      if (projects?.data?.length && projects.data.length > 0) {
+        this.selectedProject = projects.data[0];
+        this.dialog
+          .open(ConfirmDialogComponent, {
+            autoFocus: false,
+            restoreFocus: false,
+            data: { contentTemplate: this.revitDialogContent },
+          })
+          .afterClosed()
+          .subscribe((confirm) => {
+            if (confirm) {
+              this.selectedProjectMessengerService.setSelectedProject(
+                this.selectedProject
+              );
+            } else {
+              this.selectedProject = null;
+              this.reviteProjectMessengerService.setReviteProject(
+                this.selectedProject
+              );
+            }
+          });
+      } else {
+        this.selectedProject = null;
+        this.reviteProjectMessengerService.setReviteProject(
+          this.selectedProject
+        );
+      }
+    });
   }
 }
