@@ -1,0 +1,11 @@
+<div>
+  @for(element of viewpointElements; track element.id) {
+  <div
+    class="element"
+    (click)="selectElement(element)"
+    [class.selected]="selectedElementId === element.id"
+  >
+    {{ element.name }}
+  </div>
+  }
+</div>

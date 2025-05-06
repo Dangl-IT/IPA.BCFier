@@ -1,0 +1,11 @@
+.element {
+  cursor: pointer;
+
+  &.selected {
+    color: blue;
+  }
+
+  &:hover {
+    background-color: #eee;
+  }
+}
