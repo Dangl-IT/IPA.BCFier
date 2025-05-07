@@ -105,15 +105,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       this.users$ = this.getProjectUsers(this.data.id);
     }
     this.filterUsers();
-
-    if (this.appConfigService.getFrontendConfig().isConnectedToRevit) {
-      //TODO replace with backend request
-      of({
-        name: 'Mock name',
-        projectNumber: 'Mock number',
-        teamsWebhook: 'Mock teamsWebhook',
-      });
-    }
   }
 
   filterUsers(): void {
