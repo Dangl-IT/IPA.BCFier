@@ -10,6 +10,10 @@ namespace IPA.Bcfier.App.Models.Controllers.Projects
         [Required]
         public string Name { get; set; } = string.Empty;
 
+        public string Number { get; set; } = string.Empty;
+
+        public string FilePath { get; set; } = string.Empty;
+
         [Required]
         public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
 

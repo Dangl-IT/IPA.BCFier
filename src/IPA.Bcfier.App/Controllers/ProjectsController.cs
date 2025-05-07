@@ -52,6 +52,8 @@ namespace IPA.Bcfier.App.Controllers
             {
                 Id = p.Id,
                 Name = p.Name,
+                Number = p.Number,
+                FilePath = p.FilePath,
                 RevitIdentifier = p.RevitIdentifer,
                 TeamsWebhook = p.TeamsWebhook,
                 CreatedAtUtc = p.CreatedAtUtc
@@ -76,6 +78,8 @@ namespace IPA.Bcfier.App.Controllers
             {
                 Id = project.Id,
                 Name = project.Name,
+                Number = project.Number,
+                FilePath = project.FilePath,
                 RevitIdentifier = project.RevitIdentifer,
                 TeamsWebhook = project.TeamsWebhook,
                 CreatedAtUtc = project.CreatedAtUtc
@@ -95,6 +99,8 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             dbProject.Name = model.Name;
+            dbProject.Number = model.Number;
+            dbProject.FilePath = model.FilePath;
             dbProject.RevitIdentifer = model.RevitIdentifier ?? string.Empty;
             dbProject.TeamsWebhook = model.TeamsWebhook;
 
@@ -103,6 +109,8 @@ namespace IPA.Bcfier.App.Controllers
             {
                 Id = dbProject.Id,
                 Name = dbProject.Name,
+                Number = dbProject.Number,
+                FilePath = dbProject.FilePath,
                 RevitIdentifier = dbProject.RevitIdentifer,
                 TeamsWebhook = dbProject.TeamsWebhook,
                 CreatedAtUtc = dbProject.CreatedAtUtc
