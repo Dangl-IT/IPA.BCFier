@@ -1,5 +1,7 @@
+using Autodesk.Revit.UI;
 using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Ipc;
+using IPA.Bcfier.Models.Projects;
 using Newtonsoft.Json;
 
 namespace IPA.Bcfier.Revit
@@ -10,14 +12,17 @@ namespace IPA.Bcfier.Revit
         private readonly RevitTaskQueueHandler _revitTaskQueueHandler;
         private readonly Guid _appCorrelationId;
         private bool _isRunning = true;
+        private readonly ExternalCommandData _commandData;
 
         public IpcBcfierCommandListener(IpcHandler ipcHandler,
             RevitTaskQueueHandler revitTaskQueueHandler,
-            Guid appCorrelationId)
+            Guid appCorrelationId,
+            ExternalCommandData commandData)
         {
             _ipcHandler = ipcHandler;
             _revitTaskQueueHandler = revitTaskQueueHandler;
             _appCorrelationId = appCorrelationId;
+            _commandData = commandData;
         }
 
         public void Listen()
@@ -65,6 +70,18 @@ namespace IPA.Bcfier.Revit
                                     Viewpoint = messageData.BcfViewpoint,
                                     ViewpointOriginatesFromRevit = messageData.ViewpointOriginatesFromRevit
                                 });
+                                break;
+
+                            case IpcMessageCommand.RefreshProjectData:
+                                await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                {
+                                    Command = IpcMessageCommand.RevitProjectChanged,
+                                    Data = JsonConvert.SerializeObject(new ProjectData
+                                    {
+                                        ProjectNumber = _commandData.Application.ActiveUIDocument.Document.ProjectInformation.Number,
+                                        FilePath = _commandData.Application.ActiveUIDocument.Document.PathName
+                                    })
+                                }));
                                 break;
 
                             default:

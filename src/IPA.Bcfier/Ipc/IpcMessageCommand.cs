@@ -32,6 +32,8 @@
 
         RevitProjectLoaded = 14,
 
-        RevitProjectChanged = 15
+        RevitProjectChanged = 15,
+
+        RefreshProjectData = 16
     }
 }

@@ -47,6 +47,12 @@ namespace IPA.Bcfier.App.Services
                         var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<BcfierHub>>();
                         await hubContext.Clients.All.SendAsync("RevitProjectLoaded", ipcMessage.Data);
                     }
+                    else if (ipcMessage.Command == IpcMessageCommand.RevitProjectChanged)
+                    {
+                        using var scope = _serviceProvider.CreateScope();
+                        var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<BcfierHub>>();
+                        await hubContext.Clients.All.SendAsync("RevitProjectChanged", ipcMessage.Data);
+                    }
                     else
                     {
                         IpcHandler.ReceivedMessages.Enqueue(message);

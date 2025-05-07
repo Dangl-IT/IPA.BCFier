@@ -11,6 +11,9 @@ using LightQuery.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using IPA.Bcfier.App.Configuration;
+using Newtonsoft.Json;
+using IPA.Bcfier.Ipc;
 
 namespace IPA.Bcfier.App.Controllers
 {
@@ -20,11 +23,15 @@ namespace IPA.Bcfier.App.Controllers
     {
         private readonly BcfierDbContext _context;
         private readonly ElectronWindowProvider _electronWindowProvider;
+        private readonly RevitParameters _revitParameters;
+        private readonly AppParameters _appParameters;
 
-        public ProjectsController(BcfierDbContext context, ElectronWindowProvider electronWindowProvider)
+        public ProjectsController(BcfierDbContext context, ElectronWindowProvider electronWindowProvider, RevitParameters revitParameters, AppParameters appParameters)
         {
             _context = context;
             _electronWindowProvider = electronWindowProvider;
+            _revitParameters = revitParameters;
+            _appParameters = appParameters;
         }
 
         [AsyncLightQuery(forcePagination: true)]
@@ -164,6 +171,41 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             return Ok(result[0]);
+        }
+
+        [HttpPost("refresh-project-data")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> RefreshProjectDataAsync()
+        {
+            try
+            {
+                using var ipcHandler = GetIpcHandler();
+                await ipcHandler.InitializeAsync();
+
+                await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                {
+                    Command = IpcMessageCommand.RefreshProjectData
+                }));
+
+                return NoContent();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        private IpcHandler GetIpcHandler()
+        {
+            if (_revitParameters.IsConnectedToRevit)
+            {
+                return new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit", _appParameters.ApplicationId);
+            }
+            else
+            {
+                throw new Exception("The application is not connected to Revit.");
+            }
         }
     }
 }
