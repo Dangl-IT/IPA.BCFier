@@ -101,6 +101,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       this.projectDetailsForm.patchValue({
         name: this.data.name,
         teamsWebhook: this.data?.teamsWebhook,
+        projectNumber: this.data?.number,
+        selectedPathFolder: this.data?.filePath,
       });
       this.users$ = this.getProjectUsers(this.data.id);
     }
