@@ -30,6 +30,8 @@
 
         NavisworksClashIssuesCancellation = 13,
 
-        GetProjectNumberAndFilePath = 14
+        RevitProjectLoaded = 14,
+
+        RevitProjectChanged = 15
     }
 }

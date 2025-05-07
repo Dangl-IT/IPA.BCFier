@@ -55,7 +55,7 @@ namespace IPA.Bcfier.Revit
 
             ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
             {
-                Command = IpcMessageCommand.GetProjectNumberAndFilePath,
+                Command = IpcMessageCommand.RevitProjectLoaded,
                 Data = JsonConvert.SerializeObject(new ProjectData
                 {
                     ProjectNumber = commandData.Application.ActiveUIDocument.Document.ProjectInformation.Number,
