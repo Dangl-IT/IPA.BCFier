@@ -1,8 +1,4 @@
-import {
-  BcfFile,
-  BcfFileWrapper,
-  ProjectsClient,
-} from './generated-client/generated-client';
+import { BcfFile, BcfFileWrapper } from './generated-client/generated-client';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import {
@@ -28,7 +24,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NotificationsService } from './services/notifications.service';
-import { SelectedProjectMessengerService } from './services/selected-project-messenger.service';
 import { TopMenuComponent } from './components/top-menu/top-menu.component';
 import { version } from './version';
 
@@ -57,27 +52,8 @@ export class AppComponent implements OnDestroy {
     private notificationsService: NotificationsService,
     private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService,
     private bcfierHubConnectorService: BcfierHubConnectorService, // We want to initialize it so it's listening to SignalR messages
-    appConfigService: AppConfigService,
-    projectsClient: ProjectsClient,
-    selectedProjectMessengerService: SelectedProjectMessengerService
+    appConfigService: AppConfigService
   ) {
-    if (
-      appConfigService.getFrontendConfig().isConnectedToRevit &&
-      !!appConfigService.getFrontendConfig().revitProjectPath
-    ) {
-      projectsClient
-        .getAllProjects(
-          null,
-          appConfigService.getFrontendConfig().revitProjectPath
-        )
-        .subscribe((projects) => {
-          if (projects?.data?.length && projects.data.length > 0) {
-            const selectedProject = projects.data[0];
-            selectedProjectMessengerService.setSelectedProject(selectedProject);
-          }
-        });
-    }
-
     const cadPluginVersion =
       appConfigService.getFrontendConfig().cadPluginVersion;
     if (!!cadPluginVersion && version.version !== cadPluginVersion) {
