@@ -43,7 +43,7 @@ namespace IPA.Bcfier.App
 
             AddDatabaseServices(services);
 
-            services.AddHostedService<PluginErrorListenerService>();
+            services.AddHostedService<PluginListenerService>();
 
             services.AddSignalR()
                 .AddNewtonsoftJsonProtocol(c => c.PayloadSerializerSettings.Converters.Add(new StringEnumConverter()));
