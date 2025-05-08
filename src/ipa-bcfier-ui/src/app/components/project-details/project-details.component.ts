@@ -21,17 +21,7 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import {
-  EMPTY,
-  Observable,
-  Subject,
-  catchError,
-  filter,
-  map,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { AsyncPipe } from '@angular/common';
 import {
@@ -49,7 +39,6 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { ProjectUsersService } from '../../services/project-users.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NotificationsService } from '../../services/notifications.service';
-import { AppConfigService } from '../../services/AppConfigService';
 @Component({
   selector: 'bcfier-project-details',
   standalone: true,
@@ -74,9 +63,9 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   users$: Observable<ProjectUserGet[]> | null = null;
   projectDetailsForm = this.fb.group({
     name: ['', Validators.required],
-    projectNumber: [''],
+    number: [''],
     teamsWebhook: [''],
-    selectedPathFolder: [{ value: '', disabled: true }],
+    filePath: [{ value: '', disabled: true }],
   });
   panelOpenState = false;
   identifier = '';
@@ -92,7 +81,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private matDialog: MatDialog,
     private projectUsersService: ProjectUsersService,
-    private appConfigService: AppConfigService,
     private projectsClient: ProjectsClient
   ) {}
 
@@ -101,8 +89,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       this.projectDetailsForm.patchValue({
         name: this.data.name,
         teamsWebhook: this.data?.teamsWebhook,
-        projectNumber: this.data?.number,
-        selectedPathFolder: this.data?.filePath,
+        number: this.data?.number,
+        filePath: this.data?.filePath,
       });
       this.users$ = this.getProjectUsers(this.data.id);
     }
@@ -139,7 +127,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       this.dialogRef.close();
       return;
     }
-    this.dialogRef.close(this.projectDetailsForm.value);
+    const formData = this.projectDetailsForm.getRawValue();
+    this.dialogRef.close(formData);
   }
 
   addUserToProject(): void {
@@ -186,7 +175,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
   chooseFolderForStorageBCFFiles(): void {
     this.projectsClient.choseProjectLocation().subscribe((path) => {
-      this.projectDetailsForm.get('selectedPathFolder')?.setValue(path);
+      this.projectDetailsForm.get('filePath')?.patchValue(path);
     });
   }
 }
