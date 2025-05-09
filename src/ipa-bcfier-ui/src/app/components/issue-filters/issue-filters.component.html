@@ -1,6 +1,9 @@
 <div class="container" [formGroup]="filtersForm">
   <div class="container_filters">
-    <mat-checkbox formControlName="withoutStatus">Without Status</mat-checkbox>
+    <div class="between">
+      <mat-checkbox formControlName="withoutStatus">Without Status</mat-checkbox>
+      <button mat-flat-button color="warn" (click)="filtersForm.get('status')?.reset()">Clear</button>
+    </div>
     <mat-form-field class="dark-theme">
       <mat-label>Status</mat-label>
       <mat-select formControlName="status">
@@ -9,7 +12,10 @@
         }
       </mat-select>
     </mat-form-field>
-    <mat-checkbox formControlName="withoutType">Without Type</mat-checkbox>
+    <div class="between">
+      <mat-checkbox formControlName="withoutType">Without Type</mat-checkbox>
+      <button mat-flat-button color="warn" (click)="filtersForm.get('type')?.reset()">Clear</button>
+    </div>
     <mat-form-field class="dark-theme">
       <mat-label>Type</mat-label>
       <mat-select formControlName="type">
@@ -18,9 +24,10 @@
         }
       </mat-select>
     </mat-form-field>
-    <mat-checkbox formControlName="withoutUser"
-      >Without Responsible</mat-checkbox
-    >
+    <div class="between">
+      <mat-checkbox formControlName="withoutUser">Without Responsible</mat-checkbox>
+      <button mat-flat-button color="warn" (click)="filtersForm.get('users')?.reset()">Clear</button>
+    </div>
     <mat-form-field class="dark-theme">
       <mat-label>Responsible</mat-label>
       <mat-select
@@ -34,6 +41,10 @@
         }
       </mat-select>
     </mat-form-field>
+    <div class="between">
+      <div></div>
+      <button mat-flat-button color="warn" (click)="filtersForm.get('issueRange')?.reset()">Clear</button>
+    </div>
     <mat-form-field formGroupName="issueRange">
       <mat-label>Due Date</mat-label>
       <mat-date-range-input [rangePicker]="picker">
@@ -63,5 +74,5 @@
   >
     Accept
   </button>
-  <button mat-flat-button color="warn" (click)="clearFilters()">Clear</button>
+  <button mat-flat-button color="warn" (click)="clearFilters()">Clear all</button>
 </div>
