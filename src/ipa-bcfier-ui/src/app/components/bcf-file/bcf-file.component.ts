@@ -39,9 +39,9 @@ import { TopicDetailComponent } from '../topic-detail/topic-detail.component';
 import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
 import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
+import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
-import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -89,11 +89,13 @@ export class BcfFileComponent {
   notificationsService = inject(NotificationsService);
   private dialog = inject(MatDialog);
   readonly STATUS_COLOR_MAP: Record<string, string> = {
-    New: '#ff0000', // Red
-    Active: '#ffa500', // Orange
-    Reviewed: '#00cfff', // Cyan
-    Approved: '#00ff00', // Green
-    Resolved: '#ffff00', // Yellow
+    new: '#ff0000', // Red
+    open: '#ff0000', // Red
+    reopened: '#ff0000', // Red
+    active: '#ffa500', // Orange
+    reviewed: '#00cfff', // Cyan
+    approved: '#00ff00', // Green
+    resolved: '#ffff00', // Yellow
   };
   ngOnInit() {
     if (!this.bcfFile) return;
