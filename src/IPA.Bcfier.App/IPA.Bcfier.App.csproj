@@ -8,6 +8,7 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="Dangl.BCF" Version="2.0.0-beta0031" />
     <PackageReference Include="ElectronNET.API" Version="23.6.2" />
     <PackageReference Include="Dangl.Data.Shared.AspNetCore" Version="2.5.2" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="9.0.2" />
