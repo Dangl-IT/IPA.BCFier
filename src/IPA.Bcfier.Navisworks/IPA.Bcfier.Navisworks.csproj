@@ -13,7 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dangl.BCF" Version="2.0.0-beta0031" />
     <PackageReference Include="DecimalMath.DecimalEx" Version="1.0.2" />
     <PackageReference Include="Speckle.Navisworks.API" Condition="$(Configuration.Contains('2024')) Or !$(Configuration.Contains('-20'))" Version="2024.0.0" IncludeAssets="compile;build" PrivateAssets="all" />
     <PackageReference Include="Speckle.Navisworks.API" Condition="$(Configuration.Contains('2023'))" Version="2023.0.0" IncludeAssets="compile;build" PrivateAssets="all" />
