@@ -7,27 +7,27 @@ import { BcfTopic } from '../generated-client/generated-client';
   standalone: true,
 })
 export class TopicFilterPipe implements PipeTransform {
-  transform(value: BcfTopic[], filter: string): BcfTopic[] {
-    if (!filter) {
-      return value;
+  transform(topics: BcfTopic[], filter: string): BcfTopic[] {
+    if (!filter || filter.trim() === '') {
+      return topics;
     }
 
-    return value.filter((topic) => {
-      if (
-        topic.title != null &&
-        topic.title.toUpperCase().indexOf(filter.toUpperCase()) !== -1
-      ) {
-        return true;
-      }
+    const searchWords = filter
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((word) => word);
 
-      if (
-        topic.description != null &&
-        topic.description.toUpperCase().indexOf(filter.toUpperCase()) !== -1
-      ) {
-        return true;
-      }
+    return topics.filter((topic) => {
+      const title = topic.title || '';
+      const description = topic.description || '';
 
-      return false;
+      const commentTexts =
+        topic.comments?.map((comment) => comment.text || '').join(' ') || '';
+
+      const combinedText =
+        `${title} ${description} ${commentTexts}`.toLowerCase();
+
+      return searchWords.every((word) => combinedText.includes(word));
     });
   }
 }
