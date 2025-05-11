@@ -1,10 +1,10 @@
 import {
   Directive,
-  effect,
   ElementRef,
+  Renderer2,
+  effect,
   inject,
   input,
-  Renderer2,
 } from '@angular/core';
 
 export interface TriangleCornerConfig {
@@ -29,8 +29,21 @@ export class TriangleCornerDirective {
 
   constructor() {
     effect(() => {
-      const color =
+      let color =
         this.config()?.colors[this.config()?.status || ''] || this.defaultColor;
+
+      if (color == this.defaultColor) {
+        // Maybe we've got a casing difference, so we'll check if the colors object in the
+        // config object has an entry that matches the status case-insensitively
+        const colorKeys = Object.keys(this.config()?.colors || {});
+        const colorKey = colorKeys.find((key) =>
+          key.toLowerCase().includes(this.config()?.status?.toLowerCase() || '')
+        );
+        if (colorKey) {
+          color = this.config()?.colors[colorKey] || this.defaultColor;
+        }
+      }
+
       const zIndex = this.config()?.zIndex ?? this.defaultzIndex;
       this.updateTriangle(color, zIndex);
     });
