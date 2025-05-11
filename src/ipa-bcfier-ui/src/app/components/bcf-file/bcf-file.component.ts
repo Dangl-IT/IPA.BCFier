@@ -62,6 +62,7 @@ import { take } from 'rxjs';
     SafeUrlPipe,
     TriangleCornerDirective,
   ],
+  providers: [TopicFilterPipe],
   templateUrl: './bcf-file.component.html',
   styleUrl: './bcf-file.component.scss',
 })
@@ -71,6 +72,7 @@ export class BcfFileComponent {
   issueTypes$ = inject(IssueTypesService).issueTypes;
   users$ = inject(ProjectUsersService).users;
   issueFilterService = inject(IssueFilterService);
+  filterPipe = inject(TopicFilterPipe).transform;
   bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
   teamsMessengerService = inject(TeamsMessengerService);
   topicMessengerService = inject(TopicMessengerService);
@@ -352,7 +354,8 @@ export class BcfFileComponent {
             return;
           }
 
-          this.filteredTopics.forEach((topic) => {
+          const filteredList = this.filterPipe(this.filteredTopics, this.search);
+          filteredList.forEach((topic) => {
             if (bulkOptions.status) {
               topic.topicStatus = bulkOptions.status;
             }
