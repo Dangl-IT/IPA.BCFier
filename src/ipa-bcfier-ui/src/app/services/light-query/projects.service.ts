@@ -25,9 +25,7 @@ export class ProjectsService
     });
   }
 
-  disconnect(collectionViewer: CollectionViewer): void {
-    throw new Error('Method not implemented.');
-  }
+  disconnect(collectionViewer: CollectionViewer): void {}
 
   connect(): Observable<ProjectGet[]> {
     return this.paginationResult.pipe(

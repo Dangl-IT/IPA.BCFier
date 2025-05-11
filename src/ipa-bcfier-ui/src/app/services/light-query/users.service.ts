@@ -25,9 +25,7 @@ export class UsersService
     });
   }
 
-  disconnect(collectionViewer: CollectionViewer): void {
-    throw new Error('Method not implemented.');
-  }
+  disconnect(collectionViewer: CollectionViewer): void {}
 
   connect(): Observable<UserGet[]> {
     return this.paginationResult.pipe(
