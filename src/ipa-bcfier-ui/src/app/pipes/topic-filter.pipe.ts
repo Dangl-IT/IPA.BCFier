@@ -27,8 +27,7 @@ export class TopicFilterPipe implements PipeTransform {
       const combinedText =
         `${title} ${description} ${commentTexts}`.toLowerCase();
 
-      const combinedWordsSet = new Set(combinedText.split(/\s+/));
-      return searchWords.every((word) => combinedWordsSet.has(word));
+      return searchWords.every((word) => combinedText.includes(word));
     });
   }
 }
