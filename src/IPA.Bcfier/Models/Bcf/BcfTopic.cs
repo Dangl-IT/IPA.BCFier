@@ -21,7 +21,7 @@ namespace IPA.Bcfier.Models.Bcf
         [Required]
         public List<BcfComment> Comments { get; set; } = new();
 
-        public string AssignedTo { get; set; } = string.Empty;
+        public List<string> AssignedToList { get; set; } = new List<string>();
 
         public string CreationAuthor { get; set; } = string.Empty;
 
@@ -43,7 +43,7 @@ namespace IPA.Bcfier.Models.Bcf
 
         public string Priority { get; set; } = string.Empty;
 
-        public string TopicType { get; set; } = string.Empty;
+        public List<string> TopicTypes { get; set; } = new List<string>();
 
         public DateTime? DueDate { get; set; }
 

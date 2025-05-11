@@ -129,14 +129,14 @@ export class BcfFileComponent {
         documentReferences: [],
         relatedTopicIds: [],
         viewpoints: [],
-        assignedTo: '',
+        assignedToList: [],
         creationAuthor: s.username,
         description: '',
         priority: '',
         title: 'New Issue',
         topicStatus: '',
         stage: '',
-        topicType: '',
+        topicTypes: [],
         serverAssignedId: '',
         modifiedAuthor: '',
         creationDate: new Date(),
@@ -343,9 +343,10 @@ export class BcfFileComponent {
       .afterClosed()
       .subscribe(
         (bulkOptions?: {
-          responsibleUser?: string;
+          responsibleUser: string[];
           status?: string;
-          type?: string;
+          type: string[];
+          additionalMode: boolean;
         }) => {
           if (!bulkOptions) {
             return;
@@ -353,18 +354,36 @@ export class BcfFileComponent {
 
           this.filteredTopics.forEach((topic) => {
             if (bulkOptions.status) {
-              topic.topicStatus =
-                bulkOptions.status === '' ? undefined : bulkOptions.status;
+              topic.topicStatus = bulkOptions.status;
             }
-            if (bulkOptions.type) {
-              topic.topicType =
-                bulkOptions.type === '' ? undefined : bulkOptions.type;
+            if (bulkOptions.type.length) {
+              if (bulkOptions.additionalMode) {
+                bulkOptions.type.forEach((type) => {
+                  if (!topic.topicTypes?.includes(type)) {
+                    topic.topicTypes = [...(topic.topicTypes || []), type];
+                  }
+                });
+              } else {
+                topic.topicTypes =
+                  bulkOptions.type[0] === '' ? [] : bulkOptions.type;
+              }
             }
-            if (bulkOptions.responsibleUser) {
-              topic.assignedTo =
-                bulkOptions.responsibleUser === ''
-                  ? undefined
-                  : bulkOptions.responsibleUser;
+            if (bulkOptions.responsibleUser.length) {
+              if (bulkOptions.additionalMode) {
+                bulkOptions.responsibleUser.forEach((user) => {
+                  if (!topic.assignedToList?.includes(user)) {
+                    topic.assignedToList = [
+                      ...(topic.assignedToList || []),
+                      user,
+                    ];
+                  }
+                });
+              } else {
+                topic.assignedToList =
+                  bulkOptions.responsibleUser[0] === ''
+                    ? []
+                    : bulkOptions.responsibleUser;
+              }
             }
           });
 

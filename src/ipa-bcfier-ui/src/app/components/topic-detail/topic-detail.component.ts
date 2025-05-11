@@ -16,7 +16,7 @@ import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automat
 import { CommentsDetailComponent } from '../comments-detail/comments-detail.component';
 import { CommentsViewpointFilterPipe } from '../../pipes/comments-viewpoint-filter.pipe';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,6 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ProjectUsersService } from '../../services/project-users.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'bcfier-topic-detail',
@@ -42,6 +43,8 @@ import { ProjectUsersService } from '../../services/project-users.service';
     CommentsViewpointFilterPipe,
     CommentsDetailComponent,
     MatDatepickerModule,
+    ReactiveFormsModule,
+    MatFormFieldModule
   ],
   templateUrl: './topic-detail.component.html',
   styleUrl: './topic-detail.component.scss',
@@ -121,7 +124,7 @@ export class TopicDetailComponent implements OnInit {
       .subscribe((result) => {
         if (result) {
           this.extensions.topicTypes.push(result);
-          this.topic.topicType = result;
+          this.topic.topicTypes = result;
         }
       });
   }

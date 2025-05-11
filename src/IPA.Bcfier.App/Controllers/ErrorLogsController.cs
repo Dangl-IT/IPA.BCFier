@@ -20,7 +20,7 @@ namespace IPA.Bcfier.App.Controllers
         public async Task<IActionResult> GetErrorLogAsync()
         {
             var errorLogs = await _errorLogsService.GetErrorLogAsync();
-            return Content(errorLogs!.ToString(), "application/json");
+            return Content(errorLogs?.ToString() ?? string.Empty, "application/json");
         }
     }
 }
