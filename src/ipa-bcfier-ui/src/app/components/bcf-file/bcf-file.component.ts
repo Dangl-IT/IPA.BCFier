@@ -360,22 +360,29 @@ export class BcfFileComponent {
               if (bulkOptions.additionalMode) {
                 bulkOptions.type.forEach((type) => {
                   if (!topic.topicTypes?.includes(type)) {
-                    topic.topicTypes = [...topic.topicTypes, type]
+                    topic.topicTypes = [...(topic.topicTypes || []), type];
                   }
                 });
               } else {
-                topic.topicTypes = bulkOptions.type[0] === '' ? [] : bulkOptions.type;
+                topic.topicTypes =
+                  bulkOptions.type[0] === '' ? [] : bulkOptions.type;
               }
             }
             if (bulkOptions.responsibleUser.length) {
               if (bulkOptions.additionalMode) {
                 bulkOptions.responsibleUser.forEach((user) => {
                   if (!topic.assignedToList?.includes(user)) {
-                    topic.assignedToList = [...topic.assignedToList, user]
+                    topic.assignedToList = [
+                      ...(topic.assignedToList || []),
+                      user,
+                    ];
                   }
                 });
               } else {
-                topic.assignedToList = bulkOptions.responsibleUser[0] === '' ? [] : bulkOptions.responsibleUser;
+                topic.assignedToList =
+                  bulkOptions.responsibleUser[0] === ''
+                    ? []
+                    : bulkOptions.responsibleUser;
               }
             }
           });
