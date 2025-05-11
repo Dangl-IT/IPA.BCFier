@@ -16,15 +16,29 @@ button {
   margin: 5px;
 }
 
-::ng-deep .panel-bg.mat-mdc-select-panel {
-  background: black;
-  opacity: 0.85;
+::ng-deep {
+  .panel-bg.mat-mdc-select-panel {
+    background: black;
+    opacity: 0.85;
+  }
+
+  .mat-pseudo-checkbox-full {
+    border-color: var(--primary-color) !important;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
 }
 
-::ng-deep .mat-pseudo-checkbox-full {
-  border-color: var(--primary-color) !important;
-}
+::ng-deep
 
 mat-option {
   color: var(--primary-color);
+}
+
+.between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
