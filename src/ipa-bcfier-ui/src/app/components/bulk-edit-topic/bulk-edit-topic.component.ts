@@ -8,14 +8,16 @@ import { ProjectUserGet } from '../../generated-client/generated-client';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
 import { map } from 'rxjs';
-import {FormsModule} from '@angular/forms';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'bcfier-bulk-edit-topic',
   standalone: true,
-  imports: [MatButtonModule, MatDialogModule, MatSelectModule, AsyncPipe, MatCheckboxModule, FormsModule, MatTooltipModule],
+  imports: [MatButtonModule, MatDialogModule, MatSelectModule, AsyncPipe, MatCheckboxModule, FormsModule, MatTooltipModule, MatDatepickerModule, MatInputModule],
   templateUrl: './bulk-edit-topic.component.html',
   styleUrl: './bulk-edit-topic.component.scss',
 })
@@ -39,17 +41,19 @@ export class BulkTopicEditComponent {
   selectedType: string[] = [];
   selectedStatus: string | null = null;
   additionalMode = false;
+  selectedDueDate: Date | null = null;
 
   refreshUsers(): void {
     this.projectUsersService.refreshUsers();
   }
 
   save(): void {
-    if (this.selectedUser.length || this.selectedType.length || this.selectedStatus) {
+    if (this.selectedUser.length || this.selectedType.length || this.selectedStatus || this.selectedDueDate) {
       this.dialogRef.close({
         responsibleUser: this.selectedUser.map(user => user.identifier),
         type: this.selectedType,
         status: this.selectedStatus,
+        dueDate: this.selectedDueDate,
         additionalMode: this.additionalMode,
       });
     }
