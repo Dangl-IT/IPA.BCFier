@@ -1,6 +1,8 @@
-<h1 mat-dialog-title>Bulk Set Topic Data</h1>
+<h1 mat-dialog-title>
+  Bulk Set Topic {{ data.selectingMode ? 'selected' : 'filtered' }} Data
+</h1>
 <div mat-dialog-content>
-  <p>You can set data for all currently filtered topics.</p>
+  <p>You can set data for all currently {{ data.selectingMode ? 'selected' : 'filtered' }} topics.</p>
 
   <div class="info-select">
     <mat-form-field class="dark-theme">
