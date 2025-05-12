@@ -340,6 +340,9 @@ export class BcfFileComponent {
   }
 
   setResponsibleForAll(): void {
+    // Avoid warning in console (problem in Angular v.19)
+    (document.activeElement as HTMLElement)?.blur();
+
     this.dialog
       .open(BulkTopicEditComponent)
       .afterClosed()
@@ -348,6 +351,7 @@ export class BcfFileComponent {
           responsibleUser: string[];
           status?: string;
           type: string[];
+          dueDate?: Date;
           additionalMode: boolean;
         }) => {
           if (!bulkOptions) {
@@ -387,6 +391,9 @@ export class BcfFileComponent {
                     ? []
                     : bulkOptions.responsibleUser;
               }
+            }
+            if (bulkOptions.dueDate) {
+              topic.dueDate = bulkOptions.dueDate;
             }
           });
 
