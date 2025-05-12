@@ -31,6 +31,7 @@
   flex-direction: column;
   gap: 12px;
   overflow: auto;
+  user-select: none;
 }
 
 mat-form-field {

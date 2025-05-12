@@ -49,6 +49,18 @@
           </div>
           }
 
+          @if(selectedListTopic.length > 1) {
+            <div class="issue-list-buttons">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="setResponsibleForAll(true)"
+              >
+                Bulk selected Topic Edit
+              </button>
+            </div>
+          }
+
           <div class="filter-wrapper">
             <mat-form-field class="dark-theme">
               <mat-label>Search</mat-label>
@@ -76,7 +88,7 @@
         >
           <mat-card
             *ngFor="let topic of filteredTopics | topicFilter : search"
-            (click)="selectTopic(topic)"
+            (click)="selectTopic(topic, $event)"
             bcfierTriangleCorner
             [config]="{
               status: topic.topicStatus || '',
@@ -85,7 +97,7 @@
           >
             <mat-progress-bar
               mode="determinate"
-              [color]="selectedTopic?.id === topic.id ? 'primary' : 'accent'"
+              [color]="inSelectedList(topic.id) ? 'primary' : 'accent'"
               value="100"
             ></mat-progress-bar>
             <mat-card-header>

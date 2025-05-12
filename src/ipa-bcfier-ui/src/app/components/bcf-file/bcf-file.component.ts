@@ -101,6 +101,7 @@ export class BcfFileComponent {
   );
   cdr = inject(ChangeDetectorRef);
   selectedTopic: BcfTopic | null = null;
+  selectedListTopic: BcfTopic[] = [];
   filteredTopics: BcfTopic[] = [];
   isInNavisworks =
     inject(AppConfigService).getFrontendConfig().isConnectedToNavisworks;
@@ -126,8 +127,7 @@ export class BcfFileComponent {
 
   ngOnInit() {
     if (!this.bcfFile) return;
-    this.selectedTopic = this.bcfFile.topics[0] || null;
-    this.topicMessengerService.setSelectedTopic(this.selectedTopic);
+    this.oneSelectTopic(this.bcfFile.topics[0] || null);
     this.cdr.detectChanges();
     this.filteredTopics = [...this.bcfFile.topics];
 
@@ -150,9 +150,16 @@ export class BcfFileComponent {
     return this._search;
   }
 
-  selectTopic(topic: BcfTopic) {
-    this.selectedTopic = topic;
-    this.topicMessengerService.setSelectedTopic(this.selectedTopic);
+  selectTopic(topic: BcfTopic, event: MouseEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
+    if (event.ctrlKey) {
+      this.addTopicToSelectedList(topic);
+    } else if (event.shiftKey) {
+      this.addRangeToSelectedList(topic);
+    } else {
+      this.oneSelectTopic(topic);
+    }
   }
 
   addIssue(): void {
@@ -374,12 +381,12 @@ export class BcfFileComponent {
       );
   }
 
-  setResponsibleForAll(): void {
+  setResponsibleForAll(selectingMode?: boolean): void {
     // Avoid warning in console (problem in Angular v.19)
     (document.activeElement as HTMLElement)?.blur();
 
     this.dialog
-      .open(BulkTopicEditComponent)
+      .open(BulkTopicEditComponent, { data: { selectingMode } })
       .afterClosed()
       .subscribe(
         (bulkOptions?: {
@@ -393,11 +400,9 @@ export class BcfFileComponent {
             return;
           }
 
-          const filteredList = this.filterPipe(
-            this.filteredTopics,
-            this.search
-          );
-          filteredList.forEach((topic) => {
+          const list = selectingMode ? this.selectedListTopic : this.filterPipe(this.filteredTopics, this.search);
+
+          list.forEach((topic) => {
             if (bulkOptions.status) {
               topic.topicStatus = bulkOptions.status;
             }
@@ -494,5 +499,43 @@ export class BcfFileComponent {
         );
       }
     });
+  }
+
+  oneSelectTopic(topic: BcfTopic | null): void {
+    this.selectedTopic = topic;
+    if (topic) {
+      this.selectedListTopic = [topic];
+    } else {
+      this.selectedListTopic = [];
+    }
+    this.topicMessengerService.setSelectedTopic(this.selectedTopic);
+  }
+
+  addTopicToSelectedList(topic: BcfTopic): void {
+    this.selectedTopic = topic;
+    if (!this.inSelectedList(topic.id)) {
+      this.selectedListTopic.push(topic);
+    }
+    this.topicMessengerService.setSelectedTopic(this.selectedTopic);
+  }
+
+  addRangeToSelectedList(topic: BcfTopic): void {
+    if (this.selectedTopic) {
+      const indexFirst = this.filteredTopics.findIndex(item => item.id === this.selectedTopic?.id);
+      const indexLast = this.filteredTopics.findIndex(item => item.id === topic.id);
+      const direction = indexFirst < indexLast ? 1 : -1;
+      for (let i = indexFirst; i !== indexLast + direction; i += direction) {
+        const topic = this.filteredTopics[i];
+        if (!this.inSelectedList(topic.id)) {
+          this.selectedListTopic.push(topic);
+        }
+      }
+      this.selectedTopic = topic;
+      this.topicMessengerService.setSelectedTopic(this.selectedTopic);
+    }
+  }
+
+  inSelectedList(id: string): boolean {
+    return !!this.selectedListTopic.find((item) => item.id === id);
   }
 }
