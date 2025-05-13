@@ -186,9 +186,9 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest(new ApiError("The list of IFC GUIDs is empty"));
             }
 
-            if (!_revitParameters.IsConnectedToRevit)
+            if (!_revitParameters.IsConnectedToRevit && !_navisworksParameters.IsConnectedToNavisworks)
             {
-                return BadRequest(new ApiError("The app is currently not connected to Revit"));
+                return BadRequest(new ApiError("The app is currently not connected to Revit or Navisworks"));
             }
 
             using var ipcHandler = GetIpcHandler();
@@ -237,9 +237,9 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest(new ApiError("The IFC GUID is empty"));
             }
 
-            if (!_revitParameters.IsConnectedToRevit)
+            if (!_revitParameters.IsConnectedToRevit && !_navisworksParameters.IsConnectedToNavisworks)
             {
-                return BadRequest(new ApiError("The app is currently not connected to Revit"));
+                return BadRequest(new ApiError("The app is currently not connected to Revit or Navisworks"));
             }
 
             using var ipcHandler = GetIpcHandler();

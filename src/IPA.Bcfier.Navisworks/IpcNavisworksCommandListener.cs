@@ -1,9 +1,10 @@
 ﻿using IPA.Bcfier.Ipc;
 using Newtonsoft.Json;
-using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Navisworks.Models;
 using IPA.Bcfier.Models.Clashes;
 using IPA.Bcfier.Models.Ipc;
+using IPA.Bcfier.Models.Viewpoints;
+using Autodesk.Navisworks.Api;
 
 namespace IPA.Bcfier.Navisworks
 {
@@ -125,6 +126,59 @@ namespace IPA.Bcfier.Navisworks
                                         }));
                                     }
                                 );
+                                break;
+
+                            case IpcMessageCommand.GetElementNamesList:
+                                var ifcGuidNamePairList = new List<IfcGuidNamePair>();
+                                var ifcGuids = JsonConvert.DeserializeObject<List<string>>(ipcMessage.Data!)!;
+                                foreach (var ifcGuid in ifcGuids)
+                                {
+                                    var name = ifcGuid;
+
+                                    var searchGetElementNamesList = new Search();
+                                    searchGetElementNamesList.SearchConditions.Add(SearchCondition.HasPropertyByDisplayName("IfcGUID", "IfcGUID").EqualValue(new VariantData(ifcGuid)));
+
+                                    var resultsGetElementNamesList = searchGetElementNamesList.FindAll(Application.ActiveDocument, false);
+                                    if (!resultsGetElementNamesList.IsEmpty)
+                                    {
+                                        name = resultsGetElementNamesList.First.DisplayName;
+                                    }
+
+                                    ifcGuidNamePairList.Add(new IfcGuidNamePair
+                                    {
+                                        IfcGuid = ifcGuid,
+                                        Name = name
+                                    });
+                                }
+
+                                await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                {
+                                    CorrelationId = ipcMessage.CorrelationId,
+                                    Command = IpcMessageCommand.ReturnElementNamesList,
+                                    Data = JsonConvert.SerializeObject(ifcGuidNamePairList)
+                                }));
+                                break;
+
+                            case IpcMessageCommand.SelectElement:
+                                var isSuccess = false;
+
+                                var searchSelectElement = new Search();
+                                searchSelectElement.SearchConditions.Add(SearchCondition.HasPropertyByDisplayName("IfcGUID", "IfcGUID").EqualValue(new VariantData(ipcMessage.Data)));
+
+                                var resultsSelectElement = searchSelectElement.FindAll(Application.ActiveDocument, false);
+                                if (!resultsSelectElement.IsEmpty)
+                                {
+                                    Application.ActiveDocument.CurrentSelection.Clear();
+                                    Application.ActiveDocument.CurrentSelection.Add(resultsSelectElement.First);
+                                    isSuccess = true;
+                                }
+
+                                await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                {
+                                    CorrelationId = ipcMessage.CorrelationId,
+                                    Command = IpcMessageCommand.SelectElementResult,
+                                    Data = isSuccess.ToString()
+                                }));
                                 break;
 
                             default:
