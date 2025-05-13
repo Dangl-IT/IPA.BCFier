@@ -23,3 +23,7 @@ mat-tab-group {
 ::ng-deep .mat-mdc-tab-header {
   margin: 0 0 1rem;
 }
+
+::ng-deep  .mat-mdc-tab-body-wrapper {
+  height: calc(100% - 48px - 1rem);
+}
