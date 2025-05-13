@@ -1,4 +1,4 @@
-﻿namespace IPA.Bcfier.Ipc
+namespace IPA.Bcfier.Ipc
 {
     public enum IpcMessageCommand
     {
@@ -35,5 +35,13 @@
         RevitProjectChanged = 15,
 
         RefreshProjectData = 16
+
+        GetElementNamesList = 17,
+
+        ReturnElementNamesList = 18,
+
+        SelectElement = 19,
+
+        SelectElementResult = 20
     }
 }

@@ -38,7 +38,7 @@ namespace IPA.Bcfier.Revit
             ipcHandler.InitializeAsync().ConfigureAwait(true).GetAwaiter().GetResult();
 
             var taskQueueHandler = new RevitTaskQueueHandler();
-            var commandListener = new IpcBcfierCommandListener(ipcHandler, taskQueueHandler, appCorrelationId, commandData);
+            var commandListener = new IpcBcfierCommandListener(ipcHandler, taskQueueHandler, appCorrelationId, commandData.Application.ActiveUIDocument);
             commandListener.Listen();
             commandData.Application.Idling += taskQueueHandler.OnIdling;
             commandData.Application.ApplicationClosing += (s, e) =>

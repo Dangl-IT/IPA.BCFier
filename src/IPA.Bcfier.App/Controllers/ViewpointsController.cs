@@ -1,4 +1,4 @@
-﻿using Dangl.Data.Shared;
+using Dangl.Data.Shared;
 using IPA.Bcfier.App.Configuration;
 using IPA.Bcfier.App.Hubs;
 using IPA.Bcfier.App.Services;
@@ -6,6 +6,7 @@ using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Models.Clashes;
 using IPA.Bcfier.Models.Ipc;
+using IPA.Bcfier.Models.Viewpoints;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
@@ -163,6 +164,113 @@ namespace IPA.Bcfier.App.Controllers
                         hasReceived = true;
                         var bcfViewpoint = JsonConvert.DeserializeObject<List<NavisworksClashSelection>>(ipcMessage.Data!)!;
                         return Ok(bcfViewpoint);
+                    }
+                    else
+                    {
+                        IpcHandler.ReceivedMessages.Enqueue(message);
+                        await Task.Delay(100);
+                    }
+                }
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet("element-names-list")]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<IfcGuidNamePair>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetElementNamesListAsync(List<string> ifcGuids)
+        {
+            if (ifcGuids == null || ifcGuids.Count == 0)
+            {
+                return BadRequest(new ApiError("The list of IFC GUIDs is empty"));
+            }
+
+            if (!_revitParameters.IsConnectedToRevit)
+            {
+                return BadRequest(new ApiError("The app is currently not connected to Revit"));
+            }
+
+            using var ipcHandler = GetIpcHandler();
+            await ipcHandler.InitializeAsync();
+
+            var correlationId = Guid.NewGuid();
+            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            {
+                CorrelationId = correlationId,
+                Command = IpcMessageCommand.GetElementNamesList,
+                Data = JsonConvert.SerializeObject(ifcGuids)
+            }));
+
+            var hasReceived = false;
+            var start = DateTime.UtcNow;
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
+            {
+                if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
+                {
+                    var ipcMessage = JsonConvert.DeserializeObject<IpcMessage>(message)!;
+                    if (ipcMessage.CorrelationId == correlationId && ipcMessage.Command == IpcMessageCommand.ReturnElementNamesList)
+                    {
+                        hasReceived = true;
+                        var ifcGuidNamePairList = JsonConvert.DeserializeObject<List<IfcGuidNamePair>>(ipcMessage.Data!)!;
+                        return Ok(ifcGuidNamePairList);
+                    }
+                    else
+                    {
+                        IpcHandler.ReceivedMessages.Enqueue(message);
+                        await Task.Delay(100);
+                    }
+                }
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost("select-element")]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> SelectElementAsync(string ifcGuid)
+        {
+            if (string.IsNullOrWhiteSpace(ifcGuid))
+            {
+                return BadRequest(new ApiError("The IFC GUID is empty"));
+            }
+
+            if (!_revitParameters.IsConnectedToRevit)
+            {
+                return BadRequest(new ApiError("The app is currently not connected to Revit"));
+            }
+
+            using var ipcHandler = GetIpcHandler();
+            await ipcHandler.InitializeAsync();
+
+            var correlationId = Guid.NewGuid();
+            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            {
+                CorrelationId = correlationId,
+                Command = IpcMessageCommand.SelectElement,
+                Data = ifcGuid
+            }));
+
+            var hasReceived = false;
+            var start = DateTime.UtcNow;
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
+            {
+                if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
+                {
+                    var ipcMessage = JsonConvert.DeserializeObject<IpcMessage>(message)!;
+                    if (ipcMessage.CorrelationId == correlationId && ipcMessage.Command == IpcMessageCommand.SelectElementResult)
+                    {
+                        hasReceived = true;
+                        if (bool.TryParse(ipcMessage.Data, out bool result) && result)
+                        {
+                            return NoContent();
+                        }
+                        else
+                        {
+                            return NotFound();
+                        }
                     }
                     else
                     {
