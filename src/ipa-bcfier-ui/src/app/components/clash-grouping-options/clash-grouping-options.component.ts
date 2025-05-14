@@ -9,7 +9,6 @@ import {
   NavisworksClashSelection,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
-import { MatSelectModule } from '@angular/material/select';
 import { ClashSelectComponent } from '../clash-select/clash-select.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -43,14 +42,6 @@ export class ClashGroupingOptionsComponent implements OnInit {
   public proximityRadius: number | null = null;
   public levelTolerance: number | null = null;
   ngOnInit(): void {
-    this.clashes = [
-      { id: '1', displayName: 'User A', isGroup: false },
-      { id: '2', displayName: 'Group B', isGroup: true },
-      { id: '3', displayName: 'User C' },
-      { displayName: 'Anonymous', isGroup: false },
-      { id: '5' },
-    ];
-
     this.viewpointsClient.getAvailableNavisworksClashes().subscribe({
       next: (clashes) => {
         this.loadingService.hideLoadingScreen();
