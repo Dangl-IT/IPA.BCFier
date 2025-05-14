@@ -132,7 +132,7 @@ export class TopicDetailComponent implements OnInit {
   addViewpoint(): void {
     this.backendService.addViewpoint().subscribe((viewpoint) => {
       if (viewpoint) {
-        this.topic.viewpoints.push(viewpoint);
+        this.topic.viewpoints = [...this.topic.viewpoints, viewpoint];
         this.teamsMessengerService.sendMessageToTeams(MessageType.AddViewpoint);
         this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
       }

@@ -7,14 +7,14 @@ import {
   SimpleChanges,
 } from '@angular/core';
 
-import { BcfTopic } from '../generated-client/generated-client';
+import { BcfViewpoint } from '../generated-client/generated-client';
 
 @Directive({
   selector: '[bcfierTopicPreviewImage]',
   standalone: true,
 })
 export class TopicPreviewImageDirective implements OnInit, OnChanges {
-  @Input() bcfierTopicPreviewImage!: BcfTopic;
+  @Input() bcfierTopicPreviewImage!: BcfViewpoint[];
 
   constructor(private elementRef: ElementRef) {}
 
@@ -29,7 +29,7 @@ export class TopicPreviewImageDirective implements OnInit, OnChanges {
   }
 
   private handleImage(): void {
-    const viewpoints = this.bcfierTopicPreviewImage.viewpoints.filter(
+    const viewpoints = this.bcfierTopicPreviewImage.filter(
       (vp) => vp.snapshotBase64
     );
 
