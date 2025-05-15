@@ -49,10 +49,13 @@
       </mat-form-field>
     </div>
     } @case ('selection') {
-    <bcfier-clash-select
-      [clashes]="clashes"
-      (selectedIdsChange)="onSelectedIdsChange($event)"
-    ></bcfier-clash-select>
+    <div class="container">
+      <bcfier-clash-select
+        [clashes]="clashes"
+        (selectedIdsChange)="onSelectedIdsChange($event)"
+      ></bcfier-clash-select>
+    </div>
+
     } @default {
     <p>Please select a grouping type.</p>
     } }
