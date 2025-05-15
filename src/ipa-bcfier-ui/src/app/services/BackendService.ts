@@ -2,8 +2,10 @@ import {
   BcfConversionClient,
   BcfFileWrapper,
   BcfViewpoint,
+  BcfViewpointComponent,
   DocumentationClient,
   ProjectGet,
+  IfcGuidNamePair,
   Settings,
   SettingsClient,
   ViewpointsClient,
@@ -129,5 +131,16 @@ export class BackendService {
     } else {
       // Not doing anything in the standalone version
     }
+  }
+
+  getElementNamesList(viewpoint: BcfViewpoint): Observable<IfcGuidNamePair[]> {
+    const ifcGuidList = viewpoint.viewpointComponents.visibility.exceptions.map(
+      (item: BcfViewpointComponent) => item.ifcGuid
+    );
+    return this.viewpointsClient.getElementNamesList(ifcGuidList);
+  }
+
+  selectElement(value: IfcGuidNamePair): Observable<void> {
+    return this.viewpointsClient.selectElement(value.ifcGuid);
   }
 }
