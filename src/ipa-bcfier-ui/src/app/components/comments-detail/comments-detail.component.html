@@ -20,7 +20,7 @@
           [bcfierViewpointImage]="viewpoint"
           (click)="selectViewpoint()"
           [matTooltip]="
-            viewpointElements.length === 1 ? 'Name: ' + viewpointElements[0].name : ''
+            viewpointElements.length === 1 ? 'Name: ' + (viewpointElements[0].name || viewpointElements[0].ifcGuid) : ''
           "
         />
       </div>

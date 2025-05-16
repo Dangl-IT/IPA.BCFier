@@ -1,10 +1,6 @@
 import { Component, EventEmitter, Input,Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-export type elementClash = {
-  id: string;
-  name: string;
-};
+import { IfcGuidNamePair } from '../../generated-client/generated-client';
 
 @Component({
   selector: 'bcfier-elements-viewpoint',
@@ -13,13 +9,13 @@ export type elementClash = {
   styleUrl: './elements-viewpoint.component.scss',
 })
 export class ElementsViewpointComponent {
-  @Input() viewpointElements: elementClash[] = [];
-  @Output() selectedElement = new EventEmitter<elementClash>();
+  @Input() viewpointElements: IfcGuidNamePair[] = [];
+  @Output() selectedElement = new EventEmitter<IfcGuidNamePair>();
 
-  selectedElementId: string | null = null;
+  selectedElementId: string | undefined;
 
-  selectElement(element: elementClash): void {
-    this.selectedElementId = element.id;
+  selectElement(element: IfcGuidNamePair): void {
+    this.selectedElementId = element.ifcGuid;
     this.selectedElement.emit(element);
   }
 }
