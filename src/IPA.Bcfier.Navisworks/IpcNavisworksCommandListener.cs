@@ -1,4 +1,4 @@
-﻿using IPA.Bcfier.Ipc;
+using IPA.Bcfier.Ipc;
 using Newtonsoft.Json;
 using IPA.Bcfier.Navisworks.Models;
 using IPA.Bcfier.Models.Clashes;
@@ -6,6 +6,7 @@ using IPA.Bcfier.Models.Ipc;
 using IPA.Bcfier.Models.Viewpoints;
 using Autodesk.Navisworks.Api;
 using System.Runtime.Remoting.Messaging;
+using IPA.Bcfier.Navisworks.Services;
 
 namespace IPA.Bcfier.Navisworks
 {
@@ -163,6 +164,17 @@ namespace IPA.Bcfier.Navisworks
 
                             case IpcMessageCommand.SelectElement:
                                 await HandleSelectElementAsync(ipcMessage);
+                                break;
+
+                            case IpcMessageCommand.GroupClashes:
+                                var clashGroupingData = JsonConvert.DeserializeObject<NavisworksClashGroupingData>(ipcMessage.Data!)!;
+                                var clashGroupingResult = NavisworksClashGroupingService.GroupClashes(clashGroupingData);
+                                await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                                {
+                                    CorrelationId = ipcMessage.CorrelationId,
+                                    Command = IpcMessageCommand.GroupClashesResult,
+                                    Data = JsonConvert.SerializeObject(clashGroupingResult)
+                                }));
                                 break;
 
                             default:

@@ -1,38 +1,38 @@
 namespace IPA.Bcfier.Ipc
 {
-    public enum IpcMessageCommand
-    {
-        AppClosed = 0,
+        public enum IpcMessageCommand
+        {
+                AppClosed = 0,
 
-        CreateViewpoint = 1,
+                CreateViewpoint = 1,
 
-        ViewpointCreated = 2,
+                ViewpointCreated = 2,
 
-        ShowViewpoint = 3,
+                ShowViewpoint = 3,
 
-        ViewpointShown = 4,
+                ViewpointShown = 4,
 
-        CreateNavisworksClashDetectionIssues = 5,
+                CreateNavisworksClashDetectionIssues = 5,
 
-        NavisworksClashDetectionIssuesCreated = 6,
+                NavisworksClashDetectionIssuesCreated = 6,
 
-        GetNavisworksAvailableClashes = 7,
+                GetNavisworksAvailableClashes = 7,
 
-        NavisworksAvailableClashes = 8,
+                NavisworksAvailableClashes = 8,
 
-        PluginErrorEncountered = 9,
+                PluginErrorEncountered = 9,
 
-        CadClosing = 10,
+                CadClosing = 10,
 
-        NavisworksClashIssuesTotalCount = 11,
+                NavisworksClashIssuesTotalCount = 11,
 
-        NavisworksClashIssuesCurrentCount = 12,
+                NavisworksClashIssuesCurrentCount = 12,
 
-        NavisworksClashIssuesCancellation = 13,
+                NavisworksClashIssuesCancellation = 13,
 
-        RevitProjectLoaded = 14,
+                RevitProjectLoaded = 14,
 
-        RevitProjectChanged = 15,
+                RevitProjectChanged = 15,
 
         RefreshProjectData = 16,
 
@@ -42,6 +42,10 @@ namespace IPA.Bcfier.Ipc
 
         SelectElement = 19,
 
-        SelectElementResult = 20
-    }
+        SelectElementResult = 20,
+    
+                GroupClashes = 21,
+
+                GroupClashesResult = 22
+        }
 }
