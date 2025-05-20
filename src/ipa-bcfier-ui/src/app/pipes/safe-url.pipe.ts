@@ -1,4 +1,4 @@
-import { Pipe, type PipeTransform } from '@angular/core';
+import { inject, Pipe, type PipeTransform } from '@angular/core';
 import {
   DomSanitizer,
   SafeHtml,
@@ -13,7 +13,7 @@ import {
   standalone: true,
 })
 export class SafeUrlPipe implements PipeTransform {
-  constructor(protected _sanitizer: DomSanitizer) {}
+  protected _sanitizer: DomSanitizer = inject(DomSanitizer);
   transform(
     value: string,
     type: string
