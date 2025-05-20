@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace IPA.Bcfier.Models.Clashes
+﻿namespace IPA.Bcfier.Models.Clashes
 {
     public class SelectionGroupingOptions
     {
-        public Guid Id { get; set; }
+        public string ElementId { get; set; } = string.Empty;
     }
 }
