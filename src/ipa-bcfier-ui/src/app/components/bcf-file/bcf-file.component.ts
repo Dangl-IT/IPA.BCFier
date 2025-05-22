@@ -3,6 +3,7 @@ import {
   BcfTopic,
   ProjectGet,
   ProjectsClient,
+  NavisworksClashGroupingData,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
 import {
@@ -54,7 +55,7 @@ import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
-import { take } from 'rxjs';
+import { of, switchMap, take } from 'rxjs';
 import { ClashGroupingOptionsComponent } from '../clash-grouping-options/clash-grouping-options.component';
 
 @Component({
@@ -557,8 +558,22 @@ export class BcfFileComponent {
         restoreFocus: false,
       })
       .afterClosed()
-      .subscribe((groupingOptions) => {
-        //TODO add call to backend
+      .pipe(
+        switchMap((groupingOptions: NavisworksClashGroupingData) => {
+          if (!groupingOptions) {
+            return of([]);
+          }
+          return this.viewpointsClient.groupClashes(groupingOptions);
+        })
+      )
+      .subscribe({
+        next: (clashes) => {
+          //TODO - add the clashes to the BCF file, but now it returns string array
+        },
+        error: (error) => {
+          console.error(error);
+          this.notificationsService.error('Failed to group the clashes');
+        },
       });
   }
 }

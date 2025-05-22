@@ -28,7 +28,7 @@ type GroupingType = 'proximity' | 'level' | 'selection' | '';
     MatInputModule,
   ],
   templateUrl: './clash-grouping-options.component.html',
-  styleUrl: './clash-grouping-options.component.scss',
+  styleUrls: ['./clash-grouping-options.component.scss'],
 })
 export class ClashGroupingOptionsComponent implements OnInit {
   private loadingService = inject(LoadingService);
@@ -53,6 +53,7 @@ export class ClashGroupingOptionsComponent implements OnInit {
     });
   }
   save(): void {
+    //TODO check property names
     this.dialogRef.close({
       checkType: this.selectedGroupingType,
       proximityOptions: {

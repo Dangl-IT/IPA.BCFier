@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   selector: 'bcfier-clash-select',
   imports: [MatFormFieldModule, MatSelectModule],
   templateUrl: './clash-select.component.html',
-  styleUrl: './clash-select.component.scss',
+  styleUrls: ['./clash-select.component.scss'],
 })
 export class ClashSelectComponent {
   label = input('Clash Check');
