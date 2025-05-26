@@ -79,3 +79,10 @@ mat-drawer-content {
 .filter-container {
   height: inherit;
 }
+
+::ng-deep .mat-mdc-card-md-image {
+  height: auto !important;
+  max-height: 112px !important;
+  width: auto !important;
+  max-width: 112px !important;
+}
