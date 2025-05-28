@@ -47,18 +47,16 @@
               Bulk Topic Edit
             </button>
           </div>
-          }
-
-          @if(selectedListTopic.length > 1) {
-            <div class="issue-list-buttons">
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="setResponsibleForAll(true)"
-              >
-                Bulk selected Topic Edit
-              </button>
-            </div>
+          } @if(selectedListTopic.length > 1) {
+          <div class="issue-list-buttons">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="setResponsibleForAll(true)"
+            >
+              Bulk Topic Edit Selection
+            </button>
+          </div>
           }
 
           <div class="filter-wrapper">
