@@ -16,8 +16,8 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IBcfConversionClient {
-    importBcfFile(filePath: string | null | undefined): Observable<BcfFileWrapper>;
-    exportBcfFile(projectId: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper>;
+    importBcfFile(filePath: string | null | undefined, defaultBcfSavePath: string | null | undefined): Observable<BcfFileWrapper>;
+    exportBcfFile(projectId: string | null | undefined, defaultBcfSavePath: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper>;
     saveBcfFile(bcfFileWrapper: BcfFileWrapper): Observable<void>;
     mergeBcfFiles(): Observable<BcfFile>;
 }
@@ -35,10 +35,12 @@ export class BcfConversionClient implements IBcfConversionClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    importBcfFile(filePath: string | null | undefined): Observable<BcfFileWrapper> {
+    importBcfFile(filePath: string | null | undefined, defaultBcfSavePath: string | null | undefined): Observable<BcfFileWrapper> {
         let url_ = this.baseUrl + "/api/bcf-conversion/import?";
         if (filePath !== undefined && filePath !== null)
             url_ += "filePath=" + encodeURIComponent("" + filePath) + "&";
+        if (defaultBcfSavePath !== undefined && defaultBcfSavePath !== null)
+            url_ += "defaultBcfSavePath=" + encodeURIComponent("" + defaultBcfSavePath) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -94,10 +96,12 @@ export class BcfConversionClient implements IBcfConversionClient {
         return _observableOf(null as any);
     }
 
-    exportBcfFile(projectId: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper> {
+    exportBcfFile(projectId: string | null | undefined, defaultBcfSavePath: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper> {
         let url_ = this.baseUrl + "/api/bcf-conversion/export?";
         if (projectId !== undefined && projectId !== null)
             url_ += "projectId=" + encodeURIComponent("" + projectId) + "&";
+        if (defaultBcfSavePath !== undefined && defaultBcfSavePath !== null)
+            url_ += "defaultBcfSavePath=" + encodeURIComponent("" + defaultBcfSavePath) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(bcfFile);

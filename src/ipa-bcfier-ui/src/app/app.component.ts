@@ -1,9 +1,14 @@
-import { BcfFile, BcfFileWrapper } from './generated-client/generated-client';
+import {
+  BcfFile,
+  BcfFileWrapper,
+  ProjectGet,
+} from './generated-client/generated-client';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import {
   Observable,
   Subject,
+  catchError,
   filter,
   map,
   of,
@@ -64,6 +69,7 @@ export class AppComponent implements OnDestroy {
 
     this.changeSelectedTabIndex(0);
     this.bcfFiles = bcfFilesMessengerService.bcfFiles;
+
     this.bcfFilesMessengerService.bcfFileSaveAsRequested
       .pipe(
         takeUntil(this.destroyed$),
@@ -93,16 +99,24 @@ export class AppComponent implements OnDestroy {
                   );
                 }
               }
+            }),
+            catchError((error) => {
+              return of({ isError: true });
             })
           );
         })
       )
       .subscribe({
-        next: () => {
-          this.notificationsService.success('BCF file saved successfully.');
+        next: (r) => {
+          if ((r as any)?.isError) {
+            console.error('Error during BCF file export.');
+            this.notificationsService.error('Failed to save BCF file.');
+          } else {
+            this.notificationsService.success('BCF file saved successfully.');
+          }
         },
         error: (error) => {
-          console.error('Error exporting BCF file:', error);
+          console.error('Error while: exporting BCF file:', error);
           this.notificationsService.error('Failed to save BCF file.');
         },
       });

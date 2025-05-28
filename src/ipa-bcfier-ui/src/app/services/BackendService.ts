@@ -3,6 +3,7 @@ import {
   BcfFileWrapper,
   BcfViewpoint,
   DocumentationClient,
+  ProjectGet,
   Settings,
   SettingsClient,
   ViewpointsClient,
@@ -33,19 +34,23 @@ export class BackendService {
     selectedProjectMessengerService: SelectedProjectMessengerService
   ) {
     selectedProjectMessengerService.selectedProject.subscribe((p) => {
-      this.selectedProjectId = p?.id || null;
+      this.selectedProject = p || null;
     });
   }
 
-  private selectedProjectId: string | null = null;
+  private selectedProject: ProjectGet | null = null;
 
   importBcfFile(fileName?: string): Observable<BcfFileWrapper> {
-    return this.bcfConversionClient.importBcfFile(fileName);
+    return this.bcfConversionClient.importBcfFile(
+      fileName,
+      this.selectedProject?.bcfFilesFolder
+    );
   }
 
   exportBcfFile(bcfFile: BcfFileWrapper): Observable<BcfFileWrapper> {
     return this.bcfConversionClient.exportBcfFile(
-      this.selectedProjectId,
+      this.selectedProject?.id,
+      this.selectedProject?.bcfFilesFolder,
       bcfFile.bcfFile!
     );
   }
