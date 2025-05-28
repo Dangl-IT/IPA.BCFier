@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { ProjectUsersService } from '../../services/project-users.service';
 import { AsyncPipe } from '@angular/common';
@@ -42,6 +42,8 @@ export class BulkTopicEditComponent {
   selectedStatus: string | null = null;
   additionalMode = false;
   selectedDueDate: Date | null = null;
+
+  readonly data: { selectingMode: boolean } = inject(MAT_DIALOG_DATA);
 
   refreshUsers(): void {
     this.projectUsersService.refreshUsers();
