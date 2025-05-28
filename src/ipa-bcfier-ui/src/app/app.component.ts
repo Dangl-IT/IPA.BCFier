@@ -1,13 +1,14 @@
 import {
   BcfFile,
   BcfFileWrapper,
-  ProjectsClient,
+  ProjectGet,
 } from './generated-client/generated-client';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import {
   Observable,
   Subject,
+  catchError,
   filter,
   map,
   of,
@@ -28,7 +29,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NotificationsService } from './services/notifications.service';
-import { SelectedProjectMessengerService } from './services/selected-project-messenger.service';
 import { TopMenuComponent } from './components/top-menu/top-menu.component';
 import { version } from './version';
 
@@ -57,27 +57,8 @@ export class AppComponent implements OnDestroy {
     private notificationsService: NotificationsService,
     private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService,
     private bcfierHubConnectorService: BcfierHubConnectorService, // We want to initialize it so it's listening to SignalR messages
-    appConfigService: AppConfigService,
-    projectsClient: ProjectsClient,
-    selectedProjectMessengerService: SelectedProjectMessengerService
+    appConfigService: AppConfigService
   ) {
-    if (
-      appConfigService.getFrontendConfig().isConnectedToRevit &&
-      !!appConfigService.getFrontendConfig().revitProjectPath
-    ) {
-      projectsClient
-        .getAllProjects(
-          null,
-          appConfigService.getFrontendConfig().revitProjectPath
-        )
-        .subscribe((projects) => {
-          if (projects?.data?.length && projects.data.length > 0) {
-            const selectedProject = projects.data[0];
-            selectedProjectMessengerService.setSelectedProject(selectedProject);
-          }
-        });
-    }
-
     const cadPluginVersion =
       appConfigService.getFrontendConfig().cadPluginVersion;
     if (!!cadPluginVersion && version.version !== cadPluginVersion) {
@@ -88,6 +69,7 @@ export class AppComponent implements OnDestroy {
 
     this.changeSelectedTabIndex(0);
     this.bcfFiles = bcfFilesMessengerService.bcfFiles;
+
     this.bcfFilesMessengerService.bcfFileSaveAsRequested
       .pipe(
         takeUntil(this.destroyed$),
@@ -117,16 +99,24 @@ export class AppComponent implements OnDestroy {
                   );
                 }
               }
+            }),
+            catchError((error) => {
+              return of({ isError: true });
             })
           );
         })
       )
       .subscribe({
-        next: () => {
-          this.notificationsService.success('BCF file saved successfully.');
+        next: (r) => {
+          if ((r as any)?.isError) {
+            console.error('Error during BCF file export.');
+            this.notificationsService.error('Failed to save BCF file.');
+          } else {
+            this.notificationsService.success('BCF file saved successfully.');
+          }
         },
         error: (error) => {
-          console.error('Error exporting BCF file:', error);
+          console.error('Error while: exporting BCF file:', error);
           this.notificationsService.error('Failed to save BCF file.');
         },
       });

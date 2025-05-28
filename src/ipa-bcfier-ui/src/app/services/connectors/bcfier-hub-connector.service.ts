@@ -10,6 +10,7 @@ import { LoadingService } from '../loading.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NavisworksClashProgressMessengerService } from '../messengers/navisworks-clash-progress-messenger.service';
 import { NotificationsService } from '../notifications.service';
+import { ReviteProjectMessengerService } from '../messengers/revite-project-messenger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +23,8 @@ export class BcfierHubConnectorService {
     private ngZone: NgZone,
     private loadingService: LoadingService,
     private matDialog: MatDialog,
-    private navisworksClashProgressMessengerService: NavisworksClashProgressMessengerService
+    private navisworksClashProgressMessengerService: NavisworksClashProgressMessengerService,
+    private reviteProjectMessengerService: ReviteProjectMessengerService
   ) {
     this.connection = new HubConnectionBuilder()
       .withAutomaticReconnect()
@@ -72,5 +74,31 @@ export class BcfierHubConnectorService {
         });
       }
     );
+
+    this.connection.on('RevitProjectLoaded', (projectDataRaw: string) => {
+      this.ngZone.run(() => {
+        const projectData = JSON.parse(projectDataRaw) as {
+          ProjectNumber: string;
+          FilePath: string;
+        };
+        this.reviteProjectMessengerService.setRevitProject({
+          projectNumber: projectData.ProjectNumber,
+          filePath: projectData.FilePath,
+        });
+      });
+    });
+
+    this.connection.on('RevitProjectChanged', (projectDataRaw: string) => {
+      this.ngZone.run(() => {
+        const projectData = JSON.parse(projectDataRaw) as {
+          ProjectNumber: string;
+          FilePath: string;
+        };
+        this.reviteProjectMessengerService.setRevitProject({
+          projectNumber: projectData.ProjectNumber,
+          filePath: projectData.FilePath,
+        });
+      });
+    });
   }
 }

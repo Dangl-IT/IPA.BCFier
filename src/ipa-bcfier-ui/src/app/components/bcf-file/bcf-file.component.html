@@ -95,7 +95,10 @@
                   topic.creationDate | date : "dd.MM.yyyy"
                 }}</mat-card-subtitle>
 
-                <img mat-card-md-image [bcfierTopicPreviewImage]="topic.viewpoints" />
+                <img
+                  mat-card-md-image
+                  [bcfierTopicPreviewImage]="topic.viewpoints"
+                />
               </mat-card-title-group>
             </mat-card-header>
             <mat-card-content>
@@ -121,3 +124,10 @@
     ></bcfier-topic-detail>
   </div>
 </div>
+
+<ng-template #revitDialogContent>
+  <div>
+    Do you want to select <strong>{{ selectedProject?.name }}</strong> as the
+    active project?
+  </div>
+</ng-template>

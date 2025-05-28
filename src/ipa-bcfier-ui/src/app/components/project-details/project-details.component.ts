@@ -4,6 +4,7 @@ import {
   Component,
   Inject,
   OnDestroy,
+  OnInit,
   inject,
 } from '@angular/core';
 import {
@@ -20,21 +21,12 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import {
-  EMPTY,
-  Observable,
-  Subject,
-  catchError,
-  filter,
-  map,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { AsyncPipe } from '@angular/common';
 import {
   ProjectGet,
+  ProjectsClient,
   ProjectUserGet,
   ProjectUsersClient,
   UserGet,
@@ -67,11 +59,14 @@ import { NotificationsService } from '../../services/notifications.service';
   styleUrl: './project-details.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProjectDetailsComponent implements OnDestroy {
+export class ProjectDetailsComponent implements OnInit, OnDestroy {
   users$: Observable<ProjectUserGet[]> | null = null;
   projectDetailsForm = this.fb.group({
     name: ['', Validators.required],
+    number: [''],
     teamsWebhook: [''],
+    bcfFilesFolder: [{ value: '', disabled: true }],
+    revitFilePath: [{ value: '', disabled: true }],
   });
   panelOpenState = false;
   identifier = '';
@@ -86,14 +81,20 @@ export class ProjectDetailsComponent implements OnDestroy {
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private matDialog: MatDialog,
-    private projectUsersService: ProjectUsersService
-  ) {
-    if (data) {
+    private projectUsersService: ProjectUsersService,
+    private projectsClient: ProjectsClient
+  ) {}
+
+  ngOnInit(): void {
+    if (this.data) {
       this.projectDetailsForm.patchValue({
-        name: data.name,
-        teamsWebhook: data?.teamsWebhook,
+        name: this.data.name,
+        teamsWebhook: this.data?.teamsWebhook,
+        number: this.data?.number,
+        bcfFilesFolder: this.data?.bcfFilesFolder,
+        revitFilePath: this.data?.revitFilePath,
       });
-      this.users$ = this.getProjectUsers(data.id);
+      this.users$ = this.getProjectUsers(this.data.id);
     }
     this.filterUsers();
   }
@@ -128,7 +129,8 @@ export class ProjectDetailsComponent implements OnDestroy {
       this.dialogRef.close();
       return;
     }
-    this.dialogRef.close(this.projectDetailsForm.value);
+    const formData = this.projectDetailsForm.getRawValue();
+    this.dialogRef.close(formData);
   }
 
   addUserToProject(): void {
@@ -160,7 +162,7 @@ export class ProjectDetailsComponent implements OnDestroy {
       .open(ConfirmDialogComponent, {
         autoFocus: false,
         restoreFocus: false,
-        data: 'delete',
+        data: { action: 'delete' },
       })
       .afterClosed()
       .subscribe((confirm) => {
@@ -171,5 +173,17 @@ export class ProjectDetailsComponent implements OnDestroy {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  chooseFolderForStorageBCFFiles(): void {
+    this.projectsClient.choseBcfFilesFolderLocation().subscribe((path) => {
+      this.projectDetailsForm.get('bcfFilesFolder')?.patchValue(path);
+    });
+  }
+
+  chooseRevitProjectFile(): void {
+    this.projectsClient.choseRevitProjectFileLocation().subscribe((path) => {
+      this.projectDetailsForm.get('revitFilePath')?.patchValue(path);
+    });
   }
 }

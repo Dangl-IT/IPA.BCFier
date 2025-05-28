@@ -7,6 +7,12 @@ namespace IPA.Bcfier.App.Models.Controllers.Projects
         [Required]
         public string Name { get; set; } = string.Empty;
 
+        public string Number { get; set; } = string.Empty;
+
+        public string BcfFilesFolder { get; set; } = string.Empty;
+
+        public string RevitFilePath { get; set; } = string.Empty;
+
         public string? RevitIdentifier { get; set; }
 
         public string? TeamsWebhook { get; set; }

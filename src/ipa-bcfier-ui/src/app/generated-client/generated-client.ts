@@ -16,8 +16,8 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IBcfConversionClient {
-    importBcfFile(filePath: string | null | undefined): Observable<BcfFileWrapper>;
-    exportBcfFile(projectId: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper>;
+    importBcfFile(filePath: string | null | undefined, defaultBcfSavePath: string | null | undefined): Observable<BcfFileWrapper>;
+    exportBcfFile(projectId: string | null | undefined, defaultBcfSavePath: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper>;
     saveBcfFile(bcfFileWrapper: BcfFileWrapper): Observable<void>;
     mergeBcfFiles(): Observable<BcfFile>;
 }
@@ -35,10 +35,12 @@ export class BcfConversionClient implements IBcfConversionClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    importBcfFile(filePath: string | null | undefined): Observable<BcfFileWrapper> {
+    importBcfFile(filePath: string | null | undefined, defaultBcfSavePath: string | null | undefined): Observable<BcfFileWrapper> {
         let url_ = this.baseUrl + "/api/bcf-conversion/import?";
         if (filePath !== undefined && filePath !== null)
             url_ += "filePath=" + encodeURIComponent("" + filePath) + "&";
+        if (defaultBcfSavePath !== undefined && defaultBcfSavePath !== null)
+            url_ += "defaultBcfSavePath=" + encodeURIComponent("" + defaultBcfSavePath) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -94,10 +96,12 @@ export class BcfConversionClient implements IBcfConversionClient {
         return _observableOf(null as any);
     }
 
-    exportBcfFile(projectId: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper> {
+    exportBcfFile(projectId: string | null | undefined, defaultBcfSavePath: string | null | undefined, bcfFile: BcfFile): Observable<BcfFileWrapper> {
         let url_ = this.baseUrl + "/api/bcf-conversion/export?";
         if (projectId !== undefined && projectId !== null)
             url_ += "projectId=" + encodeURIComponent("" + projectId) + "&";
+        if (defaultBcfSavePath !== undefined && defaultBcfSavePath !== null)
+            url_ += "defaultBcfSavePath=" + encodeURIComponent("" + defaultBcfSavePath) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(bcfFile);
@@ -641,6 +645,9 @@ export interface IProjectsClient {
     createProject(model: ProjectPost): Observable<ProjectGet>;
     editProject(projectId: string, model: ProjectPut): Observable<ProjectGet>;
     deleteProject(projectId: string): Observable<void>;
+    choseBcfFilesFolderLocation(): Observable<string>;
+    choseRevitProjectFileLocation(): Observable<string>;
+    refreshProjectData(): Observable<void>;
 }
 
 @Injectable({
@@ -847,6 +854,162 @@ export class ProjectsClient implements IProjectsClient {
     }
 
     protected processDeleteProject(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            result400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ApiError;
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    choseBcfFilesFolderLocation(): Observable<string> {
+        let url_ = this.baseUrl + "/api/projects/bcf-files-location";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processChoseBcfFilesFolderLocation(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processChoseBcfFilesFolderLocation(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processChoseBcfFilesFolderLocation(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string;
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            result400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ApiError;
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    choseRevitProjectFileLocation(): Observable<string> {
+        let url_ = this.baseUrl + "/api/projects/revit-files-location";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processChoseRevitProjectFileLocation(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processChoseRevitProjectFileLocation(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processChoseRevitProjectFileLocation(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string;
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            result400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ApiError;
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    refreshProjectData(): Observable<void> {
+        let url_ = this.baseUrl + "/api/projects/refresh-project-data";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRefreshProjectData(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRefreshProjectData(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRefreshProjectData(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2109,6 +2272,9 @@ export interface PaginationResultOfProjectGet {
 export interface ProjectGet {
     id: string;
     name: string;
+    number?: string;
+    bcfFilesFolder?: string;
+    revitFilePath?: string;
     createdAtUtc: Date;
     revitIdentifier?: string | null;
     teamsWebhook?: string | null;
@@ -2116,6 +2282,9 @@ export interface ProjectGet {
 
 export interface ProjectPost {
     name: string;
+    number?: string;
+    bcfFilesFolder?: string;
+    revitFilePath?: string;
     revitIdentifier?: string | null;
     teamsWebhook?: string | null;
 }
@@ -2123,6 +2292,9 @@ export interface ProjectPost {
 export interface ProjectPut {
     id: string;
     name: string;
+    number?: string;
+    bcfFilesFolder?: string;
+    revitFilePath?: string;
     revitIdentifier?: string | null;
     teamsWebhook?: string | null;
 }

@@ -32,6 +32,7 @@ namespace IPA.Bcfier.App
             services.AddHttpClient<TeamsMessagesService>();
             services.AddTransient<LastOpenedFilesService>();
             services.AddTransient<ErrorLogsService>();
+            services.AddSingleton<IpcHandlerLifetimeService>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -43,7 +44,7 @@ namespace IPA.Bcfier.App
 
             AddDatabaseServices(services);
 
-            services.AddHostedService<PluginErrorListenerService>();
+            services.AddHostedService<PluginListenerService>();
 
             services.AddSignalR()
                 .AddNewtonsoftJsonProtocol(c => c.PayloadSerializerSettings.Converters.Add(new StringEnumConverter()));

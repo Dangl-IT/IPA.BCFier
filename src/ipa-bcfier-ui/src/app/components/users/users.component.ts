@@ -136,7 +136,7 @@ export class UsersComponent implements AfterViewInit, OnDestroy, OnInit {
       .open(ConfirmDialogComponent, {
         autoFocus: false,
         restoreFocus: false,
-        data: 'delete this user',
+        data: { action: 'delete this project' },
       })
       .afterClosed()
       .pipe(

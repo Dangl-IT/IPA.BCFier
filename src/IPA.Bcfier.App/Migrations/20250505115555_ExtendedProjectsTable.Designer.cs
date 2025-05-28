@@ -3,6 +3,7 @@ using System;
 using IPA.Bcfier.App.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IPA.Bcfier.App.Migrations
 {
     [DbContext(typeof(BcfierDbContext))]
-    partial class BcfierDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250505115555_ExtendedProjectsTable")]
+    partial class ExtendedProjectsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -52,22 +55,18 @@ namespace IPA.Bcfier.App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("BcfFilesFolder")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<long>("CreatedAtUtc")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Number")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("RevitFilePath")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

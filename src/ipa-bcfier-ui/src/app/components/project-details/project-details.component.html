@@ -7,9 +7,41 @@
         <input matInput formControlName="name" />
       </mat-form-field>
       <mat-form-field class="dark-theme">
+        <mat-label>Project number</mat-label>
+        <input matInput formControlName="number" />
+      </mat-form-field>
+      <mat-form-field class="dark-theme">
         <mat-label>Teams webhook</mat-label>
         <input matInput formControlName="teamsWebhook" />
       </mat-form-field>
+      <div class="folder-container">
+        <mat-form-field class="dark-theme full-width">
+          <mat-label>Choose folder for storage of BCF files</mat-label>
+          <input matInput formControlName="bcfFilesFolder" />
+        </mat-form-field>
+        <button
+          class="material-3"
+          mat-mini-fab
+          color="primary"
+          (click)="chooseFolderForStorageBCFFiles()"
+        >
+          <mat-icon>folder_open</mat-icon>
+        </button>
+      </div>
+      <div class="folder-container">
+        <mat-form-field class="dark-theme full-width">
+          <mat-label>Choose the Revit project file</mat-label>
+          <input matInput formControlName="revitFilePath" />
+        </mat-form-field>
+        <button
+          class="material-3"
+          mat-mini-fab
+          color="primary"
+          (click)="chooseRevitProjectFile()"
+        >
+          <mat-icon>folder_open</mat-icon>
+        </button>
+      </div>
     </div>
   </ng-container>
 

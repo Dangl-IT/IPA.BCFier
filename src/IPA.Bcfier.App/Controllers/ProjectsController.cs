@@ -1,13 +1,18 @@
 ﻿using Dangl.Data.Shared;
 using Dangl.Data.Shared.QueryUtilities;
+using ElectronNET.API.Entities;
+using ElectronNET.API;
 using IPA.Bcfier.App.Data;
 using IPA.Bcfier.App.Data.Models;
 using IPA.Bcfier.App.Models.Controllers.Projects;
+using IPA.Bcfier.App.Services;
 using LightQuery.Client;
 using LightQuery.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using Newtonsoft.Json;
+using IPA.Bcfier.Ipc;
 
 namespace IPA.Bcfier.App.Controllers
 {
@@ -16,10 +21,16 @@ namespace IPA.Bcfier.App.Controllers
     public class ProjectsController : ControllerBase
     {
         private readonly BcfierDbContext _context;
+        private readonly ElectronWindowProvider _electronWindowProvider;
+        private readonly IpcHandlerLifetimeService _ipcHandlerLifetimeService;
 
-        public ProjectsController(BcfierDbContext context)
+        public ProjectsController(BcfierDbContext context,
+            ElectronWindowProvider electronWindowProvider,
+            IpcHandlerLifetimeService ipcHandlerLifetimeService)
         {
             _context = context;
+            _electronWindowProvider = electronWindowProvider;
+            _ipcHandlerLifetimeService = ipcHandlerLifetimeService;
         }
 
         [AsyncLightQuery(forcePagination: true)]
@@ -47,6 +58,9 @@ namespace IPA.Bcfier.App.Controllers
             {
                 Id = p.Id,
                 Name = p.Name,
+                Number = p.Number,
+                BcfFilesFolder = p.BcfFilesFolder,
+                RevitFilePath = p.RevitFilePath,
                 RevitIdentifier = p.RevitIdentifer,
                 TeamsWebhook = p.TeamsWebhook,
                 CreatedAtUtc = p.CreatedAtUtc
@@ -60,6 +74,9 @@ namespace IPA.Bcfier.App.Controllers
             var project = new Project
             {
                 Name = model.Name,
+                Number = model.Number,
+                BcfFilesFolder = model.BcfFilesFolder,
+                RevitFilePath = model.RevitFilePath,
                 RevitIdentifer = model.RevitIdentifier ?? string.Empty,
                 TeamsWebhook = model.TeamsWebhook
             };
@@ -69,6 +86,9 @@ namespace IPA.Bcfier.App.Controllers
             {
                 Id = project.Id,
                 Name = project.Name,
+                Number = project.Number,
+                BcfFilesFolder = project.BcfFilesFolder,
+                RevitFilePath = project.RevitFilePath,
                 RevitIdentifier = project.RevitIdentifer,
                 TeamsWebhook = project.TeamsWebhook,
                 CreatedAtUtc = project.CreatedAtUtc
@@ -88,6 +108,9 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             dbProject.Name = model.Name;
+            dbProject.Number = model.Number;
+            dbProject.BcfFilesFolder = model.BcfFilesFolder;
+            dbProject.RevitFilePath = model.RevitFilePath;
             dbProject.RevitIdentifer = model.RevitIdentifier ?? string.Empty;
             dbProject.TeamsWebhook = model.TeamsWebhook;
 
@@ -96,6 +119,9 @@ namespace IPA.Bcfier.App.Controllers
             {
                 Id = dbProject.Id,
                 Name = dbProject.Name,
+                Number = dbProject.Number,
+                BcfFilesFolder = dbProject.BcfFilesFolder,
+                RevitFilePath = dbProject.RevitFilePath,
                 RevitIdentifier = dbProject.RevitIdentifer,
                 TeamsWebhook = dbProject.TeamsWebhook,
                 CreatedAtUtc = dbProject.CreatedAtUtc
@@ -122,6 +148,81 @@ namespace IPA.Bcfier.App.Controllers
 
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpGet("bcf-files-location")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ChoseBcfFilesFolderLocationAsync()
+        {
+            var electronWindow = _electronWindowProvider.BrowserWindow;
+            if (electronWindow == null)
+            {
+                return BadRequest();
+            }
+
+            var dialogOptions = new OpenDialogOptions
+            {
+                Title = "Select a folder",
+                Properties = new[] { OpenDialogProperty.openDirectory },
+                DefaultPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            var result = await Electron.Dialog.ShowOpenDialogAsync(electronWindow, dialogOptions);
+            if (result == null || result.Count() == 0)
+            {
+                return BadRequest();
+            }
+
+            return Ok(result[0]);
+        }
+
+        [HttpGet("revit-files-location")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ChoseRevitProjectFileLocationAsync()
+        {
+            var electronWindow = _electronWindowProvider.BrowserWindow;
+            if (electronWindow == null)
+            {
+                return BadRequest();
+            }
+
+            var dialogOptions = new OpenDialogOptions
+            {
+                Title = "Select a file",
+                Properties = new[] { OpenDialogProperty.openFile },
+                DefaultPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            var result = await Electron.Dialog.ShowOpenDialogAsync(electronWindow, dialogOptions);
+            if (result == null || result.Count() == 0)
+            {
+                return BadRequest();
+            }
+
+            return Ok(result[0]);
+        }
+
+        [HttpPost("refresh-project-data")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> RefreshProjectDataAsync()
+        {
+            try
+            {
+                var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
+                await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                {
+                    Command = IpcMessageCommand.RefreshProjectData
+                }));
+
+                return NoContent();
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
     }
 }

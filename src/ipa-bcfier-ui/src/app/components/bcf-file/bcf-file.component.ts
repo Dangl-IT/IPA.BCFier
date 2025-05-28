@@ -1,9 +1,18 @@
 import {
   BcfFile,
   BcfTopic,
+  ProjectGet,
+  ProjectsClient,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
-import { ChangeDetectorRef, Component, Input, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  TemplateRef,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { FormGroup, FormsModule } from '@angular/forms';
 import {
   IFilters,
@@ -18,6 +27,7 @@ import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
 import { CommonModule } from '@angular/common';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
@@ -33,7 +43,10 @@ import { NavisworksClashSelectionComponent } from '../navisworks-clash-selection
 import { NavisworksClashesLoadingService } from '../../services/navisworks-clashes-loading.service';
 import { NotificationsService } from '../../services/notifications.service';
 import { ProjectUsersService } from '../../services/project-users.service';
+import { ProjectsService } from '../../services/light-query/projects.service';
+import { ReviteProjectMessengerService } from '../../services/messengers/revite-project-messenger.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
+import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { TopicDetailComponent } from '../topic-detail/topic-detail.component';
 import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
@@ -68,6 +81,11 @@ import { take } from 'rxjs';
 })
 export class BcfFileComponent {
   @Input() bcfFile!: BcfFile;
+
+  @ViewChild('revitDialogContent', { static: true })
+  revitDialogContent!: TemplateRef<unknown>;
+
+  projectsService = inject(ProjectsService);
   issueStatuses$ = inject(IssueStatusesService).issueStatuses;
   issueTypes$ = inject(IssueTypesService).issueTypes;
   users$ = inject(ProjectUsersService).users;
@@ -88,6 +106,7 @@ export class BcfFileComponent {
     inject(AppConfigService).getFrontendConfig().isConnectedToNavisworks;
   viewpointsClient = inject(ViewpointsClient);
   navisworksClashesLoadingService = inject(NavisworksClashesLoadingService);
+  private reviteProjectMessengerService = inject(ReviteProjectMessengerService);
   notificationsService = inject(NotificationsService);
   private dialog = inject(MatDialog);
   readonly STATUS_COLOR_MAP: Record<string, string> = {
@@ -99,12 +118,28 @@ export class BcfFileComponent {
     approved: '#00ff00', // Green
     resolved: '#ffff00', // Yellow
   };
+  private projectsClient = inject(ProjectsClient);
+  private selectedProjectMessengerService = inject(
+    SelectedProjectMessengerService
+  );
+  selectedProject: ProjectGet | null = null;
+
   ngOnInit() {
     if (!this.bcfFile) return;
     this.selectedTopic = this.bcfFile.topics[0] || null;
     this.topicMessengerService.setSelectedTopic(this.selectedTopic);
     this.cdr.detectChanges();
     this.filteredTopics = [...this.bcfFile.topics];
+
+    //Here we get messages only if app is connected to Revit
+    this.reviteProjectMessengerService.revitProject.subscribe((project) => {
+      if (project) {
+        this.findRevitProjectInDatabase(
+          project.projectNumber,
+          project.filePath
+        );
+      }
+    });
   }
 
   private _search = '';
@@ -358,7 +393,10 @@ export class BcfFileComponent {
             return;
           }
 
-          const filteredList = this.filterPipe(this.filteredTopics, this.search);
+          const filteredList = this.filterPipe(
+            this.filteredTopics,
+            this.search
+          );
           filteredList.forEach((topic) => {
             if (bulkOptions.status) {
               topic.topicStatus = bulkOptions.status;
@@ -400,5 +438,61 @@ export class BcfFileComponent {
           this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
         }
       );
+  }
+
+  private findRevitProjectInDatabase(
+    projectNumber: string,
+    filePath: string
+  ): void {
+    this.projectsService.getAll().subscribe((projects) => {
+      if (projects?.length && projects.length > 0) {
+        let selectedProject =
+          projects.find(
+            (p) =>
+              p.number === projectNumber &&
+              p.revitFilePath === filePath &&
+              p.number?.length > 0
+          ) ||
+          projects.find((p) => p.revitFilePath === filePath) ||
+          projects.find(
+            (p) => p.number === projectNumber && p.number?.length > 0
+          );
+
+        if (
+          this.selectedProjectMessengerService.lastSelectedProjectId ===
+            selectedProject?.id ||
+          !selectedProject
+        ) {
+          // In that case, we don't want to show the dialog and just keep everything as-is
+          return;
+        }
+
+        this.selectedProject = selectedProject;
+        this.dialog
+          .open(ConfirmDialogComponent, {
+            autoFocus: false,
+            restoreFocus: false,
+            data: { contentTemplate: this.revitDialogContent },
+          })
+          .afterClosed()
+          .subscribe((confirm) => {
+            if (confirm) {
+              this.selectedProjectMessengerService.setSelectedProject(
+                this.selectedProject
+              );
+            } else {
+              this.selectedProject = null;
+              this.reviteProjectMessengerService.setRevitProject(
+                this.selectedProject
+              );
+            }
+          });
+      } else {
+        this.selectedProject = null;
+        this.reviteProjectMessengerService.setRevitProject(
+          this.selectedProject
+        );
+      }
+    });
   }
 }

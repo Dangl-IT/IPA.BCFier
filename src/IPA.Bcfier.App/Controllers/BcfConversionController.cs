@@ -28,7 +28,8 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BcfFileWrapper), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> ImportBcfFileAsync([FromQuery] string? filePath)
+        public async Task<IActionResult> ImportBcfFileAsync([FromQuery] string? filePath,
+            [FromQuery] string? defaultBcfSavePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -40,14 +41,15 @@ namespace IPA.Bcfier.App.Controllers
 
                 var fileSelectionResult = await Electron.Dialog.ShowOpenDialogAsync(electronWindow, new OpenDialogOptions
                 {
+                    DefaultPath = defaultBcfSavePath,
                     Filters = new[]
                     {
-                    new FileFilter
-                    {
-                        Name = "BCF File",
-                        Extensions = new string[] { "bcf", "bcfzip" }
+                        new FileFilter
+                        {
+                            Name = "BCF File",
+                            Extensions = new string[] { "bcf", "bcfzip" }
+                        }
                     }
-                }
                 });
 
                 if (fileSelectionResult == null || fileSelectionResult.Length == 0)
@@ -81,7 +83,8 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BcfFileWrapper), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ExportBcfFileAsync([FromBody] BcfFile bcfFile,
-            [FromQuery] Guid? projectId)
+            [FromQuery] Guid? projectId,
+            [FromQuery] string? defaultBcfSavePath)
         {
             var bcfFileResult = new BcfExportService().ExportBcfFile(bcfFile);
             if (bcfFileResult == null)
@@ -95,9 +98,15 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest();
             }
 
+            var defaultPath = bcfFile.FileName ?? "issue.bcf";
+            if (!string.IsNullOrWhiteSpace(defaultBcfSavePath))
+            {
+                defaultPath = Path.Combine(defaultBcfSavePath, defaultPath);
+            }
+
             var fileSaveSelectResult = await Electron.Dialog.ShowSaveDialogAsync(electronWindow, new SaveDialogOptions
             {
-                DefaultPath = bcfFile.FileName ?? "issue.bcf",
+                DefaultPath = defaultPath,
                 Filters = new []
                 {
                     new FileFilter

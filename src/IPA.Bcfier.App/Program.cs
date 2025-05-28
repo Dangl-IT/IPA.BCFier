@@ -67,6 +67,10 @@ namespace IPA.Bcfier.App
                         scope.ServiceProvider.GetRequiredService<RevitParameters>().RevitProjectPath = revitProjectPath;
                     }
 
+                    scope.ServiceProvider.GetRequiredService<IpcHandlerLifetimeService>()
+                        .StartAsync(scope.ServiceProvider.GetRequiredService<RevitParameters>(),
+                            scope.ServiceProvider.GetRequiredService<AppParameters>()).ConfigureAwait(false).GetAwaiter().GetResult();
+
                     try
                     {
                         var dbContext = scope.ServiceProvider.GetRequiredService<BcfierDbContext>();

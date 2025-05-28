@@ -28,6 +28,12 @@
 
         NavisworksClashIssuesCurrentCount = 12,
 
-        NavisworksClashIssuesCancellation = 13
+        NavisworksClashIssuesCancellation = 13,
+
+        RevitProjectLoaded = 14,
+
+        RevitProjectChanged = 15,
+
+        RefreshProjectData = 16
     }
 }
