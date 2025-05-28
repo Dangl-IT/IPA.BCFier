@@ -175,10 +175,10 @@ namespace IPA.Bcfier.App.Controllers
             return BadRequest();
         }
 
-        [HttpDelete("navisworks-clashes/{clashId}")]
+        [HttpDelete("navisworks-clashes")]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        public async Task<IActionResult> CancelNavisworksClashDetectionAsync(Guid clashId)
+        public async Task<IActionResult> CancelNavisworksClashDetectionAsync(List<Guid> clashIds)
         {
             if (!_navisworksParameters.IsConnectedToNavisworks)
             {
@@ -187,13 +187,16 @@ namespace IPA.Bcfier.App.Controllers
 
             var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
-            var correlationId = Guid.NewGuid();
-            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            foreach (var clashId in clashIds)
             {
-                CorrelationId = correlationId,
-                Command = IpcMessageCommand.NavisworksClashIssuesCancellation,
-                Data = JsonConvert.SerializeObject(clashId)
-            }));
+                var correlationId = Guid.NewGuid();
+                await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                {
+                    CorrelationId = correlationId,
+                    Command = IpcMessageCommand.NavisworksClashIssuesCancellation,
+                    Data = JsonConvert.SerializeObject(clashId)
+                }));
+            }
 
             return NoContent();
         }
@@ -208,7 +211,7 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest(new ApiError("The app is currently not connected to Navisworks"));
             }
 
-            if (model == null || model.ClashId == Guid.Empty)
+            if (model == null || model.ClashIds.Count == 0)
             {
                 return BadRequest(new ApiError("The model is invalid"));
             }
@@ -226,7 +229,10 @@ namespace IPA.Bcfier.App.Controllers
             using (var scope = _serviceProvider.CreateScope())
             {
                 var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<BcfierHub>>();
-                await hubContext.Clients.All.SendAsync("NavisworksClashIssuesCorrelationId", correlationId, model.ClashId);
+                foreach (var clashId in model.ClashIds)
+                {
+                    await hubContext.Clients.All.SendAsync("NavisworksClashIssuesCorrelationId", correlationId, clashId);
+                }
             }
 
             var hasReceived = false;

@@ -275,7 +275,7 @@ export class BcfFileComponent {
       .afterClosed()
       .subscribe(
         (selection?: {
-          clashId: string;
+          clashIds: string[];
           onlyImportNew: boolean;
           statusType: string | null;
         }) => {
@@ -304,7 +304,7 @@ export class BcfFileComponent {
             this.navisworksClashProgressMessengerService.cancelGeneration.subscribe(
               () => {
                 this.viewpointsClient
-                  .cancelNavisworksClashDetection(selection.clashId)
+                  .cancelNavisworksClashDetection(selection.clashIds)
                   .subscribe(() => {
                     /* Not doing anything with the response, that's handled later */
                   });
@@ -313,7 +313,7 @@ export class BcfFileComponent {
 
           this.viewpointsClient
             .createNavisworksClashDetectionResultIssues({
-              clashId: selection.clashId,
+              clashIds: selection.clashIds,
               excludedClashIds: existingIds,
               status: selection.statusType,
               shouldMoveBoundingBoxToCenterOfClash: true,

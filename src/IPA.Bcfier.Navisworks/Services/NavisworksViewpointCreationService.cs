@@ -231,7 +231,7 @@ namespace IPA.Bcfier.Navisworks.Services
             var testItems = tests
                 .OfType<ClashTest>()
                 .Where(t => t.Children.Count > 0
-                    && t.Guid == clashCreationData.ClashId)
+                    && clashCreationData.ClashIds.Contains(t.Guid))
                 .SelectMany(t => t.Children.Select(tt => new ClashTestWrapper
                 {
                     TestDisplayName = t.DisplayName,
