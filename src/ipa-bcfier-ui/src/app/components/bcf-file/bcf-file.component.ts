@@ -27,6 +27,7 @@ import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
 import { CommonModule } from '@angular/common';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
@@ -42,7 +43,9 @@ import { NavisworksClashSelectionComponent } from '../navisworks-clash-selection
 import { NavisworksClashesLoadingService } from '../../services/navisworks-clashes-loading.service';
 import { NotificationsService } from '../../services/notifications.service';
 import { ProjectUsersService } from '../../services/project-users.service';
+import { ReviteProjectMessengerService } from '../../services/messengers/revite-project-messenger.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
+import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { TopicDetailComponent } from '../topic-detail/topic-detail.component';
 import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
@@ -51,9 +54,6 @@ import { TopicPreviewImageDirective } from '../../directives/topic-preview-image
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
-import { ReviteProjectMessengerService } from '../../services/messengers/revite-project-messenger.service';
-import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -130,7 +130,7 @@ export class BcfFileComponent {
     this.filteredTopics = [...this.bcfFile.topics];
 
     //Here we get messages only if app is connected to Revit
-    this.reviteProjectMessengerService.reviteProject.subscribe((project) => {
+    this.reviteProjectMessengerService.revitProject.subscribe((project) => {
       if (project) {
         this.findRevitProjectInDatabase(project.filePath);
       }
@@ -388,7 +388,10 @@ export class BcfFileComponent {
             return;
           }
 
-          const filteredList = this.filterPipe(this.filteredTopics, this.search);
+          const filteredList = this.filterPipe(
+            this.filteredTopics,
+            this.search
+          );
           filteredList.forEach((topic) => {
             if (bulkOptions.status) {
               topic.topicStatus = bulkOptions.status;
@@ -450,14 +453,14 @@ export class BcfFileComponent {
               );
             } else {
               this.selectedProject = null;
-              this.reviteProjectMessengerService.setReviteProject(
+              this.reviteProjectMessengerService.setRevitProject(
                 this.selectedProject
               );
             }
           });
       } else {
         this.selectedProject = null;
-        this.reviteProjectMessengerService.setReviteProject(
+        this.reviteProjectMessengerService.setRevitProject(
           this.selectedProject
         );
       }

@@ -75,22 +75,24 @@ export class BcfierHubConnectorService {
       }
     );
 
-    this.connection.on(
-      'RevitProjectLoaded',
-      (projectData: { projectNumber: string; filePath: string }) => {
-        this.ngZone.run(() => {
-          this.reviteProjectMessengerService.setReviteProject(projectData);
-        });
-      }
-    );
+    this.connection.on('RevitProjectLoaded', (projectDataRaw: string) => {
+      this.ngZone.run(() => {
+        const projectData = JSON.parse(projectDataRaw) as {
+          projectNumber: string;
+          filePath: string;
+        };
+        this.reviteProjectMessengerService.setRevitProject(projectData);
+      });
+    });
 
-    this.connection.on(
-      'RevitProjectChanged',
-      (projectData: { projectNumber: string; filePath: string }) => {
-        this.ngZone.run(() => {
-          this.reviteProjectMessengerService.setReviteProject(projectData);
-        });
-      }
-    );
+    this.connection.on('RevitProjectChanged', (projectDataRaw: string) => {
+      this.ngZone.run(() => {
+        const projectData = JSON.parse(projectDataRaw) as {
+          projectNumber: string;
+          filePath: string;
+        };
+        this.reviteProjectMessengerService.setRevitProject(projectData);
+      });
+    });
   }
 }
