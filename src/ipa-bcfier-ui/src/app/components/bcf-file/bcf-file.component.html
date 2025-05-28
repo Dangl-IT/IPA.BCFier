@@ -95,7 +95,10 @@
                   topic.creationDate | date : "dd.MM.yyyy"
                 }}</mat-card-subtitle>
 
-                <img mat-card-md-image [bcfierTopicPreviewImage]="topic.viewpoints" />
+                <img
+                  mat-card-md-image
+                  [bcfierTopicPreviewImage]="topic.viewpoints"
+                />
               </mat-card-title-group>
             </mat-card-header>
             <mat-card-content>
@@ -124,8 +127,7 @@
 
 <ng-template #revitDialogContent>
   <div>
-    Please select a <strong>Revit project</strong>
-    {{ selectedProject?.name }}
-    if you want to start working with it?
+    Do you want to select <strong>{{ selectedProject?.name }}</strong> as the
+    active project?
   </div>
 </ng-template>

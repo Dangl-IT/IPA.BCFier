@@ -43,6 +43,7 @@ import { NavisworksClashSelectionComponent } from '../navisworks-clash-selection
 import { NavisworksClashesLoadingService } from '../../services/navisworks-clashes-loading.service';
 import { NotificationsService } from '../../services/notifications.service';
 import { ProjectUsersService } from '../../services/project-users.service';
+import { ProjectsService } from '../../services/light-query/projects.service';
 import { ReviteProjectMessengerService } from '../../services/messengers/revite-project-messenger.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
@@ -84,6 +85,7 @@ export class BcfFileComponent {
   @ViewChild('revitDialogContent', { static: true })
   revitDialogContent!: TemplateRef<unknown>;
 
+  projectsService = inject(ProjectsService);
   issueStatuses$ = inject(IssueStatusesService).issueStatuses;
   issueTypes$ = inject(IssueTypesService).issueTypes;
   users$ = inject(ProjectUsersService).users;
@@ -132,7 +134,10 @@ export class BcfFileComponent {
     //Here we get messages only if app is connected to Revit
     this.reviteProjectMessengerService.revitProject.subscribe((project) => {
       if (project) {
-        this.findRevitProjectInDatabase(project.filePath);
+        this.findRevitProjectInDatabase(
+          project.projectNumber,
+          project.filePath
+        );
       }
     });
   }
@@ -435,10 +440,26 @@ export class BcfFileComponent {
       );
   }
 
-  findRevitProjectInDatabase(filePath: string): void {
-    this.projectsClient.getAllProjects(null, filePath).subscribe((projects) => {
-      if (projects?.data?.length && projects.data.length > 0) {
-        this.selectedProject = projects.data[0];
+  private findRevitProjectInDatabase(
+    projectNumber: string,
+    filePath: string
+  ): void {
+    this.projectsService.getAll().subscribe((projects) => {
+      if (projects?.length && projects.length > 0) {
+        let selectedProject =
+          projects.find(
+            (p) =>
+              p.number === projectNumber &&
+              p.revitFilePath === filePath &&
+              p.number?.length > 0
+          ) ||
+          projects.find((p) => p.revitFilePath === filePath) ||
+          projects.find(
+            (p) => p.number === projectNumber && p.number?.length > 0
+          ) ||
+          projects[0];
+
+        this.selectedProject = selectedProject;
         this.dialog
           .open(ConfirmDialogComponent, {
             autoFocus: false,

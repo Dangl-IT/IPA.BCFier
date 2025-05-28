@@ -73,15 +73,7 @@ namespace IPA.Bcfier.Revit
                                 break;
 
                             case IpcMessageCommand.RefreshProjectData:
-                                await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
-                                {
-                                    Command = IpcMessageCommand.RevitProjectChanged,
-                                    Data = JsonConvert.SerializeObject(new ProjectData
-                                    {
-                                        ProjectNumber = _commandData.Application.ActiveUIDocument.Document.ProjectInformation.Number,
-                                        FilePath = _commandData.Application.ActiveUIDocument.Document.PathName
-                                    })
-                                }));
+                                await SendRevitProjectDataToUiAsync();
                                 break;
 
                             default:
@@ -105,6 +97,19 @@ namespace IPA.Bcfier.Revit
                 _revitTaskQueueHandler.UnregisterEventHandler();
                 _ipcHandler.Dispose();
             });
+        }
+
+        private Task SendRevitProjectDataToUiAsync()
+        {
+            return _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            {
+                Command = IpcMessageCommand.RevitProjectChanged,
+                Data = JsonConvert.SerializeObject(new ProjectData
+                {
+                    ProjectNumber = _commandData.Application.ActiveUIDocument.Document.ProjectInformation.Number,
+                    FilePath = _commandData.Application.ActiveUIDocument.Document.PathName
+                })
+            }));
         }
 
         public void Stop()
