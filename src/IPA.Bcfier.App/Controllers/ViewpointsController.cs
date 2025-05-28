@@ -21,16 +21,19 @@ namespace IPA.Bcfier.App.Controllers
         private readonly NavisworksParameters _navisworksParameters;
         private readonly AppParameters _appParameters;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IpcHandlerLifetimeService _ipcHandlerLifetimeService;
 
         public ViewpointsController(RevitParameters revitParameters,
             NavisworksParameters navisworksParameters,
             AppParameters appParameters,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IpcHandlerLifetimeService ipcHandlerLifetimeService)
         {
             _revitParameters = revitParameters;
             _navisworksParameters = navisworksParameters;
             _appParameters = appParameters;
             _serviceProvider = serviceProvider;
+            _ipcHandlerLifetimeService = ipcHandlerLifetimeService;
         }
 
         [HttpPost("visualization")]
@@ -38,8 +41,7 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ShowViewpointAsync([FromBody] BcfViewpoint viewpoint, [FromQuery]bool viewpointOriginatesFromRevit)
         {
-            using var ipcHandler = GetIpcHandler();
-            await ipcHandler.InitializeAsync();
+            var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
             var correlationId = Guid.NewGuid();
             await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
@@ -88,8 +90,7 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType(typeof(BcfViewpoint), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateViewpointAsync()
         {
-            using var ipcHandler = GetIpcHandler();
-            await ipcHandler.InitializeAsync();
+            var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
             var correlationId = Guid.NewGuid();
             await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
@@ -140,8 +141,7 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest(new ApiError("The app is currently not connected to Navisworks"));
             }
 
-            using var ipcHandler = GetIpcHandler();
-            await ipcHandler.InitializeAsync();
+            var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
             var correlationId = Guid.NewGuid();
             await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
@@ -185,8 +185,7 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest(new ApiError("The app is currently not connected to Navisworks"));
             }
 
-            using var ipcHandler = GetIpcHandler();
-            await ipcHandler.InitializeAsync();
+            var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
             var correlationId = Guid.NewGuid();
             await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
@@ -214,8 +213,7 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest(new ApiError("The model is invalid"));
             }
 
-            using var ipcHandler = GetIpcHandler();
-            await ipcHandler.InitializeAsync();
+            var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
             var correlationId = Guid.NewGuid();
             await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
@@ -274,17 +272,6 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             return BadRequest();
-        }
-
-        private IpcHandler GetIpcHandler()
-        {
-            if (_revitParameters.IsConnectedToRevit)
-            {
-                return new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit", _appParameters.ApplicationId);
-            }
-
-            // We're assuming it's Navisworks then, since we don't have another possibility at the moment
-            return new IpcHandler(thisAppName: "BcfierAppNavisworks", otherAppName: "Navisworks", _appParameters.ApplicationId);
         }
     }
 }

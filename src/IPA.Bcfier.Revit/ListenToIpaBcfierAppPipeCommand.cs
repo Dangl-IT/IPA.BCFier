@@ -53,16 +53,6 @@ namespace IPA.Bcfier.Revit
                 }
             };
 
-            ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
-            {
-                Command = IpcMessageCommand.RevitProjectLoaded,
-                Data = JsonConvert.SerializeObject(new ProjectData
-                {
-                    ProjectNumber = commandData.Application.ActiveUIDocument.Document.ProjectInformation.Number,
-                    FilePath = commandData.Application.ActiveUIDocument.Document.PathName
-                })
-            })).ConfigureAwait(true).GetAwaiter().GetResult();
-
             return Result.Succeeded;
         }
 

@@ -67,6 +67,7 @@ namespace IPA.Bcfier.App.Services
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _isListening = true;
+            _serviceProvider.GetRequiredService<IpcHandlerLifetimeService>().Stop();
             return Task.CompletedTask;
         }
     }

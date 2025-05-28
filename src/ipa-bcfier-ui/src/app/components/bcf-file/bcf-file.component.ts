@@ -456,8 +456,16 @@ export class BcfFileComponent {
           projects.find((p) => p.revitFilePath === filePath) ||
           projects.find(
             (p) => p.number === projectNumber && p.number?.length > 0
-          ) ||
-          projects[0];
+          );
+
+        if (
+          this.selectedProjectMessengerService.lastSelectedProjectId ===
+            selectedProject?.id ||
+          !selectedProject
+        ) {
+          // In that case, we don't want to show the dialog and just keep everything as-is
+          return;
+        }
 
         this.selectedProject = selectedProject;
         this.dialog

@@ -15,7 +15,6 @@ import {
   PageEvent,
 } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
 import {
   ProjectGet,
   ProjectPost,
@@ -43,6 +42,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
 import { NotificationsService } from '../../services/notifications.service';
 import { PaginationResult } from 'ng-lightquery';
 import { ProjectDetailsComponent } from '../project-details/project-details.component';
@@ -262,6 +262,8 @@ export class ProjectsTableComponent
 
   refresh(): void {
     this.projectsService.forceRefresh();
+    this.projectsClient.refreshProjectData().subscribe((p) => {});
+    this.cdr.markForCheck();
   }
 
   onPage(pageEvent: PageEvent): void {

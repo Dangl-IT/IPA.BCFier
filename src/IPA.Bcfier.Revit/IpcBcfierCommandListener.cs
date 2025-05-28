@@ -29,6 +29,8 @@ namespace IPA.Bcfier.Revit
         {
             Task.Run(async () =>
             {
+                await SendRevitProjectDataToUiAsync();
+
                 while (_isRunning)
                 {
                     if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
