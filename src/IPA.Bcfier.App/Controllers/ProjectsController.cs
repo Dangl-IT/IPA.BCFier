@@ -60,7 +60,8 @@ namespace IPA.Bcfier.App.Controllers
                 Id = p.Id,
                 Name = p.Name,
                 Number = p.Number,
-                FilePath = p.FilePath,
+                BcfFilesFolder = p.BcfFilesFolder,
+                RevitFilePath = p.RevitFilePath,
                 RevitIdentifier = p.RevitIdentifer,
                 TeamsWebhook = p.TeamsWebhook,
                 CreatedAtUtc = p.CreatedAtUtc
@@ -75,7 +76,8 @@ namespace IPA.Bcfier.App.Controllers
             {
                 Name = model.Name,
                 Number = model.Number,
-                FilePath = model.FilePath,
+                BcfFilesFolder = model.BcfFilesFolder,
+                RevitFilePath = model.RevitFilePath,
                 RevitIdentifer = model.RevitIdentifier ?? string.Empty,
                 TeamsWebhook = model.TeamsWebhook
             };
@@ -86,7 +88,8 @@ namespace IPA.Bcfier.App.Controllers
                 Id = project.Id,
                 Name = project.Name,
                 Number = project.Number,
-                FilePath = project.FilePath,
+                BcfFilesFolder = project.BcfFilesFolder,
+                RevitFilePath = project.RevitFilePath,
                 RevitIdentifier = project.RevitIdentifer,
                 TeamsWebhook = project.TeamsWebhook,
                 CreatedAtUtc = project.CreatedAtUtc
@@ -107,7 +110,8 @@ namespace IPA.Bcfier.App.Controllers
 
             dbProject.Name = model.Name;
             dbProject.Number = model.Number;
-            dbProject.FilePath = model.FilePath;
+            dbProject.BcfFilesFolder = model.BcfFilesFolder;
+            dbProject.RevitFilePath = model.RevitFilePath;
             dbProject.RevitIdentifer = model.RevitIdentifier ?? string.Empty;
             dbProject.TeamsWebhook = model.TeamsWebhook;
 
@@ -117,7 +121,8 @@ namespace IPA.Bcfier.App.Controllers
                 Id = dbProject.Id,
                 Name = dbProject.Name,
                 Number = dbProject.Number,
-                FilePath = dbProject.FilePath,
+                BcfFilesFolder = dbProject.BcfFilesFolder,
+                RevitFilePath = dbProject.RevitFilePath,
                 RevitIdentifier = dbProject.RevitIdentifer,
                 TeamsWebhook = dbProject.TeamsWebhook,
                 CreatedAtUtc = dbProject.CreatedAtUtc
@@ -146,10 +151,10 @@ namespace IPA.Bcfier.App.Controllers
             return NoContent();
         }
 
-        [HttpGet("project-location")]
+        [HttpGet("bcf-files-location")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ChoseProjectLocationAsync()
+        public async Task<IActionResult> ChoseBcfFilesFolderLocationAsync()
         {
             var electronWindow = _electronWindowProvider.BrowserWindow;
             if (electronWindow == null)
@@ -161,6 +166,33 @@ namespace IPA.Bcfier.App.Controllers
             {
                 Title = "Select a folder",
                 Properties = new[] { OpenDialogProperty.openDirectory },
+                DefaultPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            var result = await Electron.Dialog.ShowOpenDialogAsync(electronWindow, dialogOptions);
+            if (result == null || result.Count() == 0)
+            {
+                return BadRequest();
+            }
+
+            return Ok(result[0]);
+        }
+
+        [HttpGet("revit-files-location")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ChoseRevitProjectFileLocationAsync()
+        {
+            var electronWindow = _electronWindowProvider.BrowserWindow;
+            if (electronWindow == null)
+            {
+                return BadRequest();
+            }
+
+            var dialogOptions = new OpenDialogOptions
+            {
+                Title = "Select a file",
+                Properties = new[] { OpenDialogProperty.openFile },
                 DefaultPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
             };
 

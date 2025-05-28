@@ -65,7 +65,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     name: ['', Validators.required],
     number: [''],
     teamsWebhook: [''],
-    filePath: [{ value: '', disabled: true }],
+    bcfFilesFolder: [{ value: '', disabled: true }],
+    revitFilePath: [{ value: '', disabled: true }],
   });
   panelOpenState = false;
   identifier = '';
@@ -90,7 +91,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         name: this.data.name,
         teamsWebhook: this.data?.teamsWebhook,
         number: this.data?.number,
-        filePath: this.data?.filePath,
+        bcfFilesFolder: this.data?.bcfFilesFolder,
+        revitFilePath: this.data?.revitFilePath,
       });
       this.users$ = this.getProjectUsers(this.data.id);
     }
@@ -174,8 +176,14 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   }
 
   chooseFolderForStorageBCFFiles(): void {
-    this.projectsClient.choseProjectLocation().subscribe((path) => {
-      this.projectDetailsForm.get('filePath')?.patchValue(path);
+    this.projectsClient.choseBcfFilesFolderLocation().subscribe((path) => {
+      this.projectDetailsForm.get('bcfFilesFolder')?.patchValue(path);
+    });
+  }
+
+  chooseRevitProjectFile(): void {
+    this.projectsClient.choseRevitProjectFileLocation().subscribe((path) => {
+      this.projectDetailsForm.get('revitFilePath')?.patchValue(path);
     });
   }
 }

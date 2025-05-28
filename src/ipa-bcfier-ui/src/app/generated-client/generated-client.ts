@@ -641,7 +641,8 @@ export interface IProjectsClient {
     createProject(model: ProjectPost): Observable<ProjectGet>;
     editProject(projectId: string, model: ProjectPut): Observable<ProjectGet>;
     deleteProject(projectId: string): Observable<void>;
-    choseProjectLocation(): Observable<string>;
+    choseBcfFilesFolderLocation(): Observable<string>;
+    choseRevitProjectFileLocation(): Observable<string>;
     refreshProjectData(): Observable<void>;
 }
 
@@ -873,8 +874,8 @@ export class ProjectsClient implements IProjectsClient {
         return _observableOf(null as any);
     }
 
-    choseProjectLocation(): Observable<string> {
-        let url_ = this.baseUrl + "/api/projects/project-location";
+    choseBcfFilesFolderLocation(): Observable<string> {
+        let url_ = this.baseUrl + "/api/projects/bcf-files-location";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -886,11 +887,11 @@ export class ProjectsClient implements IProjectsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processChoseProjectLocation(response_);
+            return this.processChoseBcfFilesFolderLocation(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processChoseProjectLocation(response_ as any);
+                    return this.processChoseBcfFilesFolderLocation(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<string>;
                 }
@@ -899,7 +900,60 @@ export class ProjectsClient implements IProjectsClient {
         }));
     }
 
-    protected processChoseProjectLocation(response: HttpResponseBase): Observable<string> {
+    protected processChoseBcfFilesFolderLocation(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string;
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            result400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ApiError;
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    choseRevitProjectFileLocation(): Observable<string> {
+        let url_ = this.baseUrl + "/api/projects/revit-files-location";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processChoseRevitProjectFileLocation(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processChoseRevitProjectFileLocation(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processChoseRevitProjectFileLocation(response: HttpResponseBase): Observable<string> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2215,7 +2269,8 @@ export interface ProjectGet {
     id: string;
     name: string;
     number?: string;
-    filePath?: string;
+    bcfFilesFolder?: string;
+    revitFilePath?: string;
     createdAtUtc: Date;
     revitIdentifier?: string | null;
     teamsWebhook?: string | null;
@@ -2224,7 +2279,8 @@ export interface ProjectGet {
 export interface ProjectPost {
     name: string;
     number?: string;
-    filePath?: string;
+    bcfFilesFolder?: string;
+    revitFilePath?: string;
     revitIdentifier?: string | null;
     teamsWebhook?: string | null;
 }
@@ -2233,7 +2289,8 @@ export interface ProjectPut {
     id: string;
     name: string;
     number?: string;
-    filePath?: string;
+    bcfFilesFolder?: string;
+    revitFilePath?: string;
     revitIdentifier?: string | null;
     teamsWebhook?: string | null;
 }

@@ -8,7 +8,9 @@
 
         public string Number { get; set; } = string.Empty;
 
-        public string FilePath { get; set; } = string.Empty;
+        public string BcfFilesFolder { get; set; } = string.Empty;
+
+        public string RevitFilePath { get; set; } = string.Empty;
 
         public string RevitIdentifer { get; set; } = string.Empty;
 
