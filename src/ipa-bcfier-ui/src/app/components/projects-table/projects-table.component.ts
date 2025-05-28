@@ -86,7 +86,7 @@ export class ProjectsTableComponent
   appConfigService = inject(AppConfigService);
 
   private destroyed$ = new Subject<void>();
-  displayedColumns = ['name', 'createdAtUtc', 'actions'];
+  displayedColumns = ['name', 'number', 'createdAtUtc', 'actions'];
   filter = '';
   selectedProject: ProjectGet | null = null;
   shouldEnableProjectManagement =
