@@ -179,7 +179,7 @@ namespace IPA.Bcfier.App.Controllers
         [HttpGet("element-names-list")]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(List<IfcGuidNamePair>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetElementNamesListAsync(List<string> ifcGuids)
+        public async Task<IActionResult> GetElementNamesListAsync([FromQuery]List<string> ifcGuids)
         {
             if (ifcGuids == null || ifcGuids.Count == 0)
             {

@@ -13,6 +13,7 @@ import {
 import { BackendService } from '../../services/BackendService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { CommonModule } from '@angular/common';
+import { ElementsViewpointComponent } from '../elements-viewpoint/elements-viewpoint.component';
 import { FormsModule } from '@angular/forms';
 import { ImagePreviewComponent } from '../image-preview/image-preview.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,13 +21,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from '../../services/notifications.service';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { ViewpointImageDirective } from '../../directives/viewpoint-image.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
-import { ElementsViewpointComponent } from '../elements-viewpoint/elements-viewpoint.component';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'bcfier-comments-detail',
@@ -154,13 +154,25 @@ export class CommentsDetailComponent implements OnInit {
   }
 
   getListElement(viewpoint: BcfViewpoint): void {
-    this.backendService.getElementNamesList(viewpoint).subscribe({
-      next: (list: IfcGuidNamePair[]) => {
-        this.viewpointElements = list;
-      },
-      error: () => {
-        this.notificationsService.error('Error fetching list of elements');
-      },
-    });
+    var selectedComponentIfcGuids =
+      viewpoint?.viewpointComponents?.selectedComponents
+        ?.map((c) => c.ifcGuid)
+        .filter((c) => !!c) as string[];
+
+    if (selectedComponentIfcGuids.length === 0) {
+      this.viewpointElements = [];
+      return;
+    }
+
+    this.backendService
+      .getElementNamesList(selectedComponentIfcGuids)
+      .subscribe({
+        next: (list: IfcGuidNamePair[]) => {
+          this.viewpointElements = list;
+        },
+        error: () => {
+          this.notificationsService.error('Error fetching list of elements');
+        },
+      });
   }
 }

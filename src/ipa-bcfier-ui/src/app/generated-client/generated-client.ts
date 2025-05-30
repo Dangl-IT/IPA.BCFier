@@ -1797,7 +1797,7 @@ export interface IViewpointsClient {
     getAvailableNavisworksClashes(): Observable<NavisworksClashSelection[]>;
     cancelNavisworksClashDetection(clashIds: string[]): Observable<void>;
     createNavisworksClashDetectionResultIssues(model: NavisworksClashCreationData): Observable<BcfTopic[]>;
-    getElementNamesList(ifcGuids: string[]): Observable<IfcGuidNamePair[]>;
+    getElementNamesList(ifcGuids: string[] | undefined): Observable<IfcGuidNamePair[]>;
     selectElement(ifcGuid: string | undefined): Observable<void>;
 }
 
@@ -2089,18 +2089,18 @@ export class ViewpointsClient implements IViewpointsClient {
         return _observableOf(null as any);
     }
 
-    getElementNamesList(ifcGuids: string[]): Observable<IfcGuidNamePair[]> {
-        let url_ = this.baseUrl + "/api/viewpoints/element-names-list";
+    getElementNamesList(ifcGuids: string[] | undefined): Observable<IfcGuidNamePair[]> {
+        let url_ = this.baseUrl + "/api/viewpoints/element-names-list?";
+        if (ifcGuids === null)
+            throw new Error("The parameter 'ifcGuids' cannot be null.");
+        else if (ifcGuids !== undefined)
+            ifcGuids && ifcGuids.forEach(item => { url_ += "ifcGuids=" + encodeURIComponent("" + item) + "&"; });
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(ifcGuids);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };

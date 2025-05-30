@@ -4,8 +4,8 @@ import {
   BcfViewpoint,
   BcfViewpointComponent,
   DocumentationClient,
-  ProjectGet,
   IfcGuidNamePair,
+  ProjectGet,
   Settings,
   SettingsClient,
   ViewpointsClient,
@@ -133,11 +133,8 @@ export class BackendService {
     }
   }
 
-  getElementNamesList(viewpoint: BcfViewpoint): Observable<IfcGuidNamePair[]> {
-    const ifcGuidList = viewpoint.viewpointComponents.visibility.exceptions.map(
-      (item: BcfViewpointComponent) => item.ifcGuid
-    );
-    return this.viewpointsClient.getElementNamesList(ifcGuidList);
+  getElementNamesList(ifcGuidsList: string[]): Observable<IfcGuidNamePair[]> {
+    return this.viewpointsClient.getElementNamesList(ifcGuidsList);
   }
 
   selectElement(value: IfcGuidNamePair): Observable<void> {
