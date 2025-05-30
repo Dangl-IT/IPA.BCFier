@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input,Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { IfcGuidNamePair } from '../../generated-client/generated-client';
 
@@ -6,7 +7,7 @@ import { IfcGuidNamePair } from '../../generated-client/generated-client';
   selector: 'bcfier-elements-viewpoint',
   imports: [CommonModule],
   templateUrl: './elements-viewpoint.component.html',
-  styleUrl: './elements-viewpoint.component.scss',
+  styleUrls: ['./elements-viewpoint.component.scss'],
 })
 export class ElementsViewpointComponent {
   @Input() viewpointElements: IfcGuidNamePair[] = [];
