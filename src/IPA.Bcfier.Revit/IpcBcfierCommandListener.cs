@@ -1,5 +1,9 @@
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 using IPA.Bcfier.Ipc;
 using IPA.Bcfier.Models.Ipc;
+using IPA.Bcfier.Models.Projects;
+using IPA.Bcfier.Models.Viewpoints;
 using Newtonsoft.Json;
 
 namespace IPA.Bcfier.Revit
@@ -9,7 +13,6 @@ namespace IPA.Bcfier.Revit
         private readonly IpcHandler _ipcHandler;
         private readonly RevitTaskQueueHandler _revitTaskQueueHandler;
         private readonly Guid _appCorrelationId;
-        private readonly UIDocument _uiDocument;
         private bool _isRunning = true;
         private readonly ExternalCommandData _commandData;
 
@@ -78,59 +81,11 @@ namespace IPA.Bcfier.Revit
                                 break;
 
                             case IpcMessageCommand.GetElementNamesList:
-                                var ifcGuidNamePairList = new List<IfcGuidNamePair>();
-                                var ifcGuids = JsonConvert.DeserializeObject<List<string>>(ipcMessage.Data!)!;
-                                var collectorGetElementNamesList = new FilteredElementCollector(_uiDocument.Document).WhereElementIsNotElementType();
-                                foreach (var ifcGuid in ifcGuids)
-                                {
-                                    var name = ifcGuid;
-
-                                    foreach (var element in collectorGetElementNamesList)
-                                    {
-                                        var ifcGuidParam = element.LookupParameter("IfcGUID");
-                                        if (ifcGuidParam != null && ifcGuidParam.AsString() == ifcGuid)
-                                        {
-                                            name = element.Name;
-                                            break;
-                                        }
-                                    }
-
-                                    ifcGuidNamePairList.Add(new IfcGuidNamePair
-                                    {
-                                        IfcGuid = ifcGuid,
-                                        Name = name
-                                    });
-                                }
-
-                                await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
-                                {
-                                    CorrelationId = ipcMessage.CorrelationId,
-                                    Command = IpcMessageCommand.ReturnElementNamesList,
-                                    Data = JsonConvert.SerializeObject(ifcGuidNamePairList)
-                                }));
+                                await HandleGetElementNamesListAsync(ipcMessage);
                                 break;
 
                             case IpcMessageCommand.SelectElement:
-                                var isSuccess = false;
-                                var collectorSelectElement = new FilteredElementCollector(_uiDocument.Document).WhereElementIsNotElementType();
-                                foreach (var element in collectorSelectElement)
-                                {
-                                    var ifcGuidParam = element.LookupParameter("IfcGUID");
-                                    if (ifcGuidParam != null && ifcGuidParam.AsString() == ipcMessage.Data)
-                                    {
-                                        _uiDocument.Selection.SetElementIds(new List<ElementId> { element.Id });
-                                        _uiDocument.ShowElements(new List<ElementId> { element.Id });
-                                        isSuccess = true;
-                                        break;
-                                    }
-                                }
-
-                                await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
-                                {
-                                    CorrelationId = ipcMessage.CorrelationId,
-                                    Command = IpcMessageCommand.SelectElementResult,
-                                    Data = isSuccess.ToString()
-                                }));
+                                await HandleSelectElementAsync(ipcMessage);
                                 break;
 
                             default:
@@ -154,6 +109,66 @@ namespace IPA.Bcfier.Revit
                 _revitTaskQueueHandler.UnregisterEventHandler();
                 _ipcHandler.Dispose();
             });
+        }
+
+        private async Task HandleGetElementNamesListAsync(IpcMessage ipcMessage)
+        {
+            var ifcGuidNamePairList = new List<IfcGuidNamePair>();
+            var ifcGuids = JsonConvert.DeserializeObject<List<string>>(ipcMessage.Data!)!;
+            var uiDocument = _commandData.Application.ActiveUIDocument;
+            var collectorGetElementNamesList = new FilteredElementCollector(uiDocument.Document).WhereElementIsNotElementType();
+            foreach (var ifcGuid in ifcGuids)
+            {
+                var name = ifcGuid;
+
+                foreach (var element in collectorGetElementNamesList)
+                {
+                    var ifcGuidParam = element.LookupParameter("IfcGUID");
+                    if (ifcGuidParam != null && ifcGuidParam.AsString() == ifcGuid)
+                    {
+                        name = element.Name;
+                        break;
+                    }
+                }
+
+                ifcGuidNamePairList.Add(new IfcGuidNamePair
+                {
+                    IfcGuid = ifcGuid,
+                    Name = name
+                });
+            }
+
+            await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            {
+                CorrelationId = ipcMessage.CorrelationId,
+                Command = IpcMessageCommand.ReturnElementNamesList,
+                Data = JsonConvert.SerializeObject(ifcGuidNamePairList)
+            }));
+        }
+
+        private async Task HandleSelectElementAsync(IpcMessage ipcMessage)
+        {
+            var isSuccess = false;
+            var uiDocument = _commandData.Application.ActiveUIDocument;
+            var collectorSelectElement = new FilteredElementCollector(uiDocument.Document).WhereElementIsNotElementType();
+            foreach (var element in collectorSelectElement)
+            {
+                var ifcGuidParam = element.LookupParameter("IfcGUID");
+                if (ifcGuidParam != null && ifcGuidParam.AsString() == ipcMessage.Data)
+                {
+                    uiDocument.Selection.SetElementIds(new List<ElementId> { element.Id });
+                    uiDocument.ShowElements(new List<ElementId> { element.Id });
+                    isSuccess = true;
+                    break;
+                }
+            }
+
+            await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            {
+                CorrelationId = ipcMessage.CorrelationId,
+                Command = IpcMessageCommand.SelectElementResult,
+                Data = isSuccess.ToString()
+            }));
         }
 
         private Task SendRevitProjectDataToUiAsync()

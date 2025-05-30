@@ -191,8 +191,7 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest(new ApiError("The app is currently not connected to Revit or Navisworks"));
             }
 
-            using var ipcHandler = GetIpcHandler();
-            await ipcHandler.InitializeAsync();
+            var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
             var correlationId = Guid.NewGuid();
             await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
@@ -242,8 +241,7 @@ namespace IPA.Bcfier.App.Controllers
                 return BadRequest(new ApiError("The app is currently not connected to Revit or Navisworks"));
             }
 
-            using var ipcHandler = GetIpcHandler();
-            await ipcHandler.InitializeAsync();
+            var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
             var correlationId = Guid.NewGuid();
             await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage

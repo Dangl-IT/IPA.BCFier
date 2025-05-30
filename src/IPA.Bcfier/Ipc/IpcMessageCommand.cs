@@ -34,7 +34,7 @@ namespace IPA.Bcfier.Ipc
 
         RevitProjectChanged = 15,
 
-        RefreshProjectData = 16
+        RefreshProjectData = 16,
 
         GetElementNamesList = 17,
 
