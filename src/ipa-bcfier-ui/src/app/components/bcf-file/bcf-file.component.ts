@@ -1,9 +1,9 @@
 import {
   BcfFile,
   BcfTopic,
+  NavisworksClashGroupingData,
   ProjectGet,
   ProjectsClient,
-  NavisworksClashGroupingData,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
 import {
@@ -23,10 +23,12 @@ import {
   MessageType,
   TeamsMessengerService,
 } from '../../services/teams-messenger.service';
+import { of, switchMap, take } from 'rxjs';
 
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
+import { ClashGroupingOptionsComponent } from '../clash-grouping-options/clash-grouping-options.component';
 import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { IssueFilterService } from '../../services/issue-filter.service';
@@ -45,7 +47,7 @@ import { NavisworksClashesLoadingService } from '../../services/navisworks-clash
 import { NotificationsService } from '../../services/notifications.service';
 import { ProjectUsersService } from '../../services/project-users.service';
 import { ProjectsService } from '../../services/light-query/projects.service';
-import { ReviteProjectMessengerService } from '../../services/messengers/revite-project-messenger.service';
+import { RevitProjectMessengerService } from '../../services/messengers/revit-project-messenger.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
@@ -55,8 +57,6 @@ import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
-import { of, switchMap, take } from 'rxjs';
-import { ClashGroupingOptionsComponent } from '../clash-grouping-options/clash-grouping-options.component';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -109,7 +109,7 @@ export class BcfFileComponent {
     inject(AppConfigService).getFrontendConfig().isConnectedToNavisworks;
   viewpointsClient = inject(ViewpointsClient);
   navisworksClashesLoadingService = inject(NavisworksClashesLoadingService);
-  private reviteProjectMessengerService = inject(ReviteProjectMessengerService);
+  private revitProjectMessengerService = inject(RevitProjectMessengerService);
   notificationsService = inject(NotificationsService);
   private dialog = inject(MatDialog);
   readonly STATUS_COLOR_MAP: Record<string, string> = {
@@ -134,7 +134,7 @@ export class BcfFileComponent {
     this.filteredTopics = [...this.bcfFile.topics];
 
     //Here we get messages only if app is connected to Revit
-    this.reviteProjectMessengerService.revitProject.subscribe((project) => {
+    this.revitProjectMessengerService.revitProject.subscribe((project) => {
       if (project) {
         this.findRevitProjectInDatabase(
           project.projectNumber,
@@ -495,16 +495,14 @@ export class BcfFileComponent {
               );
             } else {
               this.selectedProject = null;
-              this.reviteProjectMessengerService.setRevitProject(
+              this.revitProjectMessengerService.setRevitProject(
                 this.selectedProject
               );
             }
           });
       } else {
         this.selectedProject = null;
-        this.reviteProjectMessengerService.setRevitProject(
-          this.selectedProject
-        );
+        this.revitProjectMessengerService.setRevitProject(this.selectedProject);
       }
     });
   }
