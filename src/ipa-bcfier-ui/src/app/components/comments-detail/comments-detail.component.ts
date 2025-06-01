@@ -2,6 +2,7 @@ import {
   BcfComment,
   BcfTopic,
   BcfViewpoint,
+  IfcGuidNamePair,
 } from '../../generated-client/generated-client';
 import { Component, Input, OnInit } from '@angular/core';
 import {
@@ -12,6 +13,7 @@ import {
 import { BackendService } from '../../services/BackendService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { CommonModule } from '@angular/common';
+import { ElementsViewpointComponent } from '../elements-viewpoint/elements-viewpoint.component';
 import { FormsModule } from '@angular/forms';
 import { ImagePreviewComponent } from '../image-preview/image-preview.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +21,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationsService } from '../../services/notifications.service';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { ViewpointImageDirective } from '../../directives/viewpoint-image.directive';
@@ -36,6 +39,8 @@ import { take } from 'rxjs';
     MatIconModule,
     MatInputModule,
     ViewpointImageDirective,
+    ElementsViewpointComponent,
+    MatTooltipModule,
   ],
   templateUrl: './comments-detail.component.html',
   styleUrl: './comments-detail.component.scss',
@@ -44,6 +49,7 @@ export class CommentsDetailComponent implements OnInit {
   @Input() comments!: BcfComment[];
   @Input() viewpoint: BcfViewpoint | null = null;
   @Input() topic!: BcfTopic;
+  viewpointElements: IfcGuidNamePair[] = [];
 
   newComment = '';
 
@@ -56,7 +62,11 @@ export class CommentsDetailComponent implements OnInit {
     private teamsMessengerService: TeamsMessengerService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.viewpoint) {
+      this.getListElement(this.viewpoint);
+    }
+  }
 
   addComment(): void {
     if (!this.newComment) {
@@ -128,5 +138,45 @@ export class CommentsDetailComponent implements OnInit {
         this.viewpoint
       );
     }
+  }
+
+  trySelectElement(element: IfcGuidNamePair): void {
+    this.backendService.selectElement(element).subscribe({
+      next: () => {
+        this.notificationsService.success('Element selected: ' + element.name);
+      },
+      error: () => {
+        this.notificationsService.error(
+          'Error selecting element: ' + element.name
+        );
+      },
+    });
+  }
+
+  getListElement(viewpoint: BcfViewpoint): void {
+    const selectedComponentIfcGuids =
+      viewpoint?.viewpointComponents?.selectedComponents?.map((component) => {
+        return {
+          ifcGuid: component.ifcGuid,
+          revitId: component.authoringToolId,
+          name: '',
+        } as IfcGuidNamePair;
+      }) || [];
+
+    if (selectedComponentIfcGuids.length === 0) {
+      this.viewpointElements = [];
+      return;
+    }
+
+    this.backendService
+      .getElementNamesList(selectedComponentIfcGuids)
+      .subscribe({
+        next: (list: IfcGuidNamePair[]) => {
+          this.viewpointElements = list;
+        },
+        error: () => {
+          this.notificationsService.error('Error fetching list of elements');
+        },
+      });
   }
 }

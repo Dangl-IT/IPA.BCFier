@@ -1,4 +1,5 @@
-﻿using Autodesk.Revit.UI;
+﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Revit.Models;
@@ -16,6 +17,7 @@ namespace IPA.Bcfier.Revit
         public Queue<Func<string, Task>> OpenBcfFileCallbacks { get; } = new Queue<Func<string, Task>>();
         public Queue<Func<string, Task>> CreateRevitViewpointCallbacks { get; } = new Queue<Func<string, Task>>();
         public Queue<ShowViewpointQueueItem> ShowViewpointQueueItems { get; } = new Queue<ShowViewpointQueueItem>();
+        public Queue<ElementSelectionInstructions> ElementSelectionInstructionsQueue { get; } = new Queue<ElementSelectionInstructions>();
         private Queue<ViewContinuationInstructions> AfterViewCreationCallbackQueue { get; } = new Queue<ViewContinuationInstructions>();
         public ConcurrentQueue<string> CadErrorMessages { get; } = new ConcurrentQueue<string>();
         private bool shouldUnregister = false;
@@ -60,6 +62,20 @@ namespace IPA.Bcfier.Revit
             {
                 var uiDocument = uiApplication.ActiveUIDocument;
                 HandlAfterViewCreationCallbackQueueItems(uiDocument);
+            }
+
+            if (ElementSelectionInstructionsQueue.Count > 0)
+            {
+                var uiDocument = uiApplication.ActiveUIDocument;
+                var elementSelectionInstructions = ElementSelectionInstructionsQueue.Dequeue();
+
+
+                if (elementSelectionInstructions.ElementId != null)
+                {
+                    var elementId = elementSelectionInstructions.ElementId;
+                    uiDocument.Selection.SetElementIds(new List<ElementId> { elementId });
+                    uiDocument.ShowElements(new List<ElementId> { elementId });
+                }
             }
         }
 

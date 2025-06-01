@@ -2,7 +2,9 @@ import {
   BcfConversionClient,
   BcfFileWrapper,
   BcfViewpoint,
+  BcfViewpointComponent,
   DocumentationClient,
+  IfcGuidNamePair,
   ProjectGet,
   Settings,
   SettingsClient,
@@ -129,5 +131,15 @@ export class BackendService {
     } else {
       // Not doing anything in the standalone version
     }
+  }
+
+  getElementNamesList(
+    ifcGuidsList: IfcGuidNamePair[]
+  ): Observable<IfcGuidNamePair[]> {
+    return this.viewpointsClient.getElementNamesList(ifcGuidsList);
+  }
+
+  selectElement(value: IfcGuidNamePair): Observable<void> {
+    return this.viewpointsClient.selectElement(value);
   }
 }
