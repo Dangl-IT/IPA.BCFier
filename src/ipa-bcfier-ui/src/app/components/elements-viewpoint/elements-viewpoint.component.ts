@@ -8,6 +8,7 @@ import { IfcGuidNamePair } from '../../generated-client/generated-client';
   imports: [CommonModule],
   templateUrl: './elements-viewpoint.component.html',
   styleUrls: ['./elements-viewpoint.component.scss'],
+  standalone: true,
 })
 export class ElementsViewpointComponent {
   @Input() viewpointElements: IfcGuidNamePair[] = [];

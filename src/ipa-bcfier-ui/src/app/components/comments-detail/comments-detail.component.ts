@@ -154,10 +154,14 @@ export class CommentsDetailComponent implements OnInit {
   }
 
   getListElement(viewpoint: BcfViewpoint): void {
-    var selectedComponentIfcGuids =
-      viewpoint?.viewpointComponents?.selectedComponents
-        ?.map((c) => c.ifcGuid)
-        .filter((c) => !!c) as string[];
+    const selectedComponentIfcGuids =
+      viewpoint?.viewpointComponents?.selectedComponents?.map((component) => {
+        return {
+          ifcGuid: component.ifcGuid,
+          revitId: component.authoringToolId,
+          name: '',
+        } as IfcGuidNamePair;
+      }) || [];
 
     if (selectedComponentIfcGuids.length === 0) {
       this.viewpointElements = [];

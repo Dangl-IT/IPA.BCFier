@@ -114,17 +114,17 @@ namespace IPA.Bcfier.Revit
         private async Task HandleGetElementNamesListAsync(IpcMessage ipcMessage)
         {
             var ifcGuidNamePairList = new List<IfcGuidNamePair>();
-            var ifcGuids = JsonConvert.DeserializeObject<List<string>>(ipcMessage.Data!)!;
+            var elementIds = JsonConvert.DeserializeObject<List<IfcGuidNamePair>>(ipcMessage.Data!)!;
             var uiDocument = _commandData.Application.ActiveUIDocument;
-            var collectorGetElementNamesList = new FilteredElementCollector(uiDocument.Document).WhereElementIsNotElementType();
-            foreach (var ifcGuid in ifcGuids)
+            var collectorGetElementNamesList = new FilteredElementCollector(uiDocument.Document).WhereElementIsNotElementType().ToList();
+            foreach (var elementId in elementIds)
             {
-                var name = ifcGuid;
+                var name = elementId.IfcGuid;
 
                 foreach (var element in collectorGetElementNamesList)
                 {
                     var ifcGuidParam = element.LookupParameter("IfcGUID");
-                    if (ifcGuidParam != null && ifcGuidParam.AsString() == ifcGuid)
+                    if (ifcGuidParam != null && ifcGuidParam.AsString() == elementId.IfcGuid)
                     {
                         name = element.Name;
                         break;
@@ -133,7 +133,8 @@ namespace IPA.Bcfier.Revit
 
                 ifcGuidNamePairList.Add(new IfcGuidNamePair
                 {
-                    IfcGuid = ifcGuid,
+                    IfcGuid = elementId.IfcGuid,
+                    RevitId = elementId.RevitId,
                     Name = name
                 });
             }
@@ -150,16 +151,36 @@ namespace IPA.Bcfier.Revit
         {
             var isSuccess = false;
             var uiDocument = _commandData.Application.ActiveUIDocument;
-            var collectorSelectElement = new FilteredElementCollector(uiDocument.Document).WhereElementIsNotElementType();
-            foreach (var element in collectorSelectElement)
+
+            var elementId = JsonConvert.DeserializeObject<IfcGuidNamePair>(ipcMessage.Data!)!;
+
+            if (!string.IsNullOrWhiteSpace(elementId?.RevitId) && long.TryParse(elementId!.RevitId, out _))
             {
-                var ifcGuidParam = element.LookupParameter("IfcGUID");
-                if (ifcGuidParam != null && ifcGuidParam.AsString() == ipcMessage.Data)
+                var element = uiDocument.Document.GetElement(new ElementId(long.Parse(elementId.RevitId)));
+                if (element != null)
                 {
-                    uiDocument.Selection.SetElementIds(new List<ElementId> { element.Id });
-                    uiDocument.ShowElements(new List<ElementId> { element.Id });
+                    _revitTaskQueueHandler.ElementSelectionInstructionsQueue.Enqueue(new Models.ElementSelectionInstructions
+                    {
+                        ElementId = element.Id,
+                    });
                     isSuccess = true;
-                    break;
+                }
+            }
+            else if (elementId != null)
+            {
+                var collectorSelectElement = new FilteredElementCollector(uiDocument.Document).WhereElementIsNotElementType().ToList();
+                foreach (var element in collectorSelectElement)
+                {
+                    var ifcGuidParam = element.LookupParameter("IfcGUID");
+                    if (ifcGuidParam != null && ifcGuidParam.AsString() == elementId.IfcGuid)
+                    {
+                        _revitTaskQueueHandler.ElementSelectionInstructionsQueue.Enqueue(new Models.ElementSelectionInstructions
+                        {
+                            ElementId = element.Id,
+                        });
+                        isSuccess = true;
+                        break;
+                    }
                 }
             }
 

@@ -176,14 +176,14 @@ namespace IPA.Bcfier.App.Controllers
             return BadRequest();
         }
 
-        [HttpGet("element-names-list")]
+        [HttpPost("element-names-list")]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(List<IfcGuidNamePair>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetElementNamesListAsync([FromQuery]List<string> ifcGuids)
+        public async Task<IActionResult> GetElementNamesListAsync([FromBody]List<IfcGuidNamePair> elementIds)
         {
-            if (ifcGuids == null || ifcGuids.Count == 0)
+            if (elementIds == null || elementIds.Count == 0)
             {
-                return BadRequest(new ApiError("The list of IFC GUIDs is empty"));
+                return BadRequest(new ApiError("The list of element ids is empty"));
             }
 
             if (!_revitParameters.IsConnectedToRevit && !_navisworksParameters.IsConnectedToNavisworks)
@@ -198,7 +198,7 @@ namespace IPA.Bcfier.App.Controllers
             {
                 CorrelationId = correlationId,
                 Command = IpcMessageCommand.GetElementNamesList,
-                Data = JsonConvert.SerializeObject(ifcGuids)
+                Data = JsonConvert.SerializeObject(elementIds)
             }));
 
             var hasReceived = false;
@@ -229,11 +229,11 @@ namespace IPA.Bcfier.App.Controllers
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> SelectElementAsync(string ifcGuid)
+        public async Task<IActionResult> SelectElementAsync(IfcGuidNamePair elementId)
         {
-            if (string.IsNullOrWhiteSpace(ifcGuid))
+            if (string.IsNullOrWhiteSpace(elementId?.IfcGuid) && string.IsNullOrWhiteSpace(elementId?.RevitId))
             {
-                return BadRequest(new ApiError("The IFC GUID is empty"));
+                return BadRequest(new ApiError("The IFC GUID and Revit ID is empty"));
             }
 
             if (!_revitParameters.IsConnectedToRevit && !_navisworksParameters.IsConnectedToNavisworks)
@@ -248,7 +248,7 @@ namespace IPA.Bcfier.App.Controllers
             {
                 CorrelationId = correlationId,
                 Command = IpcMessageCommand.SelectElement,
-                Data = ifcGuid
+                Data = JsonConvert.SerializeObject(elementId)
             }));
 
             var hasReceived = false;

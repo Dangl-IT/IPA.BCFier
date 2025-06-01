@@ -133,11 +133,13 @@ export class BackendService {
     }
   }
 
-  getElementNamesList(ifcGuidsList: string[]): Observable<IfcGuidNamePair[]> {
+  getElementNamesList(
+    ifcGuidsList: IfcGuidNamePair[]
+  ): Observable<IfcGuidNamePair[]> {
     return this.viewpointsClient.getElementNamesList(ifcGuidsList);
   }
 
   selectElement(value: IfcGuidNamePair): Observable<void> {
-    return this.viewpointsClient.selectElement(value.ifcGuid);
+    return this.viewpointsClient.selectElement(value);
   }
 }
