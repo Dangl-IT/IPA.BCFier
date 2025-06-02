@@ -2,6 +2,8 @@ import {
   BcfFile,
   BcfProjectExtensions,
   BcfTopic,
+  NavisworksClashGroupingData,
+  ViewpointsClient,
 } from '../../generated-client/generated-client';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -27,6 +29,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ProjectUsersService } from '../../services/project-users.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ClashGroupingOptionsComponent } from '../clash-grouping-options/clash-grouping-options.component';
+import { of, switchMap } from 'rxjs';
+import { NotificationsService } from '../../services/notifications.service';
 
 @Component({
   selector: 'bcfier-topic-detail',
@@ -44,7 +49,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     CommentsDetailComponent,
     MatDatepickerModule,
     ReactiveFormsModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   templateUrl: './topic-detail.component.html',
   styleUrl: './topic-detail.component.scss',
@@ -63,6 +68,8 @@ export class TopicDetailComponent implements OnInit {
   isTitleChangeFirstTime = false;
   defaultTopicTitle = 'New Issue';
   projectUsersService = inject(ProjectUsersService);
+  private viewpointsClient = inject(ViewpointsClient);
+  private notificationsService = inject(NotificationsService);
   constructor(
     private matDialog: MatDialog,
     private backendService: BackendService
@@ -155,5 +162,34 @@ export class TopicDetailComponent implements OnInit {
 
   refreshUsers(): void {
     this.projectUsersService.refreshUsers();
+  }
+
+  openGroupingDialog(): void {
+    this.matDialog
+      .open(ClashGroupingOptionsComponent, {
+        autoFocus: false,
+        restoreFocus: false,
+        data: {
+          activeTopic: this.topic,
+        },
+      })
+      .afterClosed()
+      .pipe(
+        switchMap((groupingOptions: NavisworksClashGroupingData) => {
+          if (!groupingOptions) {
+            return of([]);
+          }
+          return this.viewpointsClient.groupClashes(groupingOptions);
+        })
+      )
+      .subscribe({
+        next: (clashes) => {
+          //TODO - add the clashes to the BCF file, but now it returns string array
+        },
+        error: (error) => {
+          console.error(error);
+          this.notificationsService.error('Failed to group the clashes');
+        },
+      });
   }
 }

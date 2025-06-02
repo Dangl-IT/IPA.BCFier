@@ -28,7 +28,11 @@
 
     <mat-form-field class="dark-theme">
       <mat-label>Type</mat-label>
-      <mat-select [(value)]="topic.topicTypes" (selectionChange)="changeIssue()" multiple>
+      <mat-select
+        [(value)]="topic.topicTypes"
+        (selectionChange)="changeIssue()"
+        multiple
+      >
         @for (type of (issueTypes$ | async)?.values(); track type) {
         <mat-option [value]="type">{{ type }}</mat-option>
         }
@@ -80,6 +84,14 @@
       (click)="addViewpoint()"
     >
       Add Viewpoint
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openGroupingDialog()"
+      class="full-width-button"
+    >
+      Auto Group Clashes
     </button>
     <div>
       <div *ngFor="let viewpoint of topic.viewpoints">

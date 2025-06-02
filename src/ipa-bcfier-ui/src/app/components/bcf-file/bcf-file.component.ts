@@ -548,33 +548,4 @@ export class BcfFileComponent {
   inSelectedList(id: string): boolean {
     return !!this.selectedListTopic.find((item) => item.id === id);
   }
-
-  openGroupingDialog(): void {
-    this.dialog
-      .open(ClashGroupingOptionsComponent, {
-        autoFocus: false,
-        restoreFocus: false,
-        data: {
-          activeTopic: this.selectedTopic,
-        },
-      })
-      .afterClosed()
-      .pipe(
-        switchMap((groupingOptions: NavisworksClashGroupingData) => {
-          if (!groupingOptions) {
-            return of([]);
-          }
-          return this.viewpointsClient.groupClashes(groupingOptions);
-        })
-      )
-      .subscribe({
-        next: (clashes) => {
-          //TODO - add the clashes to the BCF file, but now it returns string array
-        },
-        error: (error) => {
-          console.error(error);
-          this.notificationsService.error('Failed to group the clashes');
-        },
-      });
-  }
 }

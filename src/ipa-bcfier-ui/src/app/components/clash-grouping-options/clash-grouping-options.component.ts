@@ -98,8 +98,6 @@ export class ClashGroupingOptionsComponent implements OnInit {
           .subscribe({
             next: (list: IfcGuidNamePair[]) => {
               this.viewpointElements = list;
-
-              console.log(this.viewpointElements);
             },
             error: (error) => {
               // Just ignoring the error here
@@ -112,6 +110,7 @@ export class ClashGroupingOptionsComponent implements OnInit {
 
   save(): void {
     const groupingData: NavisworksClashGroupingData = {
+      clashTestId: this.dialogData?.activeTopic?.id,
       groupingType: this.selectedGroupingType(),
       proximityGroupingOptions: {
         clashIds: this.selectedClashIds,
