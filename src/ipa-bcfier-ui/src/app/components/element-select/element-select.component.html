@@ -1,0 +1,13 @@
+<mat-form-field class="dark-theme" appearance="fill">
+  <mat-label>{{ label() }}</mat-label>
+  <mat-select
+    [value]="selectedId()"
+    (selectionChange)="onSelectionChange($event.value)"
+  >
+    @for (element of elements(); track element.ifcGuid) {
+    <mat-option [value]="element.ifcGuid">
+      {{ element.name }}
+    </mat-option>
+    }
+  </mat-select>
+</mat-form-field>
