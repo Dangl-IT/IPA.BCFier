@@ -554,6 +554,9 @@ export class BcfFileComponent {
       .open(ClashGroupingOptionsComponent, {
         autoFocus: false,
         restoreFocus: false,
+        data: {
+          activeTopic: this.selectedTopic,
+        },
       })
       .afterClosed()
       .pipe(

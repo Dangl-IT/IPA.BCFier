@@ -1,18 +1,27 @@
-import { TitleCasePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
 import { LoadingService } from '../../services/loading.service';
 import {
+  BcfTopic,
+  GroupingType,
+  IfcGuidNamePair,
+  NavisworksClashGroupingData,
   NavisworksClashSelection,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
 import { ClashSelectComponent } from '../clash-select/clash-select.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-type GroupingType = 'proximity' | 'level' | 'selection' | '';
+import { GroupingTypePipe } from '../../pipes/grouping-type.pipe';
+import { BackendService } from '../../services/BackendService';
+import { ElementSelectComponent } from '../element-select/element-select.component';
 
 @Component({
   selector: 'bcfier-clash-grouping-options',
@@ -21,11 +30,12 @@ type GroupingType = 'proximity' | 'level' | 'selection' | '';
     FormsModule,
     MatDialogModule,
     MatRadioModule,
-    TitleCasePipe,
     ClashSelectComponent,
     MatFormFieldModule,
     ReactiveFormsModule,
     MatInputModule,
+    GroupingTypePipe,
+    ElementSelectComponent,
   ],
   templateUrl: './clash-grouping-options.component.html',
   styleUrls: ['./clash-grouping-options.component.scss'],
@@ -34,14 +44,26 @@ export class ClashGroupingOptionsComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private viewpointsClient = inject(ViewpointsClient);
   private dialogRef = inject(MatDialogRef<ClashGroupingOptionsComponent>);
+  private dialogData: {
+    activeTopic: BcfTopic | null;
+  } = inject(MAT_DIALOG_DATA);
+  private backendService = inject(BackendService);
 
-  public selectedGroupingType = signal<GroupingType>('');
-  readonly groupingTypes: GroupingType[] = ['proximity', 'level', 'selection'];
+  public selectedGroupingType = signal<GroupingType>(GroupingType.Selection);
+  readonly groupingTypes: GroupingType[] = [
+    GroupingType.Proximity,
+    GroupingType.Level,
+    GroupingType.Selection,
+  ];
   public clashes: NavisworksClashSelection[] = [];
   public selectedClashIds: string[] = [];
   public proximityRadius: number | null = null;
   public levelTolerance: number | null = null;
+  public viewpointElements: IfcGuidNamePair[] = [];
+  public selectedElementId: string | null = null;
+
   ngOnInit(): void {
+    this.loadActiveElements();
     this.viewpointsClient.getAvailableNavisworksClashes().subscribe({
       next: (clashes) => {
         this.loadingService.hideLoadingScreen();
@@ -52,22 +74,57 @@ export class ClashGroupingOptionsComponent implements OnInit {
       },
     });
   }
+
+  private loadActiveElements(): void {
+    if (
+      this.dialogData?.activeTopic &&
+      this.dialogData.activeTopic.viewpoints?.length > 0
+    ) {
+      const selectedComponentIfcGuids =
+        this.dialogData.activeTopic.viewpoints
+          .map((viewpoint) => viewpoint.viewpointComponents?.selectedComponents)
+          .flat()
+          .map((component) => {
+            return {
+              ifcGuid: component.ifcGuid,
+              revitId: component.authoringToolId,
+              name: '',
+            } as IfcGuidNamePair;
+          }) || [];
+
+      if (selectedComponentIfcGuids.length > 0) {
+        this.backendService
+          .getElementNamesList(selectedComponentIfcGuids)
+          .subscribe({
+            next: (list: IfcGuidNamePair[]) => {
+              this.viewpointElements = list;
+
+              console.log(this.viewpointElements);
+            },
+            error: (error) => {
+              // Just ignoring the error here
+              console.error(error);
+            },
+          });
+      }
+    }
+  }
+
   save(): void {
-    //TODO check property names
-    this.dialogRef.close({
-      checkType: this.selectedGroupingType,
-      proximityOptions: {
-        baseClashIds: this.selectedClashIds,
-        distance: this.proximityRadius,
+    const groupingData: NavisworksClashGroupingData = {
+      groupingType: this.selectedGroupingType(),
+      proximityGroupingOptions: {
+        clashIds: this.selectedClashIds,
+        radius: this.proximityRadius || undefined,
       },
-      levelOptions: {
-        baseClashCheckId: this.selectedClashIds,
-        distance: this.levelTolerance,
+      levelGroupingOptions: {
+        tolerance: this.levelTolerance || undefined,
       },
-      selectionOptions: {
-        baseClashCheckId: this.selectedClashIds,
+      selectionGroupingOptions: {
+        elementId: this.selectedElementId || undefined,
       },
-    });
+    };
+    this.dialogRef.close(groupingData);
   }
 
   close(): void {
@@ -77,6 +134,11 @@ export class ClashGroupingOptionsComponent implements OnInit {
   onSelectedIdsChange(selectedIds: string[]): void {
     this.resetInputsValue();
     this.selectedClashIds = selectedIds;
+  }
+
+  onElementSelected(elementId: string): void {
+    this.resetInputsValue();
+    this.selectedElementId = elementId;
   }
 
   resetInputsValue(): void {

@@ -9,12 +9,13 @@
     >
       @for (type of groupingTypes; track type) {
       <mat-radio-button class="dark-theme" [value]="type" color="primary">
-        {{ type | titlecase }}
+        {{ type | groupingType }}
       </mat-radio-button>
       }
     </mat-radio-group>
 
-    @switch (selectedGroupingType()) { @case ('proximity') {
+    @switch (selectedGroupingType()) { @case (groupingTypes[0]) {
+    <!-- Proximity -->
     <div class="container">
       <bcfier-clash-select
         [clashes]="clashes"
@@ -31,7 +32,8 @@
         />
       </mat-form-field>
     </div>
-    } @case ('level') {
+    } @case (groupingTypes[1]) {
+    <!-- Level -->
     <div class="container">
       <bcfier-clash-select
         [clashes]="clashes"
@@ -48,12 +50,14 @@
         />
       </mat-form-field>
     </div>
-    } @case ('selection') {
+    } @case (groupingTypes[2]) {
+    <!-- Selection -->
     <div class="container">
-      <bcfier-clash-select
-        [clashes]="clashes"
-        (selectedIdsChange)="onSelectedIdsChange($event)"
-      ></bcfier-clash-select>
+      <bcfier-element-select
+        [elements]="viewpointElements"
+        (selectedIdChange)="onElementSelected($event)"
+      >
+      </bcfier-element-select>
     </div>
 
     } @default {
@@ -65,7 +69,12 @@
   <button
     mat-flat-button
     (click)="save()"
-    [disabled]="!selectedGroupingType() || selectedClashIds.length === 0"
+    [disabled]="
+      !selectedGroupingType() ||
+      (selectedGroupingType() !== groupingTypes[2] && !selectedElementId) ||
+      (selectedGroupingType() !== groupingTypes[2] &&
+        selectedClashIds.length === 0)
+    "
   >
     Apply
   </button>
