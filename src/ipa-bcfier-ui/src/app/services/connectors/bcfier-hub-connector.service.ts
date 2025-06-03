@@ -10,7 +10,7 @@ import { LoadingService } from '../loading.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NavisworksClashProgressMessengerService } from '../messengers/navisworks-clash-progress-messenger.service';
 import { NotificationsService } from '../notifications.service';
-import { ReviteProjectMessengerService } from '../messengers/revite-project-messenger.service';
+import { RevitProjectMessengerService } from '../messengers/revit-project-messenger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +24,7 @@ export class BcfierHubConnectorService {
     private loadingService: LoadingService,
     private matDialog: MatDialog,
     private navisworksClashProgressMessengerService: NavisworksClashProgressMessengerService,
-    private reviteProjectMessengerService: ReviteProjectMessengerService
+    private revitProjectMessengerService: RevitProjectMessengerService
   ) {
     this.connection = new HubConnectionBuilder()
       .withAutomaticReconnect()
@@ -81,7 +81,7 @@ export class BcfierHubConnectorService {
           ProjectNumber: string;
           FilePath: string;
         };
-        this.reviteProjectMessengerService.setRevitProject({
+        this.revitProjectMessengerService.setRevitProject({
           projectNumber: projectData.ProjectNumber,
           filePath: projectData.FilePath,
         });
@@ -94,7 +94,7 @@ export class BcfierHubConnectorService {
           ProjectNumber: string;
           FilePath: string;
         };
-        this.reviteProjectMessengerService.setRevitProject({
+        this.revitProjectMessengerService.setRevitProject({
           projectNumber: projectData.ProjectNumber,
           filePath: projectData.FilePath,
         });

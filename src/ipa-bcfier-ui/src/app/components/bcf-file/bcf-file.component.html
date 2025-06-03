@@ -27,7 +27,7 @@
             </button>
           </div>
           @if(isInNavisworks) {
-          <div class="issue-list-buttons">
+          <div class="issue-list-buttons flex-direction-column">
             <button
               mat-raised-button
               color="primary"
@@ -85,7 +85,10 @@
           "
         >
           <mat-card
-            *ngFor="let topic of filteredTopics | topicFilter : search"
+            *ngFor="
+              let topic of filteredTopics
+                | topicFilter : search : groupedClashIds
+            "
             (click)="selectTopic(topic, $event)"
             bcfierTriangleCorner
             [config]="{

@@ -42,6 +42,10 @@ namespace IPA.Bcfier.Ipc
 
         SelectElement = 19,
 
-        SelectElementResult = 20
+        SelectElementResult = 20,
+
+        GroupClashes = 21,
+
+        GroupClashesResult = 22,
     }
 }

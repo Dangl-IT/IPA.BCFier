@@ -1799,6 +1799,7 @@ export interface IViewpointsClient {
     createNavisworksClashDetectionResultIssues(model: NavisworksClashCreationData): Observable<BcfTopic[]>;
     getElementNamesList(elementIds: IfcGuidNamePair[]): Observable<IfcGuidNamePair[]>;
     selectElement(elementId: IfcGuidNamePair): Observable<void>;
+    groupClashes(model: NavisworksClashGroupingData): Observable<string[]>;
 }
 
 @Injectable({
@@ -2205,6 +2206,63 @@ export class ViewpointsClient implements IViewpointsClient {
         }
         return _observableOf(null as any);
     }
+
+    groupClashes(model: NavisworksClashGroupingData): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/viewpoints/clash-grouping";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGroupClashes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGroupClashes(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGroupClashes(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            result400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ApiError;
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string[];
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 /** Data transfer class to convey api errors */
@@ -2473,6 +2531,27 @@ export interface NavisworksClashCreationData {
     status?: string | null;
     excludedClashIds?: string[];
     shouldMoveBoundingBoxToCenterOfClash?: boolean;
+}
+
+export interface NavisworksClashGroupingData {
+    clashId?: string;
+    groupingType?: GroupingType;
+    proximityGroupingOptions?: ProximityGroupingOptions | null;
+    levelGroupingOptions?: LevelGroupingOptions | null;
+}
+
+export enum GroupingType {
+    Proximity = 0,
+    Level = 1,
+    Selection = 2,
+}
+
+export interface ProximityGroupingOptions {
+    radius?: number;
+}
+
+export interface LevelGroupingOptions {
+    tolerance?: number;
 }
 
 export interface FileResponse {

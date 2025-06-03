@@ -26,6 +26,15 @@
   }
 }
 
+.flex-direction-column {
+  flex-direction: column;
+  button {
+    flex: auto;
+  }
+}
+
+
+
 .topic-list {
   display: flex;
   flex-direction: column;

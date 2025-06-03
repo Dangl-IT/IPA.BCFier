@@ -40,7 +40,7 @@ namespace IPA.Bcfier.App.Controllers
         [HttpPost("visualization")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ShowViewpointAsync([FromBody] BcfViewpoint viewpoint, [FromQuery]bool viewpointOriginatesFromRevit)
+        public async Task<IActionResult> ShowViewpointAsync([FromBody] BcfViewpoint viewpoint, [FromQuery] bool viewpointOriginatesFromRevit)
         {
             var ipcHandler = _ipcHandlerLifetimeService.IpcHandler;
 
@@ -384,6 +384,90 @@ namespace IPA.Bcfier.App.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpPost("clash-grouping")]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<Guid>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GroupClashesAsync([FromBody] NavisworksClashGroupingData model)
+        {
+            if (!_navisworksParameters.IsConnectedToNavisworks)
+            {
+                return BadRequest(new ApiError("The app is currently not connected to Navisworks"));
+            }
+
+            if (model == null)
+            {
+                return BadRequest(new ApiError("The model is invalid"));
+            }
+            else
+            {
+                switch (model.GroupingType)
+                {
+                    case GroupingType.Proximity:
+                        if (model.ProximityGroupingOptions == null)
+                        {
+                            return BadRequest(new ApiError("The proximity grouping options are invalid"));
+                        }
+                        break;
+                    case GroupingType.Level:
+                        if (model.LevelGroupingOptions == null)
+                        {
+                            return BadRequest(new ApiError("The level grouping options are invalid"));
+                        }
+                        break;
+                    case GroupingType.Selection:
+                        // Not doing anything here to check
+                        break;
+                    default:
+                        return BadRequest(new ApiError("The grouping type is invalid"));
+                }
+            }
+
+            using var ipcHandler = GetIpcHandler();
+            await ipcHandler.InitializeAsync();
+
+            var correlationId = Guid.NewGuid();
+            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            {
+                CorrelationId = correlationId,
+                Command = IpcMessageCommand.GroupClashes,
+                Data = JsonConvert.SerializeObject(model)
+            }));
+
+            var hasReceived = false;
+            var start = DateTime.UtcNow;
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
+            {
+                if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
+                {
+                    var ipcMessage = JsonConvert.DeserializeObject<IpcMessage>(message)!;
+                    if (ipcMessage.CorrelationId == correlationId && ipcMessage.Command == IpcMessageCommand.GroupClashesResult)
+                    {
+                        hasReceived = true;
+                        var result = JsonConvert.DeserializeObject<List<Guid>>(ipcMessage.Data!)!;
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        IpcHandler.ReceivedMessages.Enqueue(message);
+                        await Task.Delay(100);
+                    }
+                }
+            }
+
+            return BadRequest();
+        }
+
+        private IpcHandler GetIpcHandler()
+        {
+            if (_revitParameters.IsConnectedToRevit)
+            {
+                return new IpcHandler(thisAppName: "BcfierApp", otherAppName: "Revit", _appParameters.ApplicationId);
+            }
+
+            // We're assuming it's Navisworks then, since we don't have another possibility at the moment
+            return new IpcHandler(thisAppName: "BcfierAppNavisworks", otherAppName: "Navisworks", _appParameters.ApplicationId);
         }
     }
 }

@@ -2,31 +2,39 @@ import {
   BcfFile,
   BcfProjectExtensions,
   BcfTopic,
+  GroupingType,
+  NavisworksClashGroupingData,
+  ViewpointsClient,
 } from '../../generated-client/generated-client';
 import { Component, Input, OnInit, inject } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   MessageType,
   TeamsMessengerService,
 } from '../../services/teams-messenger.service';
+import { of, switchMap } from 'rxjs';
 
 import { AddStringValueComponent } from '../add-string-value/add-string-value.component';
 import { BackendService } from '../../services/BackendService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
+import { ClashGroupingOptionsComponent } from '../clash-grouping-options/clash-grouping-options.component';
 import { CommentsDetailComponent } from '../comments-detail/comments-detail.component';
 import { CommentsViewpointFilterPipe } from '../../pipes/comments-viewpoint-filter.pipe';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { GroupedClasheIdsMessengerService } from '../../services/messengers/grouped-clashe-ids-messenger.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
+import { LoadingService } from '../../services/loading.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { NotificationsService } from '../../services/notifications.service';
 import { ProjectUsersService } from '../../services/project-users.service';
-import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'bcfier-topic-detail',
@@ -44,7 +52,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     CommentsDetailComponent,
     MatDatepickerModule,
     ReactiveFormsModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   templateUrl: './topic-detail.component.html',
   styleUrl: './topic-detail.component.scss',
@@ -63,6 +71,13 @@ export class TopicDetailComponent implements OnInit {
   isTitleChangeFirstTime = false;
   defaultTopicTitle = 'New Issue';
   projectUsersService = inject(ProjectUsersService);
+  private viewpointsClient = inject(ViewpointsClient);
+  private notificationsService = inject(NotificationsService);
+  private loadingService = inject(LoadingService);
+
+  private groupedClasheIdsMessengerService = inject(
+    GroupedClasheIdsMessengerService
+  );
   constructor(
     private matDialog: MatDialog,
     private backendService: BackendService
@@ -155,5 +170,76 @@ export class TopicDetailComponent implements OnInit {
 
   refreshUsers(): void {
     this.projectUsersService.refreshUsers();
+  }
+
+  openGroupingDialog(): void {
+    this.matDialog
+      .open(ClashGroupingOptionsComponent, {
+        autoFocus: false,
+        restoreFocus: false,
+        data: {
+          activeTopic: this.topic,
+        },
+      })
+      .afterClosed()
+      .pipe(
+        switchMap((groupingOptions: NavisworksClashGroupingData) => {
+          this.loadingService.showLoadingScreen();
+          if (!groupingOptions) {
+            return of([]);
+          } else if (groupingOptions.groupingType === GroupingType.Selection) {
+            return of(this.getListOfClashesWithSameElementsAsTopic());
+          }
+          return this.viewpointsClient.groupClashes(groupingOptions);
+        })
+      )
+      .subscribe({
+        next: (clashIds) => {
+          this.loadingService.hideLoadingScreen();
+          this.groupedClasheIdsMessengerService.setGroupedClasheIds(clashIds);
+        },
+        error: (error) => {
+          this.loadingService.hideLoadingScreen();
+          console.error(error);
+          this.notificationsService.error('Failed to group the clashes');
+        },
+      });
+  }
+
+  private getListOfClashesWithSameElementsAsTopic(): string[] {
+    const selectedElements = this.topic.viewpoints
+      .map((viewpoint) => viewpoint.viewpointComponents?.selectedComponents)
+      .flat()
+      .map((component) => component.ifcGuid);
+
+    const topicIds: string[] = [];
+
+    this.bcfFile.topics.forEach((topic) => {
+      if (topic.id === this.topic.id) {
+        topicIds.push(topic.serverAssignedId || topic.id);
+        return;
+      }
+
+      topic.viewpoints.forEach((viewpoint) => {
+        const viewpointElements =
+          viewpoint.viewpointComponents?.selectedComponents?.map(
+            (component) => component.ifcGuid
+          );
+        if (
+          viewpointElements &&
+          viewpointElements.some((element) =>
+            selectedElements.includes(element)
+          )
+        ) {
+          topicIds.push(topic.serverAssignedId || topic.id);
+        }
+      });
+    });
+
+    return topicIds;
+  }
+
+  ungroupClashes(): void {
+    this.groupedClasheIdsMessengerService.resetGroupedClasheIds();
   }
 }

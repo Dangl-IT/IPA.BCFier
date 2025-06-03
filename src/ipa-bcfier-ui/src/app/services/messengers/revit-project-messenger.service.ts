@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root',
 })
-export class ReviteProjectMessengerService {
+export class RevitProjectMessengerService {
   private revitProjectSource = new BehaviorSubject<{
     projectNumber: string;
     filePath: string;

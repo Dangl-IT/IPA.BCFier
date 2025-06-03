@@ -1,3 +1,4 @@
+import { AsyncPipe, CommonModule } from '@angular/common';
 import {
   BcfFile,
   BcfTopic,
@@ -9,6 +10,8 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
+  OnDestroy,
+  OnInit,
   TemplateRef,
   ViewChild,
   inject,
@@ -22,12 +25,13 @@ import {
   MessageType,
   TeamsMessengerService,
 } from '../../services/teams-messenger.service';
+import { Subject, take, takeUntil } from 'rxjs';
 
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
-import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { GroupedClasheIdsMessengerService } from '../../services/messengers/grouped-clashe-ids-messenger.service';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
@@ -44,7 +48,7 @@ import { NavisworksClashesLoadingService } from '../../services/navisworks-clash
 import { NotificationsService } from '../../services/notifications.service';
 import { ProjectUsersService } from '../../services/project-users.service';
 import { ProjectsService } from '../../services/light-query/projects.service';
-import { ReviteProjectMessengerService } from '../../services/messengers/revite-project-messenger.service';
+import { RevitProjectMessengerService } from '../../services/messengers/revit-project-messenger.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
@@ -54,7 +58,6 @@ import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
-import { take } from 'rxjs';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -79,7 +82,7 @@ import { take } from 'rxjs';
   templateUrl: './bcf-file.component.html',
   styleUrl: './bcf-file.component.scss',
 })
-export class BcfFileComponent {
+export class BcfFileComponent implements OnInit, OnDestroy {
   @Input() bcfFile!: BcfFile;
 
   @ViewChild('revitDialogContent', { static: true })
@@ -89,6 +92,9 @@ export class BcfFileComponent {
   issueStatuses$ = inject(IssueStatusesService).issueStatuses;
   issueTypes$ = inject(IssueTypesService).issueTypes;
   users$ = inject(ProjectUsersService).users;
+  private groupedClasheIdsMessengerService = inject(
+    GroupedClasheIdsMessengerService
+  );
   issueFilterService = inject(IssueFilterService);
   filterPipe = inject(TopicFilterPipe).transform;
   bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
@@ -107,7 +113,7 @@ export class BcfFileComponent {
     inject(AppConfigService).getFrontendConfig().isConnectedToNavisworks;
   viewpointsClient = inject(ViewpointsClient);
   navisworksClashesLoadingService = inject(NavisworksClashesLoadingService);
-  private reviteProjectMessengerService = inject(ReviteProjectMessengerService);
+  private revitProjectMessengerService = inject(RevitProjectMessengerService);
   notificationsService = inject(NotificationsService);
   private dialog = inject(MatDialog);
   readonly STATUS_COLOR_MAP: Record<string, string> = {
@@ -123,7 +129,9 @@ export class BcfFileComponent {
   private selectedProjectMessengerService = inject(
     SelectedProjectMessengerService
   );
+  private $destroy = new Subject<void>();
   selectedProject: ProjectGet | null = null;
+  groupedClashIds: string[] = [];
 
   ngOnInit() {
     if (!this.bcfFile) return;
@@ -132,7 +140,7 @@ export class BcfFileComponent {
     this.filteredTopics = [...this.bcfFile.topics];
 
     //Here we get messages only if app is connected to Revit
-    this.reviteProjectMessengerService.revitProject.subscribe((project) => {
+    this.revitProjectMessengerService.revitProject.subscribe((project) => {
       if (project) {
         this.findRevitProjectInDatabase(
           project.projectNumber,
@@ -140,6 +148,17 @@ export class BcfFileComponent {
         );
       }
     });
+
+    this.groupedClasheIdsMessengerService.groupedClashIds
+      .pipe(takeUntil(this.$destroy))
+      .subscribe((ids) => {
+        this.groupedClashIds = ids;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.$destroy.next();
+    this.$destroy.complete();
   }
 
   private _search = '';
@@ -386,7 +405,11 @@ export class BcfFileComponent {
     (document.activeElement as HTMLElement)?.blur();
 
     this.dialog
-      .open(BulkTopicEditComponent, { data: { selectingMode } })
+      .open(BulkTopicEditComponent, {
+        data: { selectingMode },
+        autoFocus: false,
+        restoreFocus: false,
+      })
       .afterClosed()
       .subscribe(
         (bulkOptions?: {
@@ -400,7 +423,9 @@ export class BcfFileComponent {
             return;
           }
 
-          const list = selectingMode ? this.selectedListTopic : this.filterPipe(this.filteredTopics, this.search);
+          const list = selectingMode
+            ? this.selectedListTopic
+            : this.filterPipe(this.filteredTopics, this.search);
 
           list.forEach((topic) => {
             if (bulkOptions.status) {
@@ -487,16 +512,14 @@ export class BcfFileComponent {
               );
             } else {
               this.selectedProject = null;
-              this.reviteProjectMessengerService.setRevitProject(
+              this.revitProjectMessengerService.setRevitProject(
                 this.selectedProject
               );
             }
           });
       } else {
         this.selectedProject = null;
-        this.reviteProjectMessengerService.setRevitProject(
-          this.selectedProject
-        );
+        this.revitProjectMessengerService.setRevitProject(this.selectedProject);
       }
     });
   }
@@ -521,8 +544,12 @@ export class BcfFileComponent {
 
   addRangeToSelectedList(topic: BcfTopic): void {
     if (this.selectedTopic) {
-      const indexFirst = this.filteredTopics.findIndex(item => item.id === this.selectedTopic?.id);
-      const indexLast = this.filteredTopics.findIndex(item => item.id === topic.id);
+      const indexFirst = this.filteredTopics.findIndex(
+        (item) => item.id === this.selectedTopic?.id
+      );
+      const indexLast = this.filteredTopics.findIndex(
+        (item) => item.id === topic.id
+      );
       const direction = indexFirst < indexLast ? 1 : -1;
       for (let i = indexFirst; i !== indexLast + direction; i += direction) {
         const topic = this.filteredTopics[i];

@@ -19,3 +19,12 @@
   margin-bottom: 8px;
 }
 
+.clashes-btn-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
