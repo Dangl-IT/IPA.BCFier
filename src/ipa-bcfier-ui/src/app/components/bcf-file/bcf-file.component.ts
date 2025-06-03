@@ -1,3 +1,4 @@
+import { AsyncPipe, CommonModule } from '@angular/common';
 import {
   BcfFile,
   BcfTopic,
@@ -29,8 +30,8 @@ import { Subject, take, takeUntil } from 'rxjs';
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
-import { AsyncPipe, CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { GroupedClasheIdsMessengerService } from '../../services/messengers/grouped-clashe-ids-messenger.service';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
@@ -57,7 +58,6 @@ import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
-import { GroupedClasheIdsMessengerService } from '../../services/messengers/grouped-clashe-ids-messenger.service';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -149,7 +149,7 @@ export class BcfFileComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.groupedClasheIdsMessengerService.groupedClacheIds
+    this.groupedClasheIdsMessengerService.groupedClashIds
       .pipe(takeUntil(this.$destroy))
       .subscribe((ids) => {
         this.groupedClashIds = ids;

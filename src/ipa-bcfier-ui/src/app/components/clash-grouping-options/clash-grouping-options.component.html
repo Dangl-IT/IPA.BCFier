@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>Choose options for grouping clashes</h1>
+<h1 mat-dialog-title>Choose Options for Clash Grouping</h1>
 <div mat-dialog-content>
   <div>
     <label id="grouping-type-label">Choose the grouping type</label>
@@ -17,10 +17,6 @@
     @switch (selectedGroupingType()) { @case (groupingTypes[0]) {
     <!-- Proximity -->
     <div class="container">
-      <bcfier-clash-select
-        [clashes]="clashes"
-        (selectedIdsChange)="onSelectedIdsChange($event)"
-      ></bcfier-clash-select>
       <mat-form-field class="dark-theme" appearance="fill">
         <mat-label>Radius</mat-label>
         <input
@@ -31,14 +27,11 @@
           [(ngModel)]="proximityRadius"
         />
       </mat-form-field>
+      <p>Distance from this clashes center in model units</p>
     </div>
     } @case (groupingTypes[1]) {
     <!-- Level -->
     <div class="container">
-      <bcfier-clash-select
-        [clashes]="clashes"
-        (selectedIdsChange)="onSelectedIdsChange($event)"
-      ></bcfier-clash-select>
       <mat-form-field class="dark-theme" appearance="fill">
         <mat-label>Tolerance </mat-label>
         <input
@@ -49,15 +42,12 @@
           [(ngModel)]="levelTolerance"
         />
       </mat-form-field>
+      <p>Height difference from this clashes center in model units</p>
     </div>
     } @case (groupingTypes[2]) {
     <!-- Selection -->
     <div class="container">
-      <bcfier-element-select
-        [elements]="viewpointElements"
-        (selectedIdChange)="onElementSelected($event)"
-      >
-      </bcfier-element-select>
+      <p>Clashes that have the same elements</p>
     </div>
 
     } @default {
@@ -70,10 +60,10 @@
     mat-flat-button
     (click)="save()"
     [disabled]="
-      !selectedGroupingType() ||
-      (selectedGroupingType() !== groupingTypes[2] && !selectedElementId) ||
-      (selectedGroupingType() !== groupingTypes[2] &&
-        selectedClashIds.length === 0)
+      (selectedGroupingType() === groupingTypes[0] &&
+        (proximityRadius == null || proximityRadius <= 0)) ||
+      (selectedGroupingType() === groupingTypes[1] &&
+        (levelTolerance == null || levelTolerance <= 0))
     "
   >
     Apply

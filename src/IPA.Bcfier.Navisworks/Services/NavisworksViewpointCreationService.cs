@@ -3,6 +3,7 @@ using Autodesk.Navisworks.Api.Clash;
 using Autodesk.Navisworks.Api.Interop;
 using IPA.Bcfier.Models.Bcf;
 using IPA.Bcfier.Models.Clashes;
+using IPA.Bcfier.Navisworks.Models;
 using IPA.Bcfier.Navisworks.OpenProject;
 using IPA.Bcfier.Navisworks.Utilities;
 
@@ -15,14 +16,6 @@ namespace IPA.Bcfier.Navisworks.Services
         public NavisworksViewpointCreationService(Document doc)
         {
             _doc = doc;
-        }
-        private class ClashTestWrapper
-        {
-            public string? TestDisplayName { get; set; }
-
-            public SavedItem? SavedItem { get; set; }
-
-            public ClashTest? ClashTest { get; set; }
         }
 
         ///<summary>

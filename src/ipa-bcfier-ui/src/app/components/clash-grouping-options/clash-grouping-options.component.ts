@@ -30,12 +30,10 @@ import { ElementSelectComponent } from '../element-select/element-select.compone
     FormsModule,
     MatDialogModule,
     MatRadioModule,
-    ClashSelectComponent,
     MatFormFieldModule,
     ReactiveFormsModule,
     MatInputModule,
     GroupingTypePipe,
-    ElementSelectComponent,
   ],
   templateUrl: './clash-grouping-options.component.html',
   styleUrls: ['./clash-grouping-options.component.scss'],
@@ -56,11 +54,9 @@ export class ClashGroupingOptionsComponent implements OnInit {
     GroupingType.Selection,
   ];
   public clashes: NavisworksClashSelection[] = [];
-  public selectedClashIds: string[] = [];
   public proximityRadius: number | null = null;
   public levelTolerance: number | null = null;
   public viewpointElements: IfcGuidNamePair[] = [];
-  public selectedElementId: string | null = null;
 
   ngOnInit(): void {
     this.loadActiveElements();
@@ -110,17 +106,13 @@ export class ClashGroupingOptionsComponent implements OnInit {
 
   save(): void {
     const groupingData: NavisworksClashGroupingData = {
-      clashTestId: this.dialogData?.activeTopic?.id,
+      clashId: this.dialogData?.activeTopic?.serverAssignedId,
       groupingType: this.selectedGroupingType(),
       proximityGroupingOptions: {
-        clashIds: this.selectedClashIds,
         radius: this.proximityRadius || undefined,
       },
       levelGroupingOptions: {
         tolerance: this.levelTolerance || undefined,
-      },
-      selectionGroupingOptions: {
-        elementId: this.selectedElementId || undefined,
       },
     };
     this.dialogRef.close(groupingData);
@@ -128,16 +120,6 @@ export class ClashGroupingOptionsComponent implements OnInit {
 
   close(): void {
     this.dialogRef.close();
-  }
-
-  onSelectedIdsChange(selectedIds: string[]): void {
-    this.resetInputsValue();
-    this.selectedClashIds = selectedIds;
-  }
-
-  onElementSelected(elementId: string): void {
-    this.resetInputsValue();
-    this.selectedElementId = elementId;
   }
 
   resetInputsValue(): void {

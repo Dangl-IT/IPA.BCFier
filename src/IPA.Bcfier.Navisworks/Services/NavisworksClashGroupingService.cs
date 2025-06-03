@@ -1,12 +1,13 @@
 ﻿using Autodesk.Navisworks.Api;
 using Autodesk.Navisworks.Api.Clash;
 using IPA.Bcfier.Models.Clashes;
+using IPA.Bcfier.Navisworks.Models;
 
 namespace IPA.Bcfier.Navisworks.Services
 {
     public static class NavisworksClashGroupingService
     {
-        public static List<List<Guid>> GroupClashes(NavisworksClashGroupingData clashGroupingData)
+        public static List<Guid> GroupClashes(NavisworksClashGroupingData clashGroupingData)
         {
             switch (clashGroupingData.GroupingType)
             {
@@ -21,83 +22,91 @@ namespace IPA.Bcfier.Navisworks.Services
             }
         }
 
-        private static List<List<Guid>> GroupClashesByProximity(NavisworksClashGroupingData clashGroupingData)
+        private static List<Guid> GroupClashesByProximity(NavisworksClashGroupingData clashGroupingData)
         {
-            var clashTest = Application.MainDocument.GetClash().TestsData.Tests.OfType<ClashTest>().FirstOrDefault(t => t.Guid == clashGroupingData.ClashTestId);
-            if (clashTest == null)
+            return GroupClashesByGeometryCheck(clashGroupingData, (baseCenter, otherCenter) =>
+                {
+                    var actualDistance = Math.Abs(otherCenter.DistanceTo(baseCenter));
+                    return actualDistance <= clashGroupingData.ProximityGroupingOptions!.Radius;
+                });
+        }
+
+        private static List<Guid> GroupClashesByLevel(NavisworksClashGroupingData clashGroupingData)
+        {
+            return GroupClashesByGeometryCheck(clashGroupingData, (baseCenter, otherCenter) =>
             {
-                throw new NotImplementedException(); // TODO
+                var zLevelDistance = Math.Abs(otherCenter.Z - baseCenter.Z);
+                return zLevelDistance <= clashGroupingData.LevelGroupingOptions!.Tolerance;
+            });
+        }
+
+        private static List<Guid> GroupClashesByGeometryCheck(NavisworksClashGroupingData clashGroupingData, Func<Point3D, Point3D, bool> checkFunction)
+        {
+            var doc = Application.MainDocument;
+            var tests = doc.GetClash().TestsData.Tests;
+
+            var testItems = tests
+                .OfType<ClashTest>()
+                .Where(t => t.Children.Count > 0)
+                .SelectMany(t => t.Children.Select(tt => new ClashTestWrapper
+                {
+                    TestDisplayName = t.DisplayName,
+                    SavedItem = tt,
+                    ClashTest = t
+                }))
+                .ToList();
+
+            var clashResults = new List<Guid> { clashGroupingData.ClashId };
+
+            Point3D baseCenter = null;
+            foreach (var testItem in testItems)
+            {
+                if (testItem.SavedItem is ClashResult result && result.Guid == clashGroupingData.ClashId)
+                {
+                    baseCenter = result.Center;
+                    break;
+                }
+                else if (testItem.SavedItem is ClashResultGroup resultGroup && resultGroup.Guid == clashGroupingData.ClashId)
+                {
+                    baseCenter = resultGroup.Center;
+                    break;
+                }
             }
 
-            var clashInfos = clashTest.Children.OfType<ClashResult>().Where(x => clashGroupingData.ProximityGroupingOptions!.ClashIds.Contains(x.Guid))
-                .Select(x => new ClashInfo
-                {
-                    ClashId = x.Guid,
-                    Position = x.Center
-                }).ToList();
-
-            var uf = new UnionFind();
-            for (int i = 0; i < clashInfos.Count; i++)
+            if (baseCenter == null)
             {
-                for (int j = i + 1; j < clashInfos.Count; j++)
+                return clashResults;
+            }
+
+            foreach (var testItem in testItems)
+            {
+                if (testItem.SavedItem is ClashResult result)
                 {
-                    if (Distance(clashInfos[i].Position!, clashInfos[j].Position!) <= (2 * clashGroupingData.ProximityGroupingOptions!.Radius))
+                    var isPassingCheck = checkFunction(baseCenter, result.Center);
+                    if (isPassingCheck)
                     {
-                        uf.Union(clashInfos[i].ClashId, clashInfos[j].ClashId);
+                        clashResults.Add(result.Guid);
+                    }
+
+                }
+                else if (testItem.SavedItem is ClashResultGroup resultGroup)
+                {
+                    var isPassingCheck = checkFunction(baseCenter, resultGroup.Center);
+                    if (isPassingCheck)
+                    {
+                        clashResults.Add(resultGroup.Guid);
                     }
                 }
             }
 
-            var groups = new Dictionary<Guid, List<Guid>>();
-            foreach (var clash in clashInfos)
-            {
-                var root = uf.Find(clash.ClashId);
-                if (!groups.ContainsKey(root))
-                {
-                    groups[root] = new List<Guid>();
-                }
-
-                groups[root].Add(clash.ClashId);
-            }
-
-            return groups.Values.ToList();
+            return clashResults;
         }
 
-        private static List<List<Guid>> GroupClashesByLevel(NavisworksClashGroupingData clashGroupingData)
+        private static List<Guid> GroupClashesBySelection(NavisworksClashGroupingData clashGroupingData)
         {
-            var clashTest = Application.MainDocument.GetClash().TestsData.Tests.OfType<ClashTest>().FirstOrDefault(t => t.Guid == clashGroupingData.ClashTestId);
-            if (clashTest == null)
-            {
-                throw new NotImplementedException(); // TODO
-            }
-
-            var clashResults = clashTest.Children.OfType<ClashResult>().Where(c => c.Center != null).Select(c => new { c.Guid, Z = c.Center.Z }).OrderBy(c => c.Z).ToList();
-            var result = new List<List<Guid>>();
-            foreach (var clash in clashResults)
-            {
-                var added = false;
-                foreach (var group in result)
-                {
-                    var groupZ = clashResults.First(x => x.Guid == group[0]).Z;
-                    if (Math.Abs(clash.Z - groupZ) <= clashGroupingData.LevelGroupingOptions!.Tolerance)
-                    {
-                        group.Add(clash.Guid);
-                        added = true;
-                        break;
-                    }
-                }
-
-                if (!added)
-                {
-                    result.Add(new List<Guid> { clash.Guid });
-                }
-            }
-
-            return result;
-        }
-
-        private static List<List<Guid>> GroupClashesBySelection(NavisworksClashGroupingData clashGroupingData)
-        {
+            // TODO, we're currently not using this, it's all done in the frontend
+            throw new System.NotImplementedException();
+            /*
             var clashTest = Application.MainDocument.GetClash().TestsData.Tests.OfType<ClashTest>().FirstOrDefault(t => t.Guid == clashGroupingData.ClashTestId);
             if (clashTest == null)
             {
@@ -114,7 +123,8 @@ namespace IPA.Bcfier.Navisworks.Services
                 }
             }
 
-            return new List<List<Guid>> { result };
+            return result;
+            */
         }
 
         private class ClashInfo

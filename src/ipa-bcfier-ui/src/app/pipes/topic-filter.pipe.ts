@@ -29,7 +29,10 @@ export class TopicFilterPipe implements PipeTransform {
       : [];
 
     return topics.filter((topic) => {
-      const matchesId = !hasIdFilter || filterIds.includes(topic.id);
+      const matchesId =
+        !hasIdFilter ||
+        (!!topic.serverAssignedId &&
+          filterIds.includes(topic.serverAssignedId));
 
       const matchesText =
         !hasSearch ||

@@ -388,7 +388,7 @@ namespace IPA.Bcfier.App.Controllers
 
         [HttpPost("clash-grouping")]
         [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(List<List<Guid>>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Guid>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GroupClashesAsync([FromBody] NavisworksClashGroupingData model)
         {
             if (!_navisworksParameters.IsConnectedToNavisworks)
@@ -417,10 +417,7 @@ namespace IPA.Bcfier.App.Controllers
                         }
                         break;
                     case GroupingType.Selection:
-                        if (model.SelectionGroupingOptions == null)
-                        {
-                            return BadRequest(new ApiError("The selection grouping options are invalid"));
-                        }
+                        // Not doing anything here to check
                         break;
                     default:
                         return BadRequest(new ApiError("The grouping type is invalid"));
@@ -448,7 +445,7 @@ namespace IPA.Bcfier.App.Controllers
                     if (ipcMessage.CorrelationId == correlationId && ipcMessage.Command == IpcMessageCommand.GroupClashesResult)
                     {
                         hasReceived = true;
-                        var result = JsonConvert.DeserializeObject<List<List<Guid>>>(ipcMessage.Data!)!;
+                        var result = JsonConvert.DeserializeObject<List<Guid>>(ipcMessage.Data!)!;
                         return Ok(result);
                     }
                     else

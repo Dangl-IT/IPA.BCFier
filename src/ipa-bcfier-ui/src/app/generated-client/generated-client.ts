@@ -1799,7 +1799,7 @@ export interface IViewpointsClient {
     createNavisworksClashDetectionResultIssues(model: NavisworksClashCreationData): Observable<BcfTopic[]>;
     getElementNamesList(elementIds: IfcGuidNamePair[]): Observable<IfcGuidNamePair[]>;
     selectElement(elementId: IfcGuidNamePair): Observable<void>;
-    groupClashes(model: NavisworksClashGroupingData): Observable<string[][]>;
+    groupClashes(model: NavisworksClashGroupingData): Observable<string[]>;
 }
 
 @Injectable({
@@ -2207,7 +2207,7 @@ export class ViewpointsClient implements IViewpointsClient {
         return _observableOf(null as any);
     }
 
-    groupClashes(model: NavisworksClashGroupingData): Observable<string[][]> {
+    groupClashes(model: NavisworksClashGroupingData): Observable<string[]> {
         let url_ = this.baseUrl + "/api/viewpoints/clash-grouping";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2230,14 +2230,14 @@ export class ViewpointsClient implements IViewpointsClient {
                 try {
                     return this.processGroupClashes(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<string[][]>;
+                    return _observableThrow(e) as any as Observable<string[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<string[][]>;
+                return _observableThrow(response_) as any as Observable<string[]>;
         }));
     }
 
-    protected processGroupClashes(response: HttpResponseBase): Observable<string[][]> {
+    protected processGroupClashes(response: HttpResponseBase): Observable<string[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2253,7 +2253,7 @@ export class ViewpointsClient implements IViewpointsClient {
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string[][];
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string[];
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2534,11 +2534,10 @@ export interface NavisworksClashCreationData {
 }
 
 export interface NavisworksClashGroupingData {
-    clashTestId?: string;
+    clashId?: string;
     groupingType?: GroupingType;
     proximityGroupingOptions?: ProximityGroupingOptions | null;
     levelGroupingOptions?: LevelGroupingOptions | null;
-    selectionGroupingOptions?: SelectionGroupingOptions | null;
 }
 
 export enum GroupingType {
@@ -2548,16 +2547,11 @@ export enum GroupingType {
 }
 
 export interface ProximityGroupingOptions {
-    clashIds?: string[];
     radius?: number;
 }
 
 export interface LevelGroupingOptions {
     tolerance?: number;
-}
-
-export interface SelectionGroupingOptions {
-    elementId?: string;
 }
 
 export interface FileResponse {

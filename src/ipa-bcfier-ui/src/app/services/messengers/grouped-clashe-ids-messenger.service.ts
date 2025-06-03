@@ -1,18 +1,18 @@
-import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GroupedClasheIdsMessengerService {
-  private groupedClacheIdsSource = new BehaviorSubject<string[]>([]);
-  groupedClacheIds = this.groupedClacheIdsSource.asObservable();
+  private groupedClashIdsSource = new BehaviorSubject<string[]>([]);
+  groupedClashIds = this.groupedClashIdsSource.asObservable();
 
   setGroupedClasheIds(ids: string[]): void {
-    this.groupedClacheIdsSource.next(ids);
+    this.groupedClashIdsSource.next(ids);
   }
 
   resetGroupedClasheIds(): void {
-    this.groupedClacheIdsSource.next([]);
+    this.groupedClashIdsSource.next([]);
   }
 }
