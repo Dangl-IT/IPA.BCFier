@@ -2,6 +2,7 @@ import {
   BcfFile,
   BcfProjectExtensions,
   BcfTopic,
+  GroupingType,
   NavisworksClashGroupingData,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
@@ -32,6 +33,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ClashGroupingOptionsComponent } from '../clash-grouping-options/clash-grouping-options.component';
 import { of, switchMap } from 'rxjs';
 import { NotificationsService } from '../../services/notifications.service';
+import { GroupedClasheIdsMessengerService } from '../../services/messengers/grouped-clashe-ids-messenger.service';
 
 @Component({
   selector: 'bcfier-topic-detail',
@@ -70,6 +72,9 @@ export class TopicDetailComponent implements OnInit {
   projectUsersService = inject(ProjectUsersService);
   private viewpointsClient = inject(ViewpointsClient);
   private notificationsService = inject(NotificationsService);
+  private groupedClasheIdsMessengerService = inject(
+    GroupedClasheIdsMessengerService
+  );
   constructor(
     private matDialog: MatDialog,
     private backendService: BackendService
@@ -178,18 +183,26 @@ export class TopicDetailComponent implements OnInit {
         switchMap((groupingOptions: NavisworksClashGroupingData) => {
           if (!groupingOptions) {
             return of([]);
+          } else if (groupingOptions.groupingType === GroupingType.Selection) {
+            return of([groupingOptions.selectionGroupingOptions?.elementId]);
           }
           return this.viewpointsClient.groupClashes(groupingOptions);
         })
       )
       .subscribe({
         next: (clashes) => {
-          //TODO - add the clashes to the BCF file, but now it returns string array
+          this.groupedClasheIdsMessengerService.setGroupedClasheIds(
+            clashes as string[]
+          );
         },
         error: (error) => {
           console.error(error);
           this.notificationsService.error('Failed to group the clashes');
         },
       });
+  }
+
+  ungroupClashes(): void {
+    this.groupedClasheIdsMessengerService.resetGroupedClasheIds();
   }
 }

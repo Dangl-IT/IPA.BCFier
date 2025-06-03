@@ -7,27 +7,43 @@ import { BcfTopic } from '../generated-client/generated-client';
   standalone: true,
 })
 export class TopicFilterPipe implements PipeTransform {
-  transform(topics: BcfTopic[], filter: string): BcfTopic[] {
-    if (!filter || filter.trim() === '') {
-      return topics;
-    }
+  /**
+   * Filters topics by search string and optionally by a list of allowed topic IDs.
+   *
+   * @param topics - The list of BcfTopics to filter
+   * @param searchText - A search string (e.g., user input)
+   * @param filterIds - An optional list of topic GUIDs to include
+   */
+  transform(
+    topics: BcfTopic[],
+    searchText: string,
+    filterIds?: string[]
+  ): BcfTopic[] {
+    if (!topics) return [];
 
-    const searchWords = filter
-      .toLowerCase()
-      .split(/\s+/)
-      .filter((word) => word);
+    const hasSearch = !!searchText?.trim();
+    const hasIdFilter = Array.isArray(filterIds) && filterIds.length > 0;
+
+    const searchWords = hasSearch
+      ? searchText.toLowerCase().split(/\s+/).filter(Boolean)
+      : [];
 
     return topics.filter((topic) => {
-      const title = topic.title || '';
-      const description = topic.description || '';
+      const matchesId = !hasIdFilter || filterIds.includes(topic.id);
 
-      const commentTexts =
-        topic.comments?.map((comment) => comment.text || '').join(' ') || '';
+      const matchesText =
+        !hasSearch ||
+        (() => {
+          const title = topic.title || '';
+          const description = topic.description || '';
+          const commentTexts =
+            topic.comments?.map((c) => c.text || '').join(' ') || '';
+          const combined =
+            `${title} ${description} ${commentTexts}`.toLowerCase();
+          return searchWords.every((word) => combined.includes(word));
+        })();
 
-      const combinedText =
-        `${title} ${description} ${commentTexts}`.toLowerCase();
-
-      return searchWords.every((word) => combinedText.includes(word));
+      return matchesId && matchesText;
     });
   }
 }

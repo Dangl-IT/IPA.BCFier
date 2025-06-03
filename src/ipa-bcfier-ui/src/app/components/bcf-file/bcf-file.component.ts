@@ -1,7 +1,6 @@
 import {
   BcfFile,
   BcfTopic,
-  NavisworksClashGroupingData,
   ProjectGet,
   ProjectsClient,
   ViewpointsClient,
@@ -10,6 +9,8 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
+  OnDestroy,
+  OnInit,
   TemplateRef,
   ViewChild,
   inject,
@@ -23,13 +24,12 @@ import {
   MessageType,
   TeamsMessengerService,
 } from '../../services/teams-messenger.service';
-import { of, switchMap, take } from 'rxjs';
+import { Subject, take, takeUntil } from 'rxjs';
 
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
-import { ClashGroupingOptionsComponent } from '../clash-grouping-options/clash-grouping-options.component';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
@@ -57,6 +57,7 @@ import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
+import { GroupedClasheIdsMessengerService } from '../../services/messengers/grouped-clashe-ids-messenger.service';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -81,7 +82,7 @@ import { getNewRandomGuid } from '../../functions/uuid';
   templateUrl: './bcf-file.component.html',
   styleUrl: './bcf-file.component.scss',
 })
-export class BcfFileComponent {
+export class BcfFileComponent implements OnInit, OnDestroy {
   @Input() bcfFile!: BcfFile;
 
   @ViewChild('revitDialogContent', { static: true })
@@ -91,6 +92,9 @@ export class BcfFileComponent {
   issueStatuses$ = inject(IssueStatusesService).issueStatuses;
   issueTypes$ = inject(IssueTypesService).issueTypes;
   users$ = inject(ProjectUsersService).users;
+  private groupedClasheIdsMessengerService = inject(
+    GroupedClasheIdsMessengerService
+  );
   issueFilterService = inject(IssueFilterService);
   filterPipe = inject(TopicFilterPipe).transform;
   bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
@@ -125,7 +129,9 @@ export class BcfFileComponent {
   private selectedProjectMessengerService = inject(
     SelectedProjectMessengerService
   );
+  private $destroy = new Subject<void>();
   selectedProject: ProjectGet | null = null;
+  groupedClashIds: string[] = [];
 
   ngOnInit() {
     if (!this.bcfFile) return;
@@ -142,6 +148,17 @@ export class BcfFileComponent {
         );
       }
     });
+
+    this.groupedClasheIdsMessengerService.groupedClacheIds
+      .pipe(takeUntil(this.$destroy))
+      .subscribe((ids) => {
+        this.groupedClashIds = ids;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.$destroy.next();
+    this.$destroy.complete();
   }
 
   private _search = '';
