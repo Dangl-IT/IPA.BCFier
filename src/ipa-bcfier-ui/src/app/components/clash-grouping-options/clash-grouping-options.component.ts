@@ -16,12 +16,10 @@ import {
   NavisworksClashSelection,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
-import { ClashSelectComponent } from '../clash-select/clash-select.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { GroupingTypePipe } from '../../pipes/grouping-type.pipe';
 import { BackendService } from '../../services/BackendService';
-import { ElementSelectComponent } from '../element-select/element-select.component';
 
 @Component({
   selector: 'bcfier-clash-grouping-options',
