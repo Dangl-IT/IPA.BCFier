@@ -156,7 +156,11 @@ namespace IPA.Bcfier.Revit
 
             if (!string.IsNullOrWhiteSpace(elementId?.RevitId) && long.TryParse(elementId!.RevitId, out _))
             {
+#if REVIT_2023 || REVIT_2022 || REVIT_2021
+                var element = uiDocument.Document.GetElement(new ElementId(int.Parse(elementId.RevitId)));
+#else
                 var element = uiDocument.Document.GetElement(new ElementId(long.Parse(elementId.RevitId)));
+#endif
                 if (element != null)
                 {
                     _revitTaskQueueHandler.ElementSelectionInstructionsQueue.Enqueue(new Models.ElementSelectionInstructions
