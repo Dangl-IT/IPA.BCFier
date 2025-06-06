@@ -45,11 +45,14 @@ namespace IPA.Bcfier.Navisworks
             {
                 if (_bcfierAppProcess != null)
                 {
-                    ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                    Task.Run(async () =>
                     {
-                        Command = IpcMessageCommand.CadClosing,
-                        Data = appCorrelationId.ToString()
-                    })).ConfigureAwait(true).GetAwaiter().GetResult();
+                        await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+                        {
+                            Command = IpcMessageCommand.CadClosing,
+                            Data = appCorrelationId.ToString()
+                        }));
+                    });
                 }
             };
 
