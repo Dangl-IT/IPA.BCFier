@@ -3,13 +3,14 @@
   <ng-container [formGroup]="projectDetailsForm">
     <div class="field-container">
       <mat-form-field class="dark-theme">
-        <mat-label>Project name</mat-label>
-        <input matInput formControlName="name" />
-      </mat-form-field>
-      <mat-form-field class="dark-theme">
         <mat-label>Project number</mat-label>
         <input matInput formControlName="number" />
       </mat-form-field>
+      <mat-form-field class="dark-theme">
+        <mat-label>Project name</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+
       <mat-form-field class="dark-theme">
         <mat-label>Teams webhook</mat-label>
         <input matInput formControlName="teamsWebhook" />
@@ -28,7 +29,8 @@
           <mat-icon>folder_open</mat-icon>
         </button>
       </div>
-      <div class="folder-container">
+      <!-- This part no needed right now -->
+      <!-- <div class="folder-container">
         <mat-form-field class="dark-theme full-width">
           <mat-label>Choose the Revit project file</mat-label>
           <input matInput formControlName="revitFilePath" />
@@ -41,7 +43,7 @@
         >
           <mat-icon>folder_open</mat-icon>
         </button>
-      </div>
+      </div> -->
     </div>
   </ng-container>
 
