@@ -8,22 +8,5 @@ bcfier-top-menu {
   margin-bottom: 1rem;
 }
 
-.file-close-button {
-  margin-left: 10px;
-}
 
-mat-tab-group {
-  height: calc(100% - 64px);
-  min-height: calc(100% - 64px);
-  min-width: 100%;
-  width: 100%;
-  margin: 0px;
-}
 
-::ng-deep .mat-mdc-tab-header {
-  margin: 0 0 1rem;
-}
-
-::ng-deep  .mat-mdc-tab-body-wrapper {
-  height: calc(100% - 48px - 1rem);
-}

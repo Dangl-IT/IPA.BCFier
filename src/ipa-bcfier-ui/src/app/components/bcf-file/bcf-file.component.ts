@@ -83,7 +83,7 @@ import { getNewRandomGuid } from '../../functions/uuid';
   styleUrl: './bcf-file.component.scss',
 })
 export class BcfFileComponent implements OnInit, OnDestroy {
-  @Input() bcfFile!: BcfFile;
+  @Input() bcfFile: BcfFile | null = null;
 
   @ViewChild('revitDialogContent', { static: true })
   revitDialogContent!: TemplateRef<unknown>;
@@ -211,7 +211,9 @@ export class BcfFileComponent implements OnInit, OnDestroy {
         // We'll add a server assigned id like "Revit_<GUID>"
         newIssue.serverAssignedId = `Revit_${getNewRandomGuid()}`;
       }
-
+      if (!this.bcfFile) {
+        return;
+      }
       this.bcfFile.topics.push(newIssue);
       this.oneSelectTopic(newIssue);
       this.filteredTopics = [...this.bcfFile.topics];
@@ -223,7 +225,9 @@ export class BcfFileComponent implements OnInit, OnDestroy {
     if (!this.selectedTopic) {
       return;
     }
-
+    if (!this.bcfFile) {
+      return;
+    }
     this.bcfFile.topics = this.bcfFile.topics.filter(
       (topic) => topic.id !== this.selectedTopic?.id
     );
@@ -271,7 +275,9 @@ export class BcfFileComponent implements OnInit, OnDestroy {
       !!users ||
       !!issueRange.start ||
       !!issueRange.end;
-
+    if (!this.bcfFile) {
+      return;
+    }
     this.filteredTopics = isValuePresentInFilters
       ? [
           ...this.issueFilterService.filterIssue(
@@ -300,6 +306,9 @@ export class BcfFileComponent implements OnInit, OnDestroy {
           statusType: string | null;
         }) => {
           if (!selection) {
+            return;
+          }
+          if (!this.bcfFile) {
             return;
           }
           this.notificationsService.info(
@@ -351,9 +360,10 @@ export class BcfFileComponent implements OnInit, OnDestroy {
 
                     if (selection.onlyImportNew) {
                       // In that case, we're filtering out those topics that already exist in the
+
                       createdTopics = createdTopics.filter(
                         (topic) =>
-                          !this.bcfFile.topics.some(
+                          !this.bcfFile?.topics.some(
                             (existingTopic) =>
                               existingTopic.serverAssignedId ===
                               topic.serverAssignedId
@@ -367,7 +377,7 @@ export class BcfFileComponent implements OnInit, OnDestroy {
                     const topicsToAdd: BcfTopic[] = [];
                     createdTopics.forEach((createdTopic) => {
                       // We'll check if it exists already, and if it does, we'll just update the status
-                      var existingTopic = this.bcfFile.topics.find(
+                      var existingTopic = this.bcfFile?.topics.find(
                         (existing) =>
                           existing.serverAssignedId ===
                           createdTopic.serverAssignedId
@@ -378,6 +388,10 @@ export class BcfFileComponent implements OnInit, OnDestroy {
                         topicsToAdd.push(createdTopic);
                       }
                     });
+
+                    if (!this.bcfFile) {
+                      return;
+                    }
 
                     this.bcfFile.topics.push(...topicsToAdd);
                     this.filteredTopics = [...this.bcfFile.topics];
