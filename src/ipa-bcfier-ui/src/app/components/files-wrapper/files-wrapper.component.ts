@@ -1,4 +1,10 @@
-import { Component, inject, input, OnInit, viewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { BcfFileComponent } from '../bcf-file/bcf-file.component';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,11 +25,18 @@ import {
 import {
   BcfFile,
   BcfFileWrapper,
+  ProjectGet,
 } from '../../generated-client/generated-client';
 import { NotificationsService } from '../../services/notifications.service';
 import { BackendService } from '../../services/BackendService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { AsyncPipe } from '@angular/common';
+import { RevitProjectMessengerService } from '../../services/messengers/revit-project-messenger.service';
+import { ProjectsService } from '../../services/light-query/projects.service';
+import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ProjectsTableComponent } from '../projects-table/projects-table.component';
 
 @Component({
   selector: 'bcfier-files-wrapper',
@@ -39,15 +52,24 @@ import { AsyncPipe } from '@angular/common';
 })
 export class FilesWrapperComponent implements OnInit {
   tabGroup = viewChild.required<MatTabGroup>(MatTabGroup);
+  revitDialogContent =
+    viewChild.required<TemplateRef<unknown>>('revitDialogContent');
   private destroyed$ = new Subject<void>();
   bcfFiles!: Observable<BcfFileWrapper[]>;
+  selectedProject: ProjectGet | null = null;
 
   private bcfFilesMessengerService = inject(BcfFilesMessengerService);
   private notificationsService = inject(NotificationsService);
   private backendService = inject(BackendService);
+  private revitProjectMessengerService = inject(RevitProjectMessengerService);
+  private projectsService = inject(ProjectsService);
+  private selectedProjectMessengerService = inject(
+    SelectedProjectMessengerService
+  );
   private bcfFileAutomaticallySaveService = inject(
     BcfFileAutomaticallySaveService
   );
+  private dialog = inject(MatDialog);
 
   ngOnDestroy(): void {
     this.destroyed$.next();
@@ -55,6 +77,17 @@ export class FilesWrapperComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    //Here we get messages only if app is connected to Revit
+    this.revitProjectMessengerService.revitProject
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((project) => {
+        if (project) {
+          this.findRevitProjectInDatabase(
+            project.projectNumber,
+            project.filePath
+          );
+        }
+      });
     this.bcfFiles = this.bcfFilesMessengerService.bcfFiles;
     this.changeSelectedTabIndex(0);
 
@@ -190,5 +223,74 @@ export class FilesWrapperComponent implements OnInit {
     if (this.tabGroup()) {
       this.tabGroup().selectedIndex = bcfFiles.indexOf(bcfFile);
     }
+  }
+
+  private findRevitProjectInDatabase(
+    projectNumber: string,
+    filePath: string
+  ): void {
+    this.projectsService.getAll().subscribe((projects) => {
+      if (projects?.length && projects.length > 0) {
+        let selectedProject =
+          projects.find(
+            (p) =>
+              p.number === projectNumber &&
+              p.revitFilePath === filePath &&
+              p.number?.length > 0
+          ) ||
+          projects.find((p) => p.revitFilePath === filePath) ||
+          projects.find(
+            (p) => p.number === projectNumber && p.number?.length > 0
+          );
+
+        if (
+          this.selectedProjectMessengerService.lastSelectedProjectId ===
+            selectedProject?.id ||
+          !selectedProject
+        ) {
+          // In that case, we don't want to show the dialog and just keep everything as-is
+          return;
+        }
+
+        this.selectedProject = selectedProject;
+        this.dialog
+          .open(ConfirmDialogComponent, {
+            autoFocus: false,
+            restoreFocus: false,
+            disableClose: true,
+            data: {
+              contentTemplate: this.revitDialogContent(),
+              cancelBtnText: 'Switch Project',
+            },
+          })
+          .afterClosed()
+          .subscribe((confirm) => {
+            if (confirm) {
+              this.selectedProjectMessengerService.setSelectedProject(
+                this.selectedProject
+              );
+            } else {
+              this.dialog
+                .open(ProjectsTableComponent, {
+                  autoFocus: false,
+                  restoreFocus: false,
+                  disableClose: true,
+                  panelClass: 'projects-table-dialog',
+                })
+                .afterClosed()
+                .subscribe((project: ProjectGet) => {
+                  if (project) {
+                    this.selectedProjectMessengerService.setSelectedProject(
+                      project
+                    );
+                  }
+                });
+            }
+          });
+      } else {
+        this.selectedProject = null;
+        this.revitProjectMessengerService.setRevitProject(this.selectedProject);
+      }
+    });
   }
 }

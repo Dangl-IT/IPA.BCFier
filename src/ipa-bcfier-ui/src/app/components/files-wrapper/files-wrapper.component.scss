@@ -18,3 +18,7 @@ mat-tab-group {
 .file-close-button {
   margin-left: 10px;
 }
+
+::ng-deep .projects-table-dialog .mat-mdc-dialog-surface {
+  padding: 20px;
+}

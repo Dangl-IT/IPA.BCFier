@@ -38,7 +38,7 @@ import { AppConfigService } from '../../services/AppConfigService';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -83,6 +83,7 @@ export class ProjectsTableComponent
   matDialog = inject(MatDialog);
   cdr = inject(ChangeDetectorRef);
   appConfigService = inject(AppConfigService);
+  private dialogRef = inject(MatDialogRef<ProjectsTableComponent>);
 
   private destroyed$ = new Subject<void>();
   displayedColumns = ['name', 'number', 'createdAtUtc', 'actions'];
@@ -136,6 +137,7 @@ export class ProjectsTableComponent
       this.openProjectDetails(project);
     } else {
       this.setSelectedProject(project);
+      this.dialogRef.close(project);
     }
   }
 
