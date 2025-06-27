@@ -1,0 +1,71 @@
+<div class="wrapper">
+  <mat-form-field class="top-field">
+    <mat-label>Selected topic titles</mat-label>
+    <input matInput [value]="getListTopicTitles(selectedListTopic)" readonly />
+  </mat-form-field>
+
+  <div class="info-select">
+    <div style="width: 124px"></div>
+
+    <mat-form-field class="dark-theme">
+      <mat-label>Status</mat-label>
+      <mat-select [(value)]="selectedStatus">
+        @for (status of (issueStatuses$ | async)?.values(); track status) { @if
+        (!additionalMode || status) {
+        <mat-option [value]="status">{{ status || "No Status" }}</mat-option>
+        } }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="dark-theme">
+      <mat-label>Type</mat-label>
+      <mat-select [(value)]="selectedType" multiple>
+        @for (type of (issueTypes$ | async)?.values(); track type) { @if
+        (!additionalMode || type) {
+        <mat-option [value]="type" (click)="changeType(type)">{{
+          type || "No Type"
+        }}</mat-option>
+        } }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="dark-theme">
+      <mat-label>Responsible</mat-label>
+      <mat-select [(value)]="selectedUser" (opened)="refreshUsers()" multiple>
+        @for (user of (users$ | async)?.values(); track user.id) { @if
+        (!additionalMode || user.identifier) {
+        <mat-option [value]="user" (click)="changeUser(user)">{{
+          user.identifier || "No Responsible"
+        }}</mat-option>
+        } }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Due Date</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDueDate" />
+      <mat-hint>DD/MM/YYYY</mat-hint>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </div>
+  <p>
+    <mat-checkbox [checked]="additionalMode" (change)="changeAdditionalMode($event.checked)" matTooltip="items will add to other">Additional mode</mat-checkbox>
+  </p>
+  <p class="buttons">
+    <button
+      mat-flat-button
+      (click)="save()"
+      color="primary"
+      [disabled]="
+        !selectedDueDate && selectedStatus===null && !selectedType.length && !selectedUser.length
+      "
+    >
+      Save
+    </button>
+    <button mat-flat-button color="warn" (click)="cancel()">Cancel</button>
+  </p>
+</div>
