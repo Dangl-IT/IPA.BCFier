@@ -1,9 +1,4 @@
 <mat-tab-group mat-stretch-tabs="false" backgroundColor="primary" dynamicHeight>
-  @if ((settingsMessengerService.settings | async)?.mainDatabaseLocation) {
-  <mat-tab label="Projects"
-    ><bcfier-projects-table></bcfier-projects-table
-  ></mat-tab>
-  }
   <mat-tab label="User Settings">
     <h2 mat-dialog-title>Settings</h2>
     <mat-dialog-content>
@@ -24,7 +19,5 @@
       <button mat-raised-button (click)="close()" color="warn">Cancel</button>
     </mat-dialog-actions>
   </mat-tab>
-  @if ((settingsMessengerService.settings | async)?.mainDatabaseLocation) {
-  <mat-tab label="Users"><bcfier-users></bcfier-users></mat-tab>
-  }
+  <mat-tab label="Admin"><bcfier-error-logs></bcfier-error-logs></mat-tab>
 </mat-tab-group>

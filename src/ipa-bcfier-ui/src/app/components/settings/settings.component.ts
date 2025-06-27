@@ -8,10 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ProjectsTableComponent } from '../projects-table/projects-table.component';
 import { SettingsClient } from '../../generated-client/generated-client';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
-import { UsersComponent } from '../users/users.component';
 
 @Component({
   selector: 'bcfier-settings',
@@ -22,8 +20,7 @@ import { UsersComponent } from '../users/users.component';
     MatInputModule,
     MatButtonModule,
     MatTabsModule,
-    ProjectsTableComponent,
-    UsersComponent,
+    ErrorLogsComponent,
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
