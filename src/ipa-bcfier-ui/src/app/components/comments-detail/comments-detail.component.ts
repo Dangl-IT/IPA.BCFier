@@ -38,6 +38,8 @@ import { take } from 'rxjs';
     MatIconModule,
     MatInputModule,
     ViewpointImageDirective,
+    MatTooltipModule,
+    ElementsViewpointComponent,
   ],
   templateUrl: './comments-detail.component.html',
   styleUrl: './comments-detail.component.scss',

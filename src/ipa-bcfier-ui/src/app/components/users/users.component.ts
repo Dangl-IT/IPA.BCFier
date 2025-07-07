@@ -8,10 +8,13 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { Subject, filter, switchMap, takeUntil } from 'rxjs';
 import { UserGet, UsersClient } from '../../generated-client/generated-client';
 
@@ -37,7 +40,6 @@ import { UsersService } from '../../services/light-query/users.service';
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
-    AsyncPipe,
     MatIconModule,
     MatButtonModule,
     FormsModule,

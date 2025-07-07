@@ -1,12 +1,8 @@
 <h1 mat-dialog-title>Confirmation</h1>
 <div mat-dialog-content>
-  <ng-container *ngIf="data.contentTemplate; else defaultContent">
-    <ng-container *ngTemplateOutlet="data.contentTemplate"></ng-container>
-  </ng-container>
-
-  <ng-template #defaultContent>
-    Are you sure you want to perform {{ data.action }}?
-  </ng-template>
+  @if (data.contentTemplate) {
+  <ng-container *ngTemplateOutlet="data.contentTemplate"></ng-container>
+  } @else { Are you sure you want to perform {{ data.action }}? }
 </div>
 <div mat-dialog-actions>
   <button mat-flat-button (click)="close(false)">Cancel</button>

@@ -13,14 +13,18 @@ import { IssueStatusesService } from '../../services/issue-statuses.service';
 import { IssueTypesService } from '../../services/issue-types.service';
 import { map } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'bcfier-bulk-edit-topic',
-  imports: [MatButtonModule, MatDialogModule, MatSelectModule, AsyncPipe],
+  imports: [
+    MatButtonModule,
+    MatDialogModule,
+    MatSelectModule,
+    AsyncPipe,
+    FormsModule,
+    MatDatepickerModule,
+  ],
   templateUrl: './bulk-edit-topic.component.html',
   styleUrl: './bulk-edit-topic.component.scss',
 })

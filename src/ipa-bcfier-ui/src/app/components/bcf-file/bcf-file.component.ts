@@ -75,6 +75,7 @@ import { getNewRandomGuid } from '../../functions/uuid';
     MatSidenavModule,
     IssueFiltersComponent,
     SafeUrlPipe,
+    TriangleCornerDirective,
   ],
   templateUrl: './bcf-file.component.html',
   styleUrl: './bcf-file.component.scss',

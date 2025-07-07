@@ -60,7 +60,6 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
     MatSortModule,
     MatPaginatorModule,
     DatePipe,
-    AsyncPipe,
     MatIconModule,
     MatButtonModule,
     FormsModule,
