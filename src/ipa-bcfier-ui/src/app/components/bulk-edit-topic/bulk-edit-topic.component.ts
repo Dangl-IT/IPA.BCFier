@@ -1,6 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { ProjectUsersService } from '../../services/project-users.service';
 import { AsyncPipe } from '@angular/common';
@@ -16,8 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'bcfier-bulk-edit-topic',
-  standalone: true,
-  imports: [MatButtonModule, MatDialogModule, MatSelectModule, AsyncPipe, MatCheckboxModule, FormsModule, MatTooltipModule, MatDatepickerModule, MatInputModule],
+  imports: [MatButtonModule, MatDialogModule, MatSelectModule, AsyncPipe],
   templateUrl: './bulk-edit-topic.component.html',
   styleUrl: './bulk-edit-topic.component.scss',
 })
@@ -50,9 +53,14 @@ export class BulkTopicEditComponent {
   }
 
   save(): void {
-    if (this.selectedUser.length || this.selectedType.length || this.selectedStatus || this.selectedDueDate) {
+    if (
+      this.selectedUser.length ||
+      this.selectedType.length ||
+      this.selectedStatus ||
+      this.selectedDueDate
+    ) {
       this.dialogRef.close({
-        responsibleUser: this.selectedUser.map(user => user.identifier),
+        responsibleUser: this.selectedUser.map((user) => user.identifier),
         type: this.selectedType,
         status: this.selectedStatus,
         dueDate: this.selectedDueDate,
@@ -70,12 +78,12 @@ export class BulkTopicEditComponent {
     if (count > 0) {
       if (user.id === '') {
         if (count > 1) {
-          for(let i = 0; i < count - 1; i++) {
+          for (let i = 0; i < count - 1; i++) {
             this.selectedUser.pop();
           }
         }
       } else {
-        const indexNull = this.selectedUser.findIndex(user => user.id === '');
+        const indexNull = this.selectedUser.findIndex((user) => user.id === '');
         if (indexNull !== -1) {
           this.selectedUser.splice(indexNull, 1);
         }
@@ -88,12 +96,12 @@ export class BulkTopicEditComponent {
     if (count > 0) {
       if (type === '') {
         if (count > 1) {
-          for(let i = 0; i < count - 1; i++) {
+          for (let i = 0; i < count - 1; i++) {
             this.selectedType.pop();
           }
         }
       } else {
-        const indexNull = this.selectedType.findIndex(item => item === '');
+        const indexNull = this.selectedType.findIndex((item) => item === '');
         if (indexNull !== -1) {
           this.selectedType.splice(indexNull, 1);
         }

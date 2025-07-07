@@ -16,21 +16,20 @@ import { getNewRandomGuid } from '../../functions/uuid';
 import { FileInputDirective } from '@ngx-dropzone/cdk';
 
 @Component({
-  selector: 'bcfier-add-snapshot-viewpoint',
-  standalone: true,
-  imports: [
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatChipsModule,
-    MatDialogModule,
-    MatIconModule,
-    MatButtonModule,
-    MatDropzone,
-    FileInputDirective
-  ],
-  templateUrl: './add-snapshot-viewpoint.component.html',
-  styleUrl: './add-snapshot-viewpoint.component.scss',
+    selector: 'bcfier-add-snapshot-viewpoint',
+    imports: [
+        MatInputModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatChipsModule,
+        MatDialogModule,
+        MatIconModule,
+        MatButtonModule,
+        DropzoneCdkModule,
+        DropzoneMaterialModule,
+    ],
+    templateUrl: './add-snapshot-viewpoint.component.html',
+    styleUrl: './add-snapshot-viewpoint.component.scss'
 })
 export class AddSnapshotViewpointComponent {
   constructor(public dialogRef: MatDialogRef<AddSnapshotViewpointComponent>) {}

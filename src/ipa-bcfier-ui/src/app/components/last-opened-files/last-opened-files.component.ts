@@ -17,12 +17,11 @@ import { BackendService } from '../../services/BackendService';
 import { NotificationsService } from '../../services/notifications.service';
 
 @Component({
-  selector: 'bcfier-last-opened-files',
-  standalone: true,
-  imports: [MatMenuModule, MatButtonModule, MatTooltipModule, FileNamePipe],
-  templateUrl: './last-opened-files.component.html',
-  styleUrl: './last-opened-files.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'bcfier-last-opened-files',
+    imports: [MatMenuModule, MatButtonModule, MatTooltipModule, FileNamePipe],
+    templateUrl: './last-opened-files.component.html',
+    styleUrl: './last-opened-files.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LastOpenedFilesComponent {
   isOpen = input<boolean>(false);

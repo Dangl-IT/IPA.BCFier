@@ -14,8 +14,7 @@ import {
 } from '@angular/material/dialog';
 @Component({
   selector: 'bcfier-confirm-dialog',
-  standalone: true,
-  imports: [MatButtonModule, MatDialogModule, NgIf, NgTemplateOutlet],
+  imports: [MatButtonModule, MatDialogModule],
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

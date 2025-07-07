@@ -35,7 +35,6 @@ import { UsersService } from '../../services/light-query/users.service';
 
 @Component({
   selector: 'bcfier-users',
-  standalone: true,
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -43,6 +42,7 @@ import { UsersService } from '../../services/light-query/users.service';
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    AsyncPipe,
     MatIconModule,
     MatButtonModule,
     FormsModule,

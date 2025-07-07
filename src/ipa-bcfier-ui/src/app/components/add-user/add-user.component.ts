@@ -12,19 +12,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
-  selector: 'bcfier-add-user',
-  standalone: true,
-  imports: [
-    MatDialogModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-    FormsModule,
-  ],
-  templateUrl: './add-user.component.html',
-  styleUrl: './add-user.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'bcfier-add-user',
+    imports: [
+        MatDialogModule,
+        MatInputModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        ReactiveFormsModule,
+        FormsModule,
+    ],
+    templateUrl: './add-user.component.html',
+    styleUrl: './add-user.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AddUserComponent {
   newUserForm = this.fb.group({

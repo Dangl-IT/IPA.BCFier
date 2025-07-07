@@ -15,7 +15,6 @@ import { UsersComponent } from '../users/users.component';
 
 @Component({
   selector: 'bcfier-settings',
-  standalone: true,
   imports: [
     CommonModule,
     MatDialogModule,
@@ -25,7 +24,6 @@ import { UsersComponent } from '../users/users.component';
     MatTabsModule,
     ProjectsTableComponent,
     UsersComponent,
-    ErrorLogsComponent,
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',

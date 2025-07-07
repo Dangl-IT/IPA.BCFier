@@ -32,21 +32,20 @@ import { SettingsComponent } from '../settings/settings.component';
 import { version } from '../../version';
 
 @Component({
-  selector: 'bcfier-top-menu',
-  standalone: true,
-  imports: [
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    UpperCasePipe,
-    AsyncPipe,
-    MatMenuModule,
-    LastOpenedFilesComponent,
-    MatCheckboxModule,
-    FormsModule,
-  ],
-  templateUrl: './top-menu.component.html',
-  styleUrl: './top-menu.component.scss',
+    selector: 'bcfier-top-menu',
+    imports: [
+        MatIconModule,
+        MatButtonModule,
+        MatDialogModule,
+        UpperCasePipe,
+        AsyncPipe,
+        MatMenuModule,
+        LastOpenedFilesComponent,
+        MatCheckboxModule,
+        FormsModule,
+    ],
+    templateUrl: './top-menu.component.html',
+    styleUrl: './top-menu.component.scss'
 })
 export class TopMenuComponent implements OnDestroy, OnInit {
   private destroyed$ = new Subject<void>();

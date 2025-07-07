@@ -8,11 +8,10 @@ import { ViewpointImageDirective } from '../../directives/viewpoint-image.direct
 import { BcfViewpoint } from '../../generated-client/generated-client';
 
 @Component({
-  selector: 'bcfier-image-preview',
-  standalone: true,
-  imports: [MatDialogModule, ViewpointImageDirective],
-  templateUrl: './image-preview.component.html',
-  styleUrl: './image-preview.component.scss',
+    selector: 'bcfier-image-preview',
+    imports: [MatDialogModule, ViewpointImageDirective],
+    templateUrl: './image-preview.component.html',
+    styleUrl: './image-preview.component.scss'
 })
 export class ImagePreviewComponent {
   constructor(

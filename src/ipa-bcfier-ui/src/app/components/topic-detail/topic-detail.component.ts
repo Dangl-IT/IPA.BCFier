@@ -38,7 +38,6 @@ import { ProjectUsersService } from '../../services/project-users.service';
 
 @Component({
   selector: 'bcfier-topic-detail',
-  standalone: true,
   imports: [
     FormsModule,
     MatIconModule,
@@ -48,11 +47,10 @@ import { ProjectUsersService } from '../../services/project-users.service';
     CommonModule,
     MatSelectModule,
     MatDialogModule,
+    AddStringValueComponent,
     CommentsViewpointFilterPipe,
     CommentsDetailComponent,
     MatDatepickerModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
   ],
   templateUrl: './topic-detail.component.html',
   styleUrl: './topic-detail.component.scss',

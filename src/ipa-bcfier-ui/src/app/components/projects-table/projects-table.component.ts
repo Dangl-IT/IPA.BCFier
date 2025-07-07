@@ -52,7 +52,6 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
 
 @Component({
   selector: 'bcfier-projects-table',
-  standalone: true,
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -61,6 +60,7 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
     MatSortModule,
     MatPaginatorModule,
     DatePipe,
+    AsyncPipe,
     MatIconModule,
     MatButtonModule,
     FormsModule,
