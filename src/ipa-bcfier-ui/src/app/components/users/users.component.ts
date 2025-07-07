@@ -8,12 +8,8 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { AsyncPipe, CommonModule } from '@angular/common';
-import {
-  MatPaginator,
-  MatPaginatorModule,
-  PageEvent,
-} from '@angular/material/paginator';
+import { AsyncPipe } from '@angular/common';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Subject, filter, switchMap, takeUntil } from 'rxjs';
@@ -36,7 +32,6 @@ import { UsersService } from '../../services/light-query/users.service';
 @Component({
   selector: 'bcfier-users',
   imports: [
-    CommonModule,
     MatFormFieldModule,
     MatInputModule,
     MatTableModule,
