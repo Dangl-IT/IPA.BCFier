@@ -4,7 +4,6 @@ import { BcfTopic } from '../generated-client/generated-client';
 
 @Pipe({
   name: 'topicFilter',
-  standalone: true,
 })
 export class TopicFilterPipe implements PipeTransform {
   /**

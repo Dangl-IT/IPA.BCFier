@@ -29,7 +29,6 @@ import { LoadingService } from '../../services/loading.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -38,7 +37,6 @@ import { ProjectUsersService } from '../../services/project-users.service';
 
 @Component({
   selector: 'bcfier-topic-detail',
-  standalone: true,
   imports: [
     FormsModule,
     MatIconModule,
@@ -51,8 +49,6 @@ import { ProjectUsersService } from '../../services/project-users.service';
     CommentsViewpointFilterPipe,
     CommentsDetailComponent,
     MatDatepickerModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
   ],
   templateUrl: './topic-detail.component.html',
   styleUrl: './topic-detail.component.scss',

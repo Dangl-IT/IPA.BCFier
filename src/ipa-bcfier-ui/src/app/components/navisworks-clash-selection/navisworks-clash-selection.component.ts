@@ -14,19 +14,18 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'bcfier-navisworks-clash-selection',
-  standalone: true,
-  imports: [
-    MatInputModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    FormsModule,
-    MatTooltipModule,
-  ],
-  templateUrl: './navisworks-clash-selection.component.html',
-  styleUrl: './navisworks-clash-selection.component.scss',
+    selector: 'bcfier-navisworks-clash-selection',
+    imports: [
+        MatInputModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatSelectModule,
+        MatCheckboxModule,
+        FormsModule,
+        MatTooltipModule,
+    ],
+    templateUrl: './navisworks-clash-selection.component.html',
+    styleUrl: './navisworks-clash-selection.component.scss'
 })
 export class NavisworksClashSelectionComponent {
   viewpointsClient = inject(ViewpointsClient);

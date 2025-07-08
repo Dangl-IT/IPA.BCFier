@@ -1,9 +1,5 @@
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { BcfViewpoint } from '../../generated-client/generated-client';
 import { Component } from '@angular/core';
@@ -13,11 +9,9 @@ import { MatDropzone } from '@ngx-dropzone/material';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { getNewRandomGuid } from '../../functions/uuid';
-import { FileInputDirective } from '@ngx-dropzone/cdk';
 
 @Component({
   selector: 'bcfier-add-snapshot-viewpoint',
-  standalone: true,
   imports: [
     MatInputModule,
     FormsModule,
@@ -27,7 +21,6 @@ import { FileInputDirective } from '@ngx-dropzone/cdk';
     MatIconModule,
     MatButtonModule,
     MatDropzone,
-    FileInputDirective
   ],
   templateUrl: './add-snapshot-viewpoint.component.html',
   styleUrl: './add-snapshot-viewpoint.component.scss',

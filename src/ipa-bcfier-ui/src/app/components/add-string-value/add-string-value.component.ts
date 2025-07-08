@@ -9,11 +9,10 @@ import {
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
-  selector: 'bcfier-add-string-value',
-  standalone: true,
-  imports: [MatInputModule, FormsModule, MatDialogModule, MatButtonModule],
-  templateUrl: './add-string-value.component.html',
-  styleUrl: './add-string-value.component.scss',
+    selector: 'bcfier-add-string-value',
+    imports: [MatInputModule, FormsModule, MatDialogModule, MatButtonModule],
+    templateUrl: './add-string-value.component.html',
+    styleUrl: './add-string-value.component.scss'
 })
 export class AddStringValueComponent {
   value = '';

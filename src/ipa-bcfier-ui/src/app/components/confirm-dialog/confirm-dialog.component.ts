@@ -1,4 +1,4 @@
-import { NgIf, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,8 +14,7 @@ import {
 } from '@angular/material/dialog';
 @Component({
   selector: 'bcfier-confirm-dialog',
-  standalone: true,
-  imports: [MatButtonModule, MatDialogModule, NgIf, NgTemplateOutlet],
+  imports: [MatButtonModule, MatDialogModule, NgTemplateOutlet],
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

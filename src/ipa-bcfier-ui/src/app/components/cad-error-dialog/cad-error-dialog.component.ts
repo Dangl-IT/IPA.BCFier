@@ -7,11 +7,10 @@ import {
 } from '@angular/material/dialog';
 
 @Component({
-  selector: 'bcfier-cad-error-dialog',
-  standalone: true,
-  imports: [MatButtonModule, MatDialogModule],
-  templateUrl: './cad-error-dialog.component.html',
-  styleUrl: './cad-error-dialog.component.scss',
+    selector: 'bcfier-cad-error-dialog',
+    imports: [MatButtonModule, MatDialogModule],
+    templateUrl: './cad-error-dialog.component.html',
+    styleUrl: './cad-error-dialog.component.scss'
 })
 export class CadErrorDialogComponent {
   constructor(

@@ -30,7 +30,6 @@ import { take } from 'rxjs';
 
 @Component({
   selector: 'bcfier-comments-detail',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -39,8 +38,8 @@ import { take } from 'rxjs';
     MatIconModule,
     MatInputModule,
     ViewpointImageDirective,
-    ElementsViewpointComponent,
     MatTooltipModule,
+    ElementsViewpointComponent,
   ],
   templateUrl: './comments-detail.component.html',
   styleUrl: './comments-detail.component.scss',

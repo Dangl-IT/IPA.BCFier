@@ -3,30 +3,36 @@
   <bcfier-top-menu></bcfier-top-menu>
 </mat-toolbar>
 
-<mat-tab-group
-  *ngIf="bcfFiles"
-  dynamicHeight
-  #tabGroup
-  backgroundColor="primary"
-  (selectedIndexChange)="changeSelectedTabIndex($event)"
->
-  <mat-tab *ngFor="let bcfFile of bcfFiles | async; let index = index">
-    <ng-template mat-tab-label *ngIf="bcfFile.bcfFile">
-      {{ bcfFile.bcfFile.fileName }}
-      <button
-        class="file-close-button"
-        color="warn"
-        mat-icon-button
-        (click)="closeBcfFile(bcfFile.bcfFile)"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
-    </ng-template>
-    <ng-template matTabContent>
-      <bcfier-bcf-file
-        *ngIf="bcfFile.bcfFile"
-        [bcfFile]="bcfFile.bcfFile"
-      ></bcfier-bcf-file>
-    </ng-template>
-  </mat-tab>
-</mat-tab-group>
+@if (bcfFiles) {
+  <mat-tab-group
+    dynamicHeight
+    #tabGroup
+    backgroundColor="primary"
+    (selectedIndexChange)="changeSelectedTabIndex($event)"
+    >
+    @for (bcfFile of bcfFiles | async; track bcfFile; let index = $index) {
+      <mat-tab>
+        @if (bcfFile.bcfFile) {
+          <ng-template mat-tab-label>
+            {{ bcfFile.bcfFile.fileName }}
+            <button
+              class="file-close-button"
+              color="warn"
+              mat-icon-button
+              (click)="closeBcfFile(bcfFile.bcfFile)"
+              >
+              <mat-icon>close</mat-icon>
+            </button>
+          </ng-template>
+        }
+        <ng-template matTabContent>
+          @if (bcfFile.bcfFile) {
+            <bcfier-bcf-file
+              [bcfFile]="bcfFile.bcfFile"
+            ></bcfier-bcf-file>
+          }
+        </ng-template>
+      </mat-tab>
+    }
+  </mat-tab-group>
+}

@@ -33,19 +33,18 @@ import { TopMenuComponent } from './components/top-menu/top-menu.component';
 import { version } from './version';
 
 @Component({
-  selector: 'bcfier-root',
-  standalone: true,
-  imports: [
-    MatToolbarModule,
-    MatTabsModule,
-    TopMenuComponent,
-    CommonModule,
-    BcfFileComponent,
-    MatIconModule,
-    MatButtonModule,
-  ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+    selector: 'bcfier-root',
+    imports: [
+        MatToolbarModule,
+        MatTabsModule,
+        TopMenuComponent,
+        CommonModule,
+        BcfFileComponent,
+        MatIconModule,
+        MatButtonModule,
+    ],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnDestroy {
   bcfFiles: Observable<BcfFileWrapper[]>;

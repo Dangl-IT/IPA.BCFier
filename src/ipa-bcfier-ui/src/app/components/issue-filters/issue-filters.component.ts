@@ -37,20 +37,19 @@ export interface IFilters {
 }
 
 @Component({
-  selector: 'bcfier-issue-filters',
-  standalone: true,
-  imports: [
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    AsyncPipe,
-    ReactiveFormsModule,
-    MatDatepickerModule,
-    MatCheckboxModule,
-  ],
-  styleUrl: './issue-filters.component.scss',
-  templateUrl: './issue-filters.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'bcfier-issue-filters',
+    imports: [
+        MatFormFieldModule,
+        MatSelectModule,
+        MatButtonModule,
+        AsyncPipe,
+        ReactiveFormsModule,
+        MatDatepickerModule,
+        MatCheckboxModule,
+    ],
+    styleUrl: './issue-filters.component.scss',
+    templateUrl: './issue-filters.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IssueFiltersComponent {
   @Input({

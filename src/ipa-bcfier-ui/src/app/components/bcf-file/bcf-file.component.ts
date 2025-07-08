@@ -61,7 +61,6 @@ import { getNewRandomGuid } from '../../functions/uuid';
 
 @Component({
   selector: 'bcfier-bcf-file',
-  standalone: true,
   imports: [
     MatButtonModule,
     MatInputModule,
@@ -70,15 +69,15 @@ import { getNewRandomGuid } from '../../functions/uuid';
     MatIconModule,
     TopicPreviewImageDirective,
     FormsModule,
-    TopicFilterPipe,
     MatProgressBarModule,
     TopicDetailComponent,
     MatSidenavModule,
     IssueFiltersComponent,
     SafeUrlPipe,
     TriangleCornerDirective,
+    CommonModule,
+    TopicFilterPipe,
   ],
-  providers: [TopicFilterPipe],
   templateUrl: './bcf-file.component.html',
   styleUrl: './bcf-file.component.scss',
 })
@@ -96,7 +95,7 @@ export class BcfFileComponent implements OnInit, OnDestroy {
     GroupedClasheIdsMessengerService
   );
   issueFilterService = inject(IssueFilterService);
-  filterPipe = inject(TopicFilterPipe).transform;
+  private filterPipe = new TopicFilterPipe();
   bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
   teamsMessengerService = inject(TeamsMessengerService);
   topicMessengerService = inject(TopicMessengerService);
@@ -425,7 +424,7 @@ export class BcfFileComponent implements OnInit, OnDestroy {
 
           const list = selectingMode
             ? this.selectedListTopic
-            : this.filterPipe(this.filteredTopics, this.search);
+            : this.filterPipe.transform(this.filteredTopics, this.search);
 
           list.forEach((topic) => {
             if (bulkOptions.status) {

@@ -104,23 +104,27 @@
       </button>
     </div>
     <div>
-      <div *ngFor="let viewpoint of topic.viewpoints">
+      @for (viewpoint of topic.viewpoints; track viewpoint) {
+      <div>
         <bcfier-comments-detail
           [comments]="topic.comments | commentsViewpointFilter : viewpoint.id"
           [viewpoint]="viewpoint"
           [topic]="topic"
         ></bcfier-comments-detail>
       </div>
-    </div>
-  </div>
+      }
 
-  <div>
-    <h3>Comments</h3>
-    <div>
-      <bcfier-comments-detail
-        [comments]="topic.comments | commentsViewpointFilter : undefined : true"
-        [topic]="topic"
-      ></bcfier-comments-detail>
+      <div>
+        <h3>Comments</h3>
+        <div>
+          <bcfier-comments-detail
+            [comments]="
+              topic.comments | commentsViewpointFilter : undefined : true
+            "
+            [topic]="topic"
+          ></bcfier-comments-detail>
+        </div>
+      </div>
     </div>
   </div>
 </div>

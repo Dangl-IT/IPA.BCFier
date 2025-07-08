@@ -7,11 +7,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NavisworksClashProgressMessengerService } from '../../services/messengers/navisworks-clash-progress-messenger.service';
 
 @Component({
-  selector: 'bcfier-navisworks-clashes-loading-screen',
-  standalone: true,
-  imports: [MatProgressSpinnerModule, MatDialogModule, MatButtonModule],
-  templateUrl: './navisworks-clashes-loading-screen.component.html',
-  styleUrl: './navisworks-clashes-loading-screen.component.scss',
+    selector: 'bcfier-navisworks-clashes-loading-screen',
+    imports: [MatProgressSpinnerModule, MatDialogModule, MatButtonModule],
+    templateUrl: './navisworks-clashes-loading-screen.component.html',
+    styleUrl: './navisworks-clashes-loading-screen.component.scss'
 })
 export class NavisworksClashesLoadingScreenComponent
   implements OnDestroy, OnInit
