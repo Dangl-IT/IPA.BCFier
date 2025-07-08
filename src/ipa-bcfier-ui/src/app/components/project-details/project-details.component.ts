@@ -179,10 +179,10 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       this.projectDetailsForm.get('bcfFilesFolder')?.patchValue(path);
     });
   }
-
-  chooseRevitProjectFile(): void {
-    this.projectsClient.choseRevitProjectFileLocation().subscribe((path) => {
-      this.projectDetailsForm.get('revitFilePath')?.patchValue(path);
-    });
-  }
+  // This part no needed right now
+  // chooseRevitProjectFile(): void {
+  //   this.projectsClient.choseRevitProjectFileLocation().subscribe((path) => {
+  //     this.projectDetailsForm.get('revitFilePath')?.patchValue(path);
+  //   });
+  // }
 }
