@@ -95,6 +95,9 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       });
       this.users$ = this.getProjectUsers(this.data.id);
     }
+    this.projectDetailsForm.get('revitFilePath')?.valueChanges.subscribe(value => {
+      this.extractProjectNumber(value);
+    });
     this.filterUsers();
   }
 
@@ -179,10 +182,26 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       this.projectDetailsForm.get('bcfFilesFolder')?.patchValue(path);
     });
   }
+
   // This part no needed right now
   // chooseRevitProjectFile(): void {
   //   this.projectsClient.choseRevitProjectFileLocation().subscribe((path) => {
   //     this.projectDetailsForm.get('revitFilePath')?.patchValue(path);
   //   });
   // }
+
+  extractProjectNumber(pathFileName: string | null): void {
+    if (pathFileName) {
+      const fileName = pathFileName.split('/').pop() || '';
+      const match = fileName.match(/^(\d+)-/);
+      if (match && match[1]) {
+        this.projectDetailsForm.get('number')?.setValue(match[1]);
+        this.notificationsService.success('Project number extracted: ' + match[1]);
+      } else {
+        this.notificationsService.error('Project name does not contain a valid number.');
+      }
+    } else {
+      this.notificationsService.error('Project name is empty.');
+    }
+  }
 }
