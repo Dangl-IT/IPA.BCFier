@@ -1,7 +1,11 @@
 <div class="wrapper">
   <mat-form-field class="top-field">
-    <mat-label>Selected topic titles</mat-label>
-    <input matInput [value]="getListTopicTitles(selectedListTopic)" readonly />
+    <mat-label>Selected Topics</mat-label>
+    <input
+      matInput
+      [value]="selectedListTopic.length + ' topics selected'"
+      readonly
+    />
   </mat-form-field>
 
   <div class="info-select">

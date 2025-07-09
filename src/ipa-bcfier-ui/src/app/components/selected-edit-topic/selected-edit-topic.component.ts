@@ -64,10 +64,6 @@ export class SelectedEditTopicComponent {
     this.projectUsersService.refreshUsers();
   }
 
-  getListTopicTitles(selectedListTopic: BcfTopic[]): string[] {
-    return selectedListTopic.map((topic) => topic.title || 'No Title');
-  }
-
   changeUser(user: ProjectUserGet): void {
     const count = this.selectedUser.length;
     if (count > 0) {
