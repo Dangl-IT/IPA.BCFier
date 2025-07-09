@@ -1,9 +1,8 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   BcfFile,
   BcfTopic,
   ProjectGet,
-  ProjectsClient,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
 import {
@@ -58,6 +57,7 @@ import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
+import { SelectedEditTopicComponent } from '../selected-edit-topic/selected-edit-topic.component';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -75,8 +75,8 @@ import { getNewRandomGuid } from '../../functions/uuid';
     IssueFiltersComponent,
     SafeUrlPipe,
     TriangleCornerDirective,
-    CommonModule,
     TopicFilterPipe,
+    SelectedEditTopicComponent
   ],
   templateUrl: './bcf-file.component.html',
   styleUrl: './bcf-file.component.scss',
@@ -124,7 +124,6 @@ export class BcfFileComponent implements OnInit, OnDestroy {
     approved: '#00ff00', // Green
     resolved: '#ffff00', // Yellow
   };
-  private projectsClient = inject(ProjectsClient);
   private selectedProjectMessengerService = inject(
     SelectedProjectMessengerService
   );
