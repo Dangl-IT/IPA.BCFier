@@ -47,16 +47,6 @@
               Bulk Topic Edit
             </button>
           </div>
-          } @if(selectedListTopic.length > 1) {
-          <div class="issue-list-buttons">
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="setResponsibleForAll(true)"
-            >
-              Bulk Topic Edit Selection
-            </button>
-          </div>
           }
 
           <div class="filter-wrapper">
@@ -130,11 +120,15 @@
     </mat-drawer-container>
   </div>
   <div class="issue-details">
-    <bcfier-topic-detail
-      *ngIf="selectedTopic"
-      [topic]="selectedTopic"
-      [bcfFile]="bcfFile"
-    ></bcfier-topic-detail>
+    @if (selectedListTopic.length > 1) {
+      <bcfier-selected-edit-topic [selectedListTopic]="selectedListTopic"></bcfier-selected-edit-topic>
+    } @else {
+      <bcfier-topic-detail
+        *ngIf="selectedTopic"
+        [topic]="selectedTopic"
+        [bcfFile]="bcfFile"
+      ></bcfier-topic-detail>
+    }
   </div>
 </div>
 

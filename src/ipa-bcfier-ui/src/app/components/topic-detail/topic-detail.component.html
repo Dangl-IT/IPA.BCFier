@@ -11,7 +11,11 @@
 
   <div class="info-select">
     <div>
+      @if (topic.creationDate) {
       <span>{{ topic.creationDate | date : "dd.MM.yyyy HH:mm" }}</span>
+      } @else {
+      <span>No Date</span>
+      }
     </div>
 
     <mat-form-field class="dark-theme">
