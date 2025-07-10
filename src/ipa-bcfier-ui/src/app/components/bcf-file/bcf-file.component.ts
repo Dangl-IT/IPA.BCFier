@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   BcfFile,
   BcfTopic,
@@ -29,6 +28,7 @@ import { Subject, take, takeUntil } from 'rxjs';
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
+import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { GroupedClasheIdsMessengerService } from '../../services/messengers/grouped-clashe-ids-messenger.service';
 import { IssueFilterService } from '../../services/issue-filter.service';
@@ -49,7 +49,9 @@ import { ProjectUsersService } from '../../services/project-users.service';
 import { ProjectsService } from '../../services/light-query/projects.service';
 import { RevitProjectMessengerService } from '../../services/messengers/revit-project-messenger.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
+import { SelectedEditTopicComponent } from '../selected-edit-topic/selected-edit-topic.component';
 import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
+import { SelectedTopicListMessengerService } from '../../services/messengers/selected-topic-list.messenger.service';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
 import { TopicDetailComponent } from '../topic-detail/topic-detail.component';
 import { TopicFilterPipe } from '../../pipes/topic-filter.pipe';
@@ -57,7 +59,6 @@ import { TopicMessengerService } from '../../services/topic-messenger.service';
 import { TopicPreviewImageDirective } from '../../directives/topic-preview-image.directive';
 import { TriangleCornerDirective } from '../../directives/triangle-corner.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
-import { SelectedEditTopicComponent } from '../selected-edit-topic/selected-edit-topic.component';
 
 @Component({
   selector: 'bcfier-bcf-file',
@@ -76,7 +77,7 @@ import { SelectedEditTopicComponent } from '../selected-edit-topic/selected-edit
     SafeUrlPipe,
     TriangleCornerDirective,
     TopicFilterPipe,
-    SelectedEditTopicComponent
+    SelectedEditTopicComponent,
   ],
   templateUrl: './bcf-file.component.html',
   styleUrl: './bcf-file.component.scss',
@@ -93,6 +94,9 @@ export class BcfFileComponent implements OnInit, OnDestroy {
   users$ = inject(ProjectUsersService).users;
   private groupedClasheIdsMessengerService = inject(
     GroupedClasheIdsMessengerService
+  );
+  private selectedTopicListMessengerService = inject(
+    SelectedTopicListMessengerService
   );
   issueFilterService = inject(IssueFilterService);
   private filterPipe = new TopicFilterPipe();
@@ -209,8 +213,7 @@ export class BcfFileComponent implements OnInit, OnDestroy {
       }
 
       this.bcfFile.topics.push(newIssue);
-      this.selectedTopic = newIssue;
-      this.topicMessengerService.setSelectedTopic(this.selectedTopic);
+      this.oneSelectTopic(newIssue);
       this.filteredTopics = [...this.bcfFile.topics];
       this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
     });
@@ -526,8 +529,10 @@ export class BcfFileComponent implements OnInit, OnDestroy {
     this.selectedTopic = topic;
     if (topic) {
       this.selectedListTopic = [topic];
+      this.selectedTopicListMessengerService.notifySelectedTopicListChanged();
     } else {
       this.selectedListTopic = [];
+      this.selectedTopicListMessengerService.notifySelectedTopicListChanged();
     }
     this.topicMessengerService.setSelectedTopic(this.selectedTopic);
   }
@@ -536,6 +541,7 @@ export class BcfFileComponent implements OnInit, OnDestroy {
     this.selectedTopic = topic;
     if (!this.inSelectedList(topic.id)) {
       this.selectedListTopic.push(topic);
+      this.selectedTopicListMessengerService.notifySelectedTopicListChanged();
     }
     this.topicMessengerService.setSelectedTopic(this.selectedTopic);
   }
@@ -553,6 +559,7 @@ export class BcfFileComponent implements OnInit, OnDestroy {
         const topic = this.filteredTopics[i];
         if (!this.inSelectedList(topic.id)) {
           this.selectedListTopic.push(topic);
+          this.selectedTopicListMessengerService.notifySelectedTopicListChanged();
         }
       }
       this.selectedTopic = topic;
