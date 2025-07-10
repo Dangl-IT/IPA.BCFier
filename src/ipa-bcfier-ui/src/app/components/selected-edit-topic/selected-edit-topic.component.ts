@@ -72,7 +72,6 @@ export class SelectedEditTopicComponent implements OnInit, OnDestroy {
   selectedUser: ProjectUserGet[] = [];
   selectedType: string[] = [];
   selectedStatus: string | null = null;
-  additionalMode = false;
   private _selectedDueDate: Date | null = null;
   get selectedDueDate(): Date | null {
     return this._selectedDueDate;
@@ -219,37 +218,19 @@ export class SelectedEditTopicComponent implements OnInit, OnDestroy {
         type: this.selectedType,
         status: this.selectedStatus,
         dueDate: this.selectedDueDate,
-        additionalMode: this.additionalMode,
       };
       this.selectedListTopic.forEach((topic) => {
         if (bulkOptions.status !== null) {
           topic.topicStatus = bulkOptions.status;
         }
         if (bulkOptions.type.length) {
-          if (bulkOptions.additionalMode) {
-            bulkOptions.type.forEach((type) => {
-              if (!topic.topicTypes?.includes(type)) {
-                topic.topicTypes = [...(topic.topicTypes || []), type];
-              }
-            });
-          } else {
-            topic.topicTypes =
-              bulkOptions.type[0] === '' ? [] : bulkOptions.type;
-          }
+          topic.topicTypes = bulkOptions.type[0] === '' ? [] : bulkOptions.type;
         }
         if (bulkOptions.responsibleUser.length) {
-          if (bulkOptions.additionalMode) {
-            bulkOptions.responsibleUser.forEach((user) => {
-              if (!topic.assignedToList?.includes(user)) {
-                topic.assignedToList = [...(topic.assignedToList || []), user];
-              }
-            });
-          } else {
-            topic.assignedToList =
-              bulkOptions.responsibleUser[0] === ''
-                ? []
-                : bulkOptions.responsibleUser;
-          }
+          topic.assignedToList =
+            bulkOptions.responsibleUser[0] === ''
+              ? []
+              : bulkOptions.responsibleUser;
         }
         if (bulkOptions.dueDate) {
           topic.dueDate = bulkOptions.dueDate;
