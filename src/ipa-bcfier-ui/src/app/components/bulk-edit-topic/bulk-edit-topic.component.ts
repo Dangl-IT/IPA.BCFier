@@ -14,6 +14,8 @@ import { IssueTypesService } from '../../services/issue-types.service';
 import { map } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'bcfier-bulk-edit-topic',
@@ -21,9 +23,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatButtonModule,
     MatDialogModule,
     MatSelectModule,
+    MatCheckboxModule,
     AsyncPipe,
     FormsModule,
     MatDatepickerModule,
+    MatInputModule,
   ],
   templateUrl: './bulk-edit-topic.component.html',
   styleUrl: './bulk-edit-topic.component.scss',
