@@ -1,11 +1,25 @@
-<div>
-  @for(element of viewpointElements; track element.ifcGuid) {
-  <div
-    class="element"
-    (click)="selectElement(element)"
-    [class.selected]="selectedElementId === element.ifcGuid"
-  >
-    {{ element.name || element.ifcGuid }}
-  </div>
-  }
-</div>
+@for (model of viewpointElements; track model) {
+<mat-card class="model-card">
+  <mat-card-header>
+    <mat-card-title>{{ model.name }}</mat-card-title>
+  </mat-card-header>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    <mat-list>
+      @for (component of model.components; track component) {
+      <mat-list-item
+        (click)="selectElement(component)"
+        [class.selected]="component.authoringToolId === selectedAuthoringToolId"
+      >
+        <div class="item-wrapper">
+          <mat-icon color="primary">architecture</mat-icon>
+          <span>
+            <span>GUID: {{ component.ifcGuid }}</span>
+          </span>
+        </div>
+      </mat-list-item>
+      }
+    </mat-list>
+  </mat-card-content>
+</mat-card>
+}

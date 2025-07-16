@@ -4,7 +4,7 @@ import {
   BcfViewpoint,
   IfcGuidNamePair,
 } from '../../generated-client/generated-client';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import {
   MessageType,
   TeamsMessengerService,
@@ -27,6 +27,7 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
 import { ViewpointImageDirective } from '../../directives/viewpoint-image.directive';
 import { getNewRandomGuid } from '../../functions/uuid';
 import { take } from 'rxjs';
+import { AppConfigService } from '../../services/AppConfigService';
 
 @Component({
   selector: 'bcfier-comments-detail',
@@ -48,8 +49,10 @@ export class CommentsDetailComponent implements OnInit {
   @Input() comments!: BcfComment[];
   @Input() viewpoint: BcfViewpoint | null = null;
   @Input() topic!: BcfTopic;
-  viewpointElements: IfcGuidNamePair[] = [];
-
+  viewpointElements: any[] = [];
+  private appConfigService = inject(AppConfigService);
+  isConnectedToRevit =
+    this.appConfigService.getFrontendConfig().isConnectedToRevit || true;
   newComment = '';
 
   constructor(
@@ -62,8 +65,71 @@ export class CommentsDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.viewpoint) {
-      this.getListElement(this.viewpoint);
+    if (this.viewpoint && this.isConnectedToRevit) {
+      // TODO rewrite this function after backend will update
+      // this.getListElement(this.viewpoint);
+      this.viewpointElements = [
+        {
+          name: 'Model A',
+          components: [
+            {
+              originatingSystem: 'Wall',
+              authoringToolId: '456',
+              ifcGuid: 'abc-001',
+            },
+            {
+              originatingSystem: 'Column',
+              authoringToolId: '123',
+              ifcGuid: 'abc-002',
+            },
+            {
+              originatingSystem: 'Door',
+              authoringToolId: '789',
+              ifcGuid: 'abc-003',
+            },
+            {
+              originatingSystem: 'Window',
+              authoringToolId: '321',
+              ifcGuid: 'abc-004',
+            },
+            {
+              originatingSystem: 'Roof',
+              authoringToolId: '654',
+              ifcGuid: 'abc-005',
+            },
+          ],
+        },
+        {
+          name: 'Model B',
+          components: [
+            {
+              originatingSystem: 'Wall',
+              authoringToolId: '123',
+              ifcGuid: 'def-001',
+            },
+            {
+              originatingSystem: 'Window',
+              authoringToolId: '789',
+              ifcGuid: 'def-002',
+            },
+            {
+              originatingSystem: 'Slab',
+              authoringToolId: '147',
+              ifcGuid: 'def-003',
+            },
+            {
+              originatingSystem: 'Beam',
+              authoringToolId: '258',
+              ifcGuid: 'def-004',
+            },
+            {
+              originatingSystem: 'Column',
+              authoringToolId: '369',
+              ifcGuid: 'def-005',
+            },
+          ],
+        },
+      ];
     }
   }
 
