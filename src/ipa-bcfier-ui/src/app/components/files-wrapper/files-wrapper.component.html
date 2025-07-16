@@ -1,12 +1,11 @@
-@if(bcfFiles) {
 <mat-tab-group
   dynamicHeight
   #tabGroup
   backgroundColor="primary"
   (selectedIndexChange)="changeSelectedTabIndex($event)"
 >
-  @for (bcfFile of bcfFiles | async; track bcfFile; let index = $index) {
-  @if(bcfFile.bcfFile) {
+  @if(bcfFiles) { @for (bcfFile of bcfFiles | async; track bcfFile; let index =
+  $index) { @if(bcfFile.bcfFile) {
   <mat-tab>
     <ng-template mat-tab-label>
       {{ bcfFile.bcfFile.fileName }}
@@ -23,9 +22,8 @@
       <bcfier-bcf-file [bcfFile]="bcfFile.bcfFile"></bcfier-bcf-file>
     </ng-template>
   </mat-tab>
-  } }
+  } } }
 </mat-tab-group>
-}
 <ng-template #revitDialogContent>
   <div>
     Do you want to select <strong>{{ selectedProject?.name }}</strong> as the
