@@ -41,12 +41,6 @@ namespace IPA.Bcfier.App.Services
                         var lifetime = scope.ServiceProvider.GetRequiredService<IHostApplicationLifetime>();
                         lifetime.StopApplication();
                     }
-                    else if (ipcMessage.Command == IpcMessageCommand.RevitProjectLoaded)
-                    {
-                        using var scope = _serviceProvider.CreateScope();
-                        var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<BcfierHub>>();
-                        await hubContext.Clients.All.SendAsync("RevitProjectLoaded", ipcMessage.Data);
-                    }
                     else if (ipcMessage.Command == IpcMessageCommand.RevitProjectChanged)
                     {
                         using var scope = _serviceProvider.CreateScope();
