@@ -1,4 +1,10 @@
 <mat-tab-group mat-stretch-tabs="false" backgroundColor="primary" dynamicHeight>
+  @if (isInAdminMode && (settingsMessengerService.settings |
+  async)?.mainDatabaseLocation) {
+  <mat-tab label="Projects"
+    ><bcfier-projects-table></bcfier-projects-table
+  ></mat-tab>
+  }
   <mat-tab label="User Settings">
     <h2 mat-dialog-title>Settings</h2>
     <mat-dialog-content>
@@ -14,6 +20,10 @@
         Select Database
       </button>
     </mat-dialog-content>
+    @if (isInAdminMode && (settingsMessengerService.settings |
+    async)?.mainDatabaseLocation) {
+    <mat-tab label="Users"><bcfier-users></bcfier-users></mat-tab>
+    }
     <mat-dialog-actions>
       <button mat-raised-button (click)="save()">Save</button>
       <button mat-raised-button (click)="close()" color="warn">Cancel</button>

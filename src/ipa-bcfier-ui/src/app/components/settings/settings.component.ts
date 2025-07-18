@@ -2,14 +2,17 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 
+import { AppConfigService } from '../../services/AppConfigService';
 import { CommonModule } from '@angular/common';
 import { ErrorLogsComponent } from '../error-logs/error-logs.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
+import { ProjectsTableComponent } from '../projects-table/projects-table.component';
 import { SettingsClient } from '../../generated-client/generated-client';
 import { SettingsMessengerService } from '../../services/settings-messenger.service';
+import { UsersComponent } from '../users/users.component';
 
 @Component({
   selector: 'bcfier-settings',
@@ -21,6 +24,8 @@ import { SettingsMessengerService } from '../../services/settings-messenger.serv
     MatButtonModule,
     MatTabsModule,
     ErrorLogsComponent,
+    ProjectsTableComponent,
+    UsersComponent,
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
@@ -29,15 +34,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   constructor(
     private dialogRef: MatDialogRef<SettingsComponent>,
     public settingsMessengerService: SettingsMessengerService,
-    private settingsClient: SettingsClient
+    private settingsClient: SettingsClient,
+    private appConfigService: AppConfigService
   ) {}
 
   username: string = '';
   mainDatabaseSaveLocation: string = '';
+  public isInAdminMode = false;
 
   private destroyed$ = new Subject<void>();
 
   ngOnInit(): void {
+    this.isInAdminMode =
+      this.appConfigService.shouldEnableProjectManagementFeatures();
     this.settingsMessengerService.settings
       .pipe(takeUntil(this.destroyed$))
       .subscribe((settings) => {
