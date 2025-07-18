@@ -227,7 +227,7 @@ export class FilesWrapperComponent implements OnInit {
   }
 
   private findRevitProjectInDatabase(
-    projectNumber: string,
+    projectNumber: string | null,
     filePath: string
   ): void {
     this.projectsService.getAll().subscribe((projects) => {

@@ -40,23 +40,23 @@ import { ProjectUsersService } from '../../services/project-users.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NotificationsService } from '../../services/notifications.service';
 @Component({
-    selector: 'bcfier-project-details',
-    imports: [
-        MatFormFieldModule,
-        MatInputModule,
-        FormsModule,
-        MatListModule,
-        AsyncPipe,
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatExpansionModule,
-        MatIconModule,
-        MatAutocompleteModule,
-    ],
-    templateUrl: './project-details.component.html',
-    styleUrl: './project-details.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'bcfier-project-details',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatListModule,
+    AsyncPipe,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatAutocompleteModule,
+  ],
+  templateUrl: './project-details.component.html',
+  styleUrl: './project-details.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
   users$: Observable<ProjectUserGet[]> | null = null;
@@ -179,6 +179,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       this.projectDetailsForm.get('bcfFilesFolder')?.patchValue(path);
     });
   }
+
   // This part no needed right now
   // chooseRevitProjectFile(): void {
   //   this.projectsClient.choseRevitProjectFileLocation().subscribe((path) => {
