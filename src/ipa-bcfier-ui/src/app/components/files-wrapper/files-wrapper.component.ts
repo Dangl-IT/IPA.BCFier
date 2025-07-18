@@ -1,42 +1,43 @@
 import {
+  BcfFile,
+  BcfFileWrapper,
+  ProjectGet,
+} from '../../generated-client/generated-client';
+import {
   Component,
-  inject,
   OnInit,
   TemplateRef,
+  inject,
   viewChild,
 } from '@angular/core';
-import { BcfFileComponent } from '../bcf-file/bcf-file.component';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { BcfFilesMessengerService } from '../../services/bcf-files-messenger.service';
 import {
+  Observable,
+  Subject,
   catchError,
   filter,
   map,
-  Observable,
   of,
-  Subject,
   switchMap,
   take,
   takeUntil,
   tap,
 } from 'rxjs';
-import {
-  BcfFile,
-  BcfFileWrapper,
-  ProjectGet,
-} from '../../generated-client/generated-client';
-import { NotificationsService } from '../../services/notifications.service';
+
+import { AsyncPipe } from '@angular/common';
 import { BackendService } from '../../services/BackendService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
-import { AsyncPipe } from '@angular/common';
-import { RevitProjectMessengerService } from '../../services/messengers/revit-project-messenger.service';
-import { ProjectsService } from '../../services/light-query/projects.service';
-import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
+import { BcfFileComponent } from '../bcf-file/bcf-file.component';
+import { BcfFilesMessengerService } from '../../services/bcf-files-messenger.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { NotificationsService } from '../../services/notifications.service';
+import { ProjectsService } from '../../services/light-query/projects.service';
 import { ProjectsTableComponent } from '../projects-table/projects-table.component';
+import { RevitProjectMessengerService } from '../../services/messengers/revit-project-messenger.service';
+import { SelectedProjectMessengerService } from '../../services/selected-project-messenger.service';
 
 @Component({
   selector: 'bcfier-files-wrapper',
@@ -274,7 +275,7 @@ export class FilesWrapperComponent implements OnInit {
                 .open(ProjectsTableComponent, {
                   autoFocus: false,
                   restoreFocus: false,
-                  disableClose: true,
+                  disableClose: false,
                   panelClass: 'projects-table-dialog',
                 })
                 .afterClosed()
