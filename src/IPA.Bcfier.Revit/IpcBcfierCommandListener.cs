@@ -1,3 +1,4 @@
+using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using IPA.Bcfier.Ipc;
@@ -15,22 +16,31 @@ namespace IPA.Bcfier.Revit
         private readonly Guid _appCorrelationId;
         private bool _isRunning = true;
         private readonly ExternalCommandData _commandData;
+        private readonly ControlledApplication? _controlledApplication;
+        private bool _shouldSendCurrentDocumentDataToUi;
 
         public IpcBcfierCommandListener(IpcHandler ipcHandler,
             RevitTaskQueueHandler revitTaskQueueHandler,
             Guid appCorrelationId,
-            ExternalCommandData commandData)
+            ExternalCommandData commandData,
+            ControlledApplication? controlledApplication)
         {
             _ipcHandler = ipcHandler;
             _revitTaskQueueHandler = revitTaskQueueHandler;
             _appCorrelationId = appCorrelationId;
             _commandData = commandData;
+            _controlledApplication = controlledApplication;
         }
 
         public void Listen()
         {
             Task.Run(async () =>
             {
+                if (_controlledApplication != null)
+                {
+                    _controlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
+                }
+
                 await SendRevitProjectDataToUiAsync();
 
                 while (_isRunning)
@@ -94,6 +104,12 @@ namespace IPA.Bcfier.Revit
                         }
                     }
 
+                    if (_shouldSendCurrentDocumentDataToUi)
+                    {
+                        _shouldSendCurrentDocumentDataToUi = false;
+                        await SendRevitProjectDataToUiAsync();
+                    }
+
                     if (_revitTaskQueueHandler.CadErrorMessages.TryDequeue(out var errorMessage))
                     {
                         await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
@@ -109,6 +125,16 @@ namespace IPA.Bcfier.Revit
                 _revitTaskQueueHandler.UnregisterEventHandler();
                 _ipcHandler.Dispose();
             });
+        }
+
+        public void Stop()
+        {
+            _isRunning = false;
+
+            if (_controlledApplication != null)
+            {
+                _controlledApplication.DocumentOpened -= ControlledApplication_DocumentOpened;
+            }
         }
 
         private async Task HandleGetElementNamesListAsync(IpcMessage ipcMessage)
@@ -209,9 +235,9 @@ namespace IPA.Bcfier.Revit
             }));
         }
 
-        public void Stop()
+        private void ControlledApplication_DocumentOpened(object sender, Autodesk.Revit.DB.Events.DocumentOpenedEventArgs e)
         {
-            _isRunning = false;
+            _shouldSendCurrentDocumentDataToUi = true;
         }
     }
 }
