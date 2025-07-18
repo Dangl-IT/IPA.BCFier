@@ -40,23 +40,23 @@ import { ProjectUsersService } from '../../services/project-users.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NotificationsService } from '../../services/notifications.service';
 @Component({
-    selector: 'bcfier-project-details',
-    imports: [
-        MatFormFieldModule,
-        MatInputModule,
-        FormsModule,
-        MatListModule,
-        AsyncPipe,
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatExpansionModule,
-        MatIconModule,
-        MatAutocompleteModule,
-    ],
-    templateUrl: './project-details.component.html',
-    styleUrl: './project-details.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'bcfier-project-details',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatListModule,
+    AsyncPipe,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatAutocompleteModule,
+  ],
+  templateUrl: './project-details.component.html',
+  styleUrl: './project-details.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
   users$: Observable<ProjectUserGet[]> | null = null;
@@ -95,9 +95,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       });
       this.users$ = this.getProjectUsers(this.data.id);
     }
-    this.projectDetailsForm.get('revitFilePath')?.valueChanges.subscribe(value => {
-      this.extractProjectNumber(value);
-    });
     this.filterUsers();
   }
 
@@ -189,19 +186,4 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   //     this.projectDetailsForm.get('revitFilePath')?.patchValue(path);
   //   });
   // }
-
-  extractProjectNumber(pathFileName: string | null): void {
-    if (pathFileName) {
-      const fileName = pathFileName.split('/').pop() || '';
-      const match = fileName.match(/^(\d+)-/);
-      if (match && match[1]) {
-        this.projectDetailsForm.get('number')?.setValue(match[1]);
-        this.notificationsService.success('Project number extracted: ' + match[1]);
-      } else {
-        this.notificationsService.error('Project name does not contain a valid number.');
-      }
-    } else {
-      this.notificationsService.error('Project name is empty.');
-    }
-  }
 }
