@@ -1,3 +1,4 @@
+using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -12,6 +13,8 @@ namespace IPA.Bcfier.Revit
     [Transaction(TransactionMode.Manual)]
     public class ListenToIpaBcfierAppPipeCommand : IExternalCommand
     {
+        public static ControlledApplication? ControlledApplication { get; set; }
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             EnsureDependentAssembliesAreLoaded();
@@ -38,9 +41,14 @@ namespace IPA.Bcfier.Revit
             ipcHandler.InitializeAsync().ConfigureAwait(true).GetAwaiter().GetResult();
 
             var taskQueueHandler = new RevitTaskQueueHandler();
-            var commandListener = new IpcBcfierCommandListener(ipcHandler, taskQueueHandler, appCorrelationId, commandData);
+            var commandListener = new IpcBcfierCommandListener(ipcHandler,
+                taskQueueHandler,
+                appCorrelationId,
+                commandData,
+                ControlledApplication);
             commandListener.Listen();
             commandData.Application.Idling += taskQueueHandler.OnIdling;
+
             commandData.Application.ApplicationClosing += (s, e) =>
             {
                 if (_bcfierAppProcess != null)

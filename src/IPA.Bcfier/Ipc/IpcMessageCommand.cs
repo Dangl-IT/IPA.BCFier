@@ -30,8 +30,6 @@ namespace IPA.Bcfier.Ipc
 
         NavisworksClashIssuesCancellation = 13,
 
-        RevitProjectLoaded = 14,
-
         RevitProjectChanged = 15,
 
         RefreshProjectData = 16,

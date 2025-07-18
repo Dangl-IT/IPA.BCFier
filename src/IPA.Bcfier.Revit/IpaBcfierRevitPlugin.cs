@@ -13,7 +13,7 @@ namespace IPA.Bcfier.Revit
             pushButton!.ToolTip = "Launch IPA.Bcfier Revit Plugin";
             pushButton.Image = GetBitmapImage("button16.png");
             pushButton.LargeImage = GetBitmapImage("button32.png");
-
+            ListenToIpaBcfierAppPipeCommand.ControlledApplication = application.ControlledApplication;
             return Result.Succeeded;
         }
 

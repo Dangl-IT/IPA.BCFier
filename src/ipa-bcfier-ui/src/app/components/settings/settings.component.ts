@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 
+import { AppConfigService } from '../../services/AppConfigService';
 import { CommonModule } from '@angular/common';
 import { ErrorLogsComponent } from '../error-logs/error-logs.component';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +23,7 @@ import { UsersComponent } from '../users/users.component';
     MatInputModule,
     MatButtonModule,
     MatTabsModule,
+    ErrorLogsComponent,
     ProjectsTableComponent,
     UsersComponent,
   ],
@@ -32,15 +34,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   constructor(
     private dialogRef: MatDialogRef<SettingsComponent>,
     public settingsMessengerService: SettingsMessengerService,
-    private settingsClient: SettingsClient
+    private settingsClient: SettingsClient,
+    private appConfigService: AppConfigService
   ) {}
 
   username: string = '';
   mainDatabaseSaveLocation: string = '';
+  public isInAdminMode = false;
 
   private destroyed$ = new Subject<void>();
 
   ngOnInit(): void {
+    this.isInAdminMode =
+      this.appConfigService.shouldEnableProjectManagementFeatures();
     this.settingsMessengerService.settings
       .pipe(takeUntil(this.destroyed$))
       .subscribe((settings) => {

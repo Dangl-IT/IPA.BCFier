@@ -1,7 +1,8 @@
+import { CommonModule } from '@angular/common';
 import {
   BcfFile,
   BcfTopic,
-  ProjectGet,
+  ProjectsClient,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
 import {
@@ -10,8 +11,6 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  TemplateRef,
-  ViewChild,
   inject,
 } from '@angular/core';
 import { FormGroup, FormsModule } from '@angular/forms';
@@ -28,8 +27,6 @@ import { Subject, take, takeUntil } from 'rxjs';
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
-import { CommonModule } from '@angular/common';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { GroupedClasheIdsMessengerService } from '../../services/messengers/grouped-clashe-ids-messenger.service';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
@@ -83,10 +80,7 @@ import { getNewRandomGuid } from '../../functions/uuid';
   styleUrl: './bcf-file.component.scss',
 })
 export class BcfFileComponent implements OnInit, OnDestroy {
-  @Input() bcfFile!: BcfFile;
-
-  @ViewChild('revitDialogContent', { static: true })
-  revitDialogContent!: TemplateRef<unknown>;
+  @Input() bcfFile: BcfFile | null = null;
 
   projectsService = inject(ProjectsService);
   issueStatuses$ = inject(IssueStatusesService).issueStatuses;
@@ -132,7 +126,6 @@ export class BcfFileComponent implements OnInit, OnDestroy {
     SelectedProjectMessengerService
   );
   private $destroy = new Subject<void>();
-  selectedProject: ProjectGet | null = null;
   groupedClashIds: string[] = [];
 
   ngOnInit() {
@@ -140,16 +133,6 @@ export class BcfFileComponent implements OnInit, OnDestroy {
     this.oneSelectTopic(this.bcfFile.topics[0] || null);
     this.cdr.detectChanges();
     this.filteredTopics = [...this.bcfFile.topics];
-
-    //Here we get messages only if app is connected to Revit
-    this.revitProjectMessengerService.revitProject.subscribe((project) => {
-      if (project) {
-        this.findRevitProjectInDatabase(
-          project.projectNumber,
-          project.filePath
-        );
-      }
-    });
 
     this.groupedClasheIdsMessengerService.groupedClashIds
       .pipe(takeUntil(this.$destroy))
@@ -211,7 +194,9 @@ export class BcfFileComponent implements OnInit, OnDestroy {
         // We'll add a server assigned id like "Revit_<GUID>"
         newIssue.serverAssignedId = `Revit_${getNewRandomGuid()}`;
       }
-
+      if (!this.bcfFile) {
+        return;
+      }
       this.bcfFile.topics.push(newIssue);
       this.oneSelectTopic(newIssue);
       this.filteredTopics = [...this.bcfFile.topics];
@@ -223,7 +208,9 @@ export class BcfFileComponent implements OnInit, OnDestroy {
     if (!this.selectedTopic) {
       return;
     }
-
+    if (!this.bcfFile) {
+      return;
+    }
     this.bcfFile.topics = this.bcfFile.topics.filter(
       (topic) => topic.id !== this.selectedTopic?.id
     );
@@ -271,7 +258,9 @@ export class BcfFileComponent implements OnInit, OnDestroy {
       !!users ||
       !!issueRange.start ||
       !!issueRange.end;
-
+    if (!this.bcfFile) {
+      return;
+    }
     this.filteredTopics = isValuePresentInFilters
       ? [
           ...this.issueFilterService.filterIssue(
@@ -300,6 +289,9 @@ export class BcfFileComponent implements OnInit, OnDestroy {
           statusType: string | null;
         }) => {
           if (!selection) {
+            return;
+          }
+          if (!this.bcfFile) {
             return;
           }
           this.notificationsService.info(
@@ -351,9 +343,10 @@ export class BcfFileComponent implements OnInit, OnDestroy {
 
                     if (selection.onlyImportNew) {
                       // In that case, we're filtering out those topics that already exist in the
+
                       createdTopics = createdTopics.filter(
                         (topic) =>
-                          !this.bcfFile.topics.some(
+                          !this.bcfFile?.topics.some(
                             (existingTopic) =>
                               existingTopic.serverAssignedId ===
                               topic.serverAssignedId
@@ -367,7 +360,7 @@ export class BcfFileComponent implements OnInit, OnDestroy {
                     const topicsToAdd: BcfTopic[] = [];
                     createdTopics.forEach((createdTopic) => {
                       // We'll check if it exists already, and if it does, we'll just update the status
-                      var existingTopic = this.bcfFile.topics.find(
+                      var existingTopic = this.bcfFile?.topics.find(
                         (existing) =>
                           existing.serverAssignedId ===
                           createdTopic.serverAssignedId
@@ -378,6 +371,10 @@ export class BcfFileComponent implements OnInit, OnDestroy {
                         topicsToAdd.push(createdTopic);
                       }
                     });
+
+                    if (!this.bcfFile) {
+                      return;
+                    }
 
                     this.bcfFile.topics.push(...topicsToAdd);
                     this.filteredTopics = [...this.bcfFile.topics];
@@ -469,60 +466,6 @@ export class BcfFileComponent implements OnInit, OnDestroy {
           this.bcfFileAutomaticallySaveService.saveCurrentActiveBcfFileAutomatically();
         }
       );
-  }
-
-  private findRevitProjectInDatabase(
-    projectNumber: string,
-    filePath: string
-  ): void {
-    this.projectsService.getAll().subscribe((projects) => {
-      if (projects?.length && projects.length > 0) {
-        let selectedProject =
-          projects.find(
-            (p) =>
-              p.number === projectNumber &&
-              p.revitFilePath === filePath &&
-              p.number?.length > 0
-          ) ||
-          projects.find((p) => p.revitFilePath === filePath) ||
-          projects.find(
-            (p) => p.number === projectNumber && p.number?.length > 0
-          );
-
-        if (
-          this.selectedProjectMessengerService.lastSelectedProjectId ===
-            selectedProject?.id ||
-          !selectedProject
-        ) {
-          // In that case, we don't want to show the dialog and just keep everything as-is
-          return;
-        }
-
-        this.selectedProject = selectedProject;
-        this.dialog
-          .open(ConfirmDialogComponent, {
-            autoFocus: false,
-            restoreFocus: false,
-            data: { contentTemplate: this.revitDialogContent },
-          })
-          .afterClosed()
-          .subscribe((confirm) => {
-            if (confirm) {
-              this.selectedProjectMessengerService.setSelectedProject(
-                this.selectedProject
-              );
-            } else {
-              this.selectedProject = null;
-              this.revitProjectMessengerService.setRevitProject(
-                this.selectedProject
-              );
-            }
-          });
-      } else {
-        this.selectedProject = null;
-        this.revitProjectMessengerService.setRevitProject(this.selectedProject);
-      }
-    });
   }
 
   oneSelectTopic(topic: BcfTopic | null): void {

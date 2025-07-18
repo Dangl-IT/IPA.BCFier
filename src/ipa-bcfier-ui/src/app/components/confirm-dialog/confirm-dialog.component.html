@@ -5,6 +5,8 @@
   } @else { Are you sure you want to perform {{ data.action }}? }
 </div>
 <div mat-dialog-actions>
-  <button mat-flat-button (click)="close(false)">Cancel</button>
+  <button mat-flat-button (click)="close(false)">
+    {{ data.cancelBtnText || "Cancel" }}
+  </button>
   <button mat-flat-button color="warn" (click)="close(true)">Confirm</button>
 </div>
