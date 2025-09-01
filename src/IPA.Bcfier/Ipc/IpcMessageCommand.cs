@@ -45,5 +45,9 @@ namespace IPA.Bcfier.Ipc
         GroupClashes = 21,
 
         GroupClashesResult = 22,
+
+        ShowGroupedClashes = 23,
+
+        GroupedClashesShown = 24,
     }
 }

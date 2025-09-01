@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   BcfFile,
   BcfTopic,
@@ -27,6 +26,7 @@ import { Subject, take, takeUntil } from 'rxjs';
 import { AppConfigService } from '../../services/AppConfigService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { BulkTopicEditComponent } from '../bulk-edit-topic/bulk-edit-topic.component';
+import { CommonModule } from '@angular/common';
 import { GroupedClasheIdsMessengerService } from '../../services/messengers/grouped-clashe-ids-messenger.service';
 import { IssueFilterService } from '../../services/issue-filter.service';
 import { IssueStatusesService } from '../../services/issue-statuses.service';
@@ -138,6 +138,29 @@ export class BcfFileComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.$destroy))
       .subscribe((ids) => {
         this.groupedClashIds = ids;
+
+        if (ids && ids.length > 0) {
+          this.viewpointsClient
+            .showGroupedClashesInNavisworksClashDetective(ids)
+            .subscribe({
+              next: (isSuccess) => {
+                if (isSuccess) {
+                  this.notificationsService.success(
+                    'Successfully grouped the clashes in the Navisworks Clash Detective under the group name "IPA.BCFier Group"'
+                  );
+                } else {
+                  this.notificationsService.error(
+                    'Could not group the clashes in the Navisworks Clash Detective, please make sure that Navisworks is running and that the Clash Detective window is open. There must be a clash test with the name "IPA.BCFier Group" present.'
+                  );
+                }
+              },
+              error: () => {
+                this.notificationsService.error(
+                  'Failed to group the clashes in the Navisworks Clash Detective'
+                );
+              },
+            });
+        }
       });
   }
 

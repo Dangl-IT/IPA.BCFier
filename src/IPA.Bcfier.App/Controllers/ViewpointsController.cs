@@ -459,6 +459,57 @@ namespace IPA.Bcfier.App.Controllers
             return BadRequest();
         }
 
+        [HttpPost("clash-grouping-clash-detective")]
+        [ProducesResponseType(typeof(ApiError), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> ShowGroupedClashesInNavisworksClashDetectiveAsync([FromBody] List<Guid> clashIds)
+        {
+            if (!_navisworksParameters.IsConnectedToNavisworks)
+            {
+                return BadRequest(new ApiError("The app is currently not connected to Navisworks"));
+            }
+
+            if (clashIds == null || !clashIds.Any())
+            {
+                return BadRequest(new ApiError("The model is invalid"));
+            }
+
+            using var ipcHandler = GetIpcHandler();
+            await ipcHandler.InitializeAsync();
+
+            var correlationId = Guid.NewGuid();
+            await ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
+            {
+                CorrelationId = correlationId,
+                Command = IpcMessageCommand.ShowGroupedClashes,
+                Data = JsonConvert.SerializeObject(clashIds)
+            }));
+
+            var hasReceived = false;
+            var start = DateTime.UtcNow;
+            while (DateTime.UtcNow - start < TimeSpan.FromSeconds(120) && !hasReceived)
+            {
+                if (IpcHandler.ReceivedMessages.TryDequeue(out var message))
+                {
+                    var ipcMessage = JsonConvert.DeserializeObject<IpcMessage>(message)!;
+                    if (ipcMessage.CorrelationId == correlationId && ipcMessage.Command == IpcMessageCommand.GroupedClashesShown)
+                    {
+                        hasReceived = true;
+                        var result = false;
+                        bool.TryParse(ipcMessage.Data, out result);
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        IpcHandler.ReceivedMessages.Enqueue(message);
+                        await Task.Delay(100);
+                    }
+                }
+            }
+
+            return BadRequest();
+        }
+
         private IpcHandler GetIpcHandler()
         {
             if (_revitParameters.IsConnectedToRevit)
