@@ -28,12 +28,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     styleUrl: './navisworks-clash-selection.component.scss'
 })
 export class NavisworksClashSelectionComponent {
+  dialogRef = inject<MatDialogRef<NavisworksClashSelectionComponent>>(MatDialogRef);
+
   viewpointsClient = inject(ViewpointsClient);
   loadingService = inject(LoadingService);
   onlyImportNew = false;
-  constructor(
-    public dialogRef: MatDialogRef<NavisworksClashSelectionComponent>
-  ) {
+  constructor() {
     this.loadingService.showLoadingScreen();
     this.viewpointsClient.getAvailableNavisworksClashes().subscribe({
       next: (clashes) => {

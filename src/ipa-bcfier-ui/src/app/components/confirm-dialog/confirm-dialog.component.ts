@@ -1,11 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Inject,
-  inject,
-  TemplateRef,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, TemplateRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -20,15 +14,13 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmDialogComponent {
+  data = inject<{
+    cancelBtnText: string;
+    action: string;
+    contentTemplate: TemplateRef<any>;
+}>(MAT_DIALOG_DATA);
+
   private dialogRef = inject(MatDialogRef<ConfirmDialogComponent>);
-  constructor(
-    @Inject(MAT_DIALOG_DATA)
-    public data: {
-      cancelBtnText: string;
-      action: string;
-      contentTemplate: TemplateRef<any>;
-    }
-  ) {}
 
   close(confirm: boolean): void {
     this.dialogRef.close(confirm);

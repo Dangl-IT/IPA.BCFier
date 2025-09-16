@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -13,11 +13,9 @@ import {
     styleUrl: './cad-error-dialog.component.scss'
 })
 export class CadErrorDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<CadErrorDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public errorMessage: string
-  ) {}
+  dialogRef = inject<MatDialogRef<CadErrorDialogComponent>>(MatDialogRef);
+  errorMessage = inject<string>(MAT_DIALOG_DATA);
+
 
   close(): void {
     this.dialogRef.close();

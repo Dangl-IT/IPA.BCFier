@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { AppConfigService } from './services/AppConfigService';
 
@@ -18,11 +18,12 @@ import { FilesWrapperComponent } from './components/files-wrapper/files-wrapper.
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  constructor(
-    private notificationsService: NotificationsService,
-    private bcfierHubConnectorService: BcfierHubConnectorService, // We want to initialize it so it's listening to SignalR messages
-    appConfigService: AppConfigService
-  ) {
+  private notificationsService = inject(NotificationsService);
+  private bcfierHubConnectorService = inject(BcfierHubConnectorService);
+
+  constructor() {
+    const appConfigService = inject(AppConfigService);
+
     const cadPluginVersion =
       appConfigService.getFrontendConfig().cadPluginVersion;
     if (!!cadPluginVersion && version.version !== cadPluginVersion) {

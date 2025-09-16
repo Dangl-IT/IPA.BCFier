@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -13,9 +13,6 @@ import { BcfViewpoint } from '../../generated-client/generated-client';
     templateUrl: './image-preview.component.html',
     styleUrl: './image-preview.component.scss'
 })
-export class ImagePreviewComponent {
-  constructor(
-    matDialogRef: MatDialogRef<ImagePreviewComponent>,
-    @Inject(MAT_DIALOG_DATA) public viewpoint: BcfViewpoint
-  ) {}
+export class ImagePreviewComponent {  viewpoint = inject<BcfViewpoint>(MAT_DIALOG_DATA);
+
 }

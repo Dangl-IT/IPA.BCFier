@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   FormBuilder,
   FormsModule,
@@ -26,13 +26,12 @@ import { MatInputModule } from '@angular/material/input';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AddUserComponent {
+  dialogRef = inject<MatDialogRef<AddUserComponent>>(MatDialogRef);
+  private fb = inject(FormBuilder);
+
   newUserForm = this.fb.group({
     name: ['', Validators.required],
   });
-  constructor(
-    public dialogRef: MatDialogRef<AddUserComponent>,
-    private fb: FormBuilder
-  ) {}
 
   closeDialog(shouldSave: boolean): void {
     if (!shouldSave) {

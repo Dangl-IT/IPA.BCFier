@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -15,12 +15,12 @@ import { MatInputModule } from '@angular/material/input';
     styleUrl: './add-string-value.component.scss'
 })
 export class AddStringValueComponent {
-  value = '';
+  dialogRef = inject<MatDialogRef<AddStringValueComponent>>(MatDialogRef);
+  data = inject<{
+    header: string;
+}>(MAT_DIALOG_DATA);
 
-  constructor(
-    public dialogRef: MatDialogRef<AddStringValueComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { header: string }
-  ) {}
+  value = '';
 
   close(shouldSave: boolean): void {
     if (shouldSave) {

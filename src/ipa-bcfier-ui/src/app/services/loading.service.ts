@@ -1,15 +1,15 @@
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { LoadingScreenComponent } from '../components/loading-screen/loading-screen.component';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoadingService {
-  private matDialogRef: MatDialogRef<LoadingScreenComponent> | null = null;
+  private matDialog = inject(MatDialog);
 
-  constructor(private matDialog: MatDialog) {}
+  private matDialogRef: MatDialogRef<LoadingScreenComponent> | null = null;
 
   public showLoadingScreen(): void {
     if (this.matDialogRef) {

@@ -2,7 +2,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { BcfViewpoint } from '../../generated-client/generated-client';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDropzone } from '@ngx-dropzone/material';
@@ -26,7 +26,8 @@ import { getNewRandomGuid } from '../../functions/uuid';
   styleUrl: './add-snapshot-viewpoint.component.scss',
 })
 export class AddSnapshotViewpointComponent {
-  constructor(public dialogRef: MatDialogRef<AddSnapshotViewpointComponent>) {}
+  dialogRef = inject<MatDialogRef<AddSnapshotViewpointComponent>>(MatDialogRef);
+
 
   fileCtrl = new FormControl();
 

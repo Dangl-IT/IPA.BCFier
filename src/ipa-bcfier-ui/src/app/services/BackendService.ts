@@ -14,7 +14,7 @@ import { Observable, Subject, catchError, of, tap } from 'rxjs';
 
 import { AddSnapshotViewpointComponent } from '../components/add-snapshot-viewpoint/add-snapshot-viewpoint.component';
 import { AppConfigService } from './AppConfigService';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { LoadingService } from './loading.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from './notifications.service';
@@ -24,17 +24,18 @@ import { SelectedProjectMessengerService } from './selected-project-messenger.se
   providedIn: 'root',
 })
 export class BackendService {
-  constructor(
-    private matDialog: MatDialog,
-    private appConfigService: AppConfigService,
-    private loadingService: LoadingService,
-    private notificationsService: NotificationsService,
-    private bcfConversionClient: BcfConversionClient,
-    private documentationClient: DocumentationClient,
-    private settingsClient: SettingsClient,
-    private viewpointsClient: ViewpointsClient,
-    selectedProjectMessengerService: SelectedProjectMessengerService
-  ) {
+  private matDialog = inject(MatDialog);
+  private appConfigService = inject(AppConfigService);
+  private loadingService = inject(LoadingService);
+  private notificationsService = inject(NotificationsService);
+  private bcfConversionClient = inject(BcfConversionClient);
+  private documentationClient = inject(DocumentationClient);
+  private settingsClient = inject(SettingsClient);
+  private viewpointsClient = inject(ViewpointsClient);
+
+  constructor() {
+    const selectedProjectMessengerService = inject(SelectedProjectMessengerService);
+
     selectedProjectMessengerService.selectedProject.subscribe((p) => {
       this.selectedProject = p || null;
     });

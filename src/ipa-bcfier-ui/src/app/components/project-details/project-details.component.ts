@@ -1,12 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Inject,
-  OnDestroy,
-  OnInit,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {
   FormBuilder,
   FormsModule,
@@ -59,6 +51,15 @@ import { NotificationsService } from '../../services/notifications.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
+  dialogRef = inject<MatDialogRef<ProjectDetailsComponent>>(MatDialogRef);
+  data = inject<ProjectGet>(MAT_DIALOG_DATA);
+  private projectUsersClient = inject(ProjectUsersClient);
+  private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
+  private matDialog = inject(MatDialog);
+  private projectUsersService = inject(ProjectUsersService);
+  private projectsClient = inject(ProjectsClient);
+
   users$: Observable<ProjectUserGet[]> | null = null;
   projectDetailsForm = this.fb.group({
     name: ['', Validators.required],
@@ -72,17 +73,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private allUsers$ = inject(UsersClient).getAllUsers();
   filteredUsers$ = new Subject<UserGet[]>();
   private notificationsService = inject(NotificationsService);
-  constructor(
-    public dialogRef: MatDialogRef<ProjectDetailsComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public data: ProjectGet,
-    private projectUsersClient: ProjectUsersClient,
-    private fb: FormBuilder,
-    private cdr: ChangeDetectorRef,
-    private matDialog: MatDialog,
-    private projectUsersService: ProjectUsersService,
-    private projectsClient: ProjectsClient
-  ) {}
 
   ngOnInit(): void {
     if (this.data) {
