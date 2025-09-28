@@ -115,6 +115,7 @@ namespace IPA.Bcfier.Revit
             typeof(Dangl.BCF.APIObjects.V21.Auth_GET).ToString();
             typeof(IPA.Bcfier.Ipc.IpcHandler).ToString();
             typeof(DecimalMath.DecimalEx).ToString();
+            typeof(Newtonsoft.Json.JsonConvert).ToString();
         }
     }
 }

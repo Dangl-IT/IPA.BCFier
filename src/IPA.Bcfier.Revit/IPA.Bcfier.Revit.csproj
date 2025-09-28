@@ -21,6 +21,10 @@
     <Configurations>Debug;Release;Debug-2021;Debug-2022;Debug-2023;Debug-2024;Debug-2025;Debug-2026;Release-2021;Release-2022;Release-2023;Release-2024;Release-2025;Release-2026</Configurations>
   </PropertyGroup>
 
+  <PropertyGroup Condition="$(Configuration.Contains('2025')) Or $(Configuration.Contains('2026'))">
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="DecimalMath.DecimalEx" Version="1.0.2" />
     <PackageReference Include="Revit_All_Main_Versions_API_x64" Condition="$(Configuration.Contains('2026'))" Version="2026.0.0" />
