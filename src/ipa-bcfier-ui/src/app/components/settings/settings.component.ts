@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -31,12 +31,11 @@ import { UsersComponent } from '../users/users.component';
   styleUrl: './settings.component.scss',
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-  constructor(
-    private dialogRef: MatDialogRef<SettingsComponent>,
-    public settingsMessengerService: SettingsMessengerService,
-    private settingsClient: SettingsClient,
-    private appConfigService: AppConfigService
-  ) {}
+  private dialogRef = inject<MatDialogRef<SettingsComponent>>(MatDialogRef);
+  settingsMessengerService = inject(SettingsMessengerService);
+  private settingsClient = inject(SettingsClient);
+  private appConfigService = inject(AppConfigService);
+
 
   username: string = '';
   mainDatabaseSaveLocation: string = '';

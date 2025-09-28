@@ -48,6 +48,13 @@ import { version } from '../../version';
     styleUrl: './top-menu.component.scss'
 })
 export class TopMenuComponent implements OnDestroy, OnInit {
+  private backendService = inject(BackendService);
+  private notificationsService = inject(NotificationsService);
+  private bcfFilesMessengerService = inject(BcfFilesMessengerService);
+  private matDialog = inject(MatDialog);
+  private lastOpenedFilesClient = inject(LastOpenedFilesClient);
+  private settingsClient = inject(SettingsClient);
+
   private destroyed$ = new Subject<void>();
   version = version.version;
   selectedProject$ = inject(SelectedProjectMessengerService).selectedProject;
@@ -63,14 +70,7 @@ export class TopMenuComponent implements OnDestroy, OnInit {
     return this._alwaysOnTop;
   }
 
-  constructor(
-    private backendService: BackendService,
-    private notificationsService: NotificationsService,
-    private bcfFilesMessengerService: BcfFilesMessengerService,
-    private matDialog: MatDialog,
-    private lastOpenedFilesClient: LastOpenedFilesClient,
-    private settingsClient: SettingsClient
-  ) {
+  constructor() {
     this.checkOpenedFileAndSendInfo();
   }
 

@@ -1,16 +1,16 @@
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { NavisworksClashesLoadingScreenComponent } from '../components/navisworks-clashes-loading-screen/navisworks-clashes-loading-screen.component';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NavisworksClashesLoadingService {
+  private matDialog = inject(MatDialog);
+
   private matDialogRef: MatDialogRef<NavisworksClashesLoadingScreenComponent> | null =
     null;
-
-  constructor(private matDialog: MatDialog) {}
 
   public showLoadingScreen(): void {
     if (this.matDialogRef) {

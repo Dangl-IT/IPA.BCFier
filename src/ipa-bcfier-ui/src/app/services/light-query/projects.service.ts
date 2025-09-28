@@ -1,7 +1,7 @@
 import { CollectionViewer } from '@angular/cdk/collections';
 import { DataSource } from '@angular/cdk/table';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { PaginationBaseService, PaginationResult } from 'ng-lightquery';
 import { Observable, map, of } from 'rxjs';
 import { ProjectGet } from '../../generated-client/generated-client';
@@ -13,10 +13,11 @@ export class ProjectsService
   extends PaginationBaseService<ProjectGet>
   implements DataSource<ProjectGet>
 {
-  constructor(
-    override http: HttpClient,
-    private settingsMessengerService: SettingsMessengerService
-  ) {
+  private settingsMessengerService = inject(SettingsMessengerService);
+
+  constructor() {
+    const http = inject(HttpClient);
+
     super(http);
     this.baseUrl = `api/projects`;
 

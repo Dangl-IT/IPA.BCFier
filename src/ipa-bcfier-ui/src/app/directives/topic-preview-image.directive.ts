@@ -1,11 +1,4 @@
-import {
-  Directive,
-  ElementRef,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 
 import { BcfViewpoint } from '../generated-client/generated-client';
 
@@ -14,9 +7,9 @@ import { BcfViewpoint } from '../generated-client/generated-client';
   standalone: true,
 })
 export class TopicPreviewImageDirective implements OnInit, OnChanges {
-  @Input() bcfierTopicPreviewImage!: BcfViewpoint[];
+  private elementRef = inject(ElementRef);
 
-  constructor(private elementRef: ElementRef) {}
+  @Input() bcfierTopicPreviewImage!: BcfViewpoint[];
 
   ngOnInit(): void {
     this.handleImage();

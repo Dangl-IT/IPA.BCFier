@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SelectedEditTopicComponent } from './selected-edit-topic.component';
+import { AppTestingModule } from '../../app.testing.module';
 
 describe('SelectedEditTopicComponent', () => {
   let component: SelectedEditTopicComponent;
@@ -8,7 +9,7 @@ describe('SelectedEditTopicComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SelectedEditTopicComponent]
+      imports: [SelectedEditTopicComponent, AppTestingModule]
     })
     .compileComponents();
 

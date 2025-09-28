@@ -54,6 +54,9 @@ import { ProjectUsersService } from '../../services/project-users.service';
   styleUrl: './topic-detail.component.scss',
 })
 export class TopicDetailComponent implements OnInit {
+  private matDialog = inject(MatDialog);
+  private backendService = inject(BackendService);
+
   @Input() topic!: BcfTopic;
   @Input() bcfFile!: BcfFile;
   issueStatusesService = inject(IssueStatusesService);
@@ -74,10 +77,6 @@ export class TopicDetailComponent implements OnInit {
   private groupedClasheIdsMessengerService = inject(
     GroupedClasheIdsMessengerService
   );
-  constructor(
-    private matDialog: MatDialog,
-    private backendService: BackendService
-  ) {}
 
   ngOnInit(): void {
     if (this.bcfFile?.projectExtensions?.topicStatuses) {

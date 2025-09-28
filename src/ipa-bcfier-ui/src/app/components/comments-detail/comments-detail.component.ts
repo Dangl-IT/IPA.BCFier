@@ -4,7 +4,7 @@ import {
   BcfViewpoint,
   IfcGuidNamePair,
 } from '../../generated-client/generated-client';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import {
   MessageType,
   TeamsMessengerService,
@@ -45,21 +45,19 @@ import { take } from 'rxjs';
   styleUrl: './comments-detail.component.scss',
 })
 export class CommentsDetailComponent implements OnInit {
+  private settingsMessengerService = inject(SettingsMessengerService);
+  private notificationsService = inject(NotificationsService);
+  private matDialog = inject(MatDialog);
+  private backendService = inject(BackendService);
+  private bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
+  private teamsMessengerService = inject(TeamsMessengerService);
+
   @Input() comments!: BcfComment[];
   @Input() viewpoint: BcfViewpoint | null = null;
   @Input() topic!: BcfTopic;
   viewpointElements: IfcGuidNamePair[] = [];
 
   newComment = '';
-
-  constructor(
-    private settingsMessengerService: SettingsMessengerService,
-    private notificationsService: NotificationsService,
-    private matDialog: MatDialog,
-    private backendService: BackendService,
-    private bcfFileAutomaticallySaveService: BcfFileAutomaticallySaveService,
-    private teamsMessengerService: TeamsMessengerService
-  ) {}
 
   ngOnInit(): void {
     if (this.viewpoint) {

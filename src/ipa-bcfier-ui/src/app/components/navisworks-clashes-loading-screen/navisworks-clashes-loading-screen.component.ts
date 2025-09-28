@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -15,9 +15,8 @@ import { NavisworksClashProgressMessengerService } from '../../services/messenge
 export class NavisworksClashesLoadingScreenComponent
   implements OnDestroy, OnInit
 {
-  constructor(
-    private navisworksClashProgressMessengerService: NavisworksClashProgressMessengerService
-  ) {}
+  private navisworksClashProgressMessengerService = inject(NavisworksClashProgressMessengerService);
+
 
   private $destroy = new Subject<void>();
 

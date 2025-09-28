@@ -1,5 +1,5 @@
 import { BackendService } from './BackendService';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { Settings } from '../generated-client/generated-client';
 
@@ -7,10 +7,14 @@ import { Settings } from '../generated-client/generated-client';
   providedIn: 'root',
 })
 export class SettingsMessengerService {
+  private backendService = inject(BackendService);
+
   private settingsSource = new ReplaySubject<Settings>(1);
   settings = this.settingsSource.asObservable();
 
-  constructor(private backendService: BackendService) {
+  constructor() {
+    const backendService = this.backendService;
+
     backendService.getSettings().subscribe((settings) => {
       this.settingsSource.next(settings);
     });

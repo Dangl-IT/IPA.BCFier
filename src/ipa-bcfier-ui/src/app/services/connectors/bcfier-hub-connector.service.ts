@@ -3,7 +3,7 @@ import {
   HubConnectionBuilder,
   HubConnectionState,
 } from '@microsoft/signalr';
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 
 import { CadErrorDialogComponent } from '../../components/cad-error-dialog/cad-error-dialog.component';
 import { LoadingService } from '../loading.service';
@@ -16,16 +16,16 @@ import { RevitProjectMessengerService } from '../messengers/revit-project-messen
   providedIn: 'root',
 })
 export class BcfierHubConnectorService {
+  private notificationsService = inject(NotificationsService);
+  private ngZone = inject(NgZone);
+  private loadingService = inject(LoadingService);
+  private matDialog = inject(MatDialog);
+  private navisworksClashProgressMessengerService = inject(NavisworksClashProgressMessengerService);
+  private revitProjectMessengerService = inject(RevitProjectMessengerService);
+
   private connection: HubConnection;
 
-  constructor(
-    private notificationsService: NotificationsService,
-    private ngZone: NgZone,
-    private loadingService: LoadingService,
-    private matDialog: MatDialog,
-    private navisworksClashProgressMessengerService: NavisworksClashProgressMessengerService,
-    private revitProjectMessengerService: RevitProjectMessengerService
-  ) {
+  constructor() {
     this.connection = new HubConnectionBuilder()
       .withAutomaticReconnect()
       .withUrl(window.location.origin + '/hubs/bcfier')

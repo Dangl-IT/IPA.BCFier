@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, Input, SimpleChanges, inject } from '@angular/core';
 
 import { BcfViewpoint } from '../generated-client/generated-client';
 
@@ -7,9 +7,9 @@ import { BcfViewpoint } from '../generated-client/generated-client';
   standalone: true,
 })
 export class ViewpointImageDirective {
-  @Input() bcfierViewpointImage: BcfViewpoint | null = null;
+  private elementRef = inject(ElementRef);
 
-  constructor(private elementRef: ElementRef) {}
+  @Input() bcfierViewpointImage: BcfViewpoint | null = null;
 
   ngOnInit(): void {
     this.handleImage();

@@ -4,19 +4,19 @@ import {
   ProjectUsersClient,
 } from '../generated-client/generated-client';
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SelectedProjectMessengerService } from './selected-project-messenger.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectUsersService {
+  private selectedProjectMessengerService = inject(SelectedProjectMessengerService);
+  private projectUsersClient = inject(ProjectUsersClient);
+
   private usersSource = new BehaviorSubject<ProjectUserGet[]>([]);
   users = this.usersSource.asObservable();
-  constructor(
-    private selectedProjectMessengerService: SelectedProjectMessengerService,
-    private projectUsersClient: ProjectUsersClient
-  ) {
+  constructor() {
     this.getAllUsers();
   }
 

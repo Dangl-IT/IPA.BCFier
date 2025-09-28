@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ClashGroupingOptionsComponent } from './clash-grouping-options.component';
+import { AppTestingModule } from '../../app.testing.module';
 
 describe('ClashGroupingOptionsComponent', () => {
   let component: ClashGroupingOptionsComponent;
@@ -8,7 +9,7 @@ describe('ClashGroupingOptionsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ClashGroupingOptionsComponent]
+      imports: [ClashGroupingOptionsComponent, AppTestingModule]
     })
     .compileComponents();
 

@@ -1,13 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationsService {
+  private toastr = inject(ToastrService);
 
-  constructor(private toastr: ToastrService) {
-  }
 
   private readonly notificationDurationMs = 7 * 1000; // 7 seconds
 
