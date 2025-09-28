@@ -229,8 +229,8 @@ namespace IPA.Bcfier.Revit
                 Command = IpcMessageCommand.RevitProjectChanged,
                 Data = JsonConvert.SerializeObject(new ProjectData
                 {
-                    ProjectNumber = _commandData.Application.ActiveUIDocument.Document.ProjectInformation.Number,
-                    FilePath = _commandData.Application.ActiveUIDocument.Document.PathName
+                    ProjectNumber = _commandData.Application.ActiveUIDocument?.Document?.ProjectInformation?.Number ?? string.Empty,
+                    FilePath = _commandData.Application.ActiveUIDocument?.Document?.PathName ?? string.Empty
                 })
             }));
         }

@@ -55,7 +55,8 @@ namespace IPA.Bcfier.Revit.Services
             //if BPL is set to 0,0,0 not always it corresponds to Revit's origin
 
             XYZ origin = new XYZ(0, 0, 0);
-            ProjectPosition position = doc.ActiveProjectLocation.GetProjectPosition(origin);
+            ProjectPosition position = doc.ActiveProjectLocation?.GetProjectPosition(origin)
+                ?? new ProjectPosition(0,0,0,0);
 
             int i = (negative) ? -1 : 1;
 
