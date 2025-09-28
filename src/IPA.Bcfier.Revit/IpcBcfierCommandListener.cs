@@ -34,13 +34,13 @@ namespace IPA.Bcfier.Revit
 
         public void Listen()
         {
+            if (_controlledApplication != null)
+            {
+                _controlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
+            }
+
             Task.Run(async () =>
             {
-                if (_controlledApplication != null)
-                {
-                    _controlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
-                }
-
                 await SendRevitProjectDataToUiAsync();
 
                 while (_isRunning)
