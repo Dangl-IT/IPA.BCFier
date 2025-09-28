@@ -4,6 +4,8 @@
 #define AppURL       "https://www.dangl-it.com"
 
 #define RevitAddinFolder "{sd}\ProgramData\Autodesk\Revit\Addins"
+#define RevitAddin26  RevitAddinFolder+"\2026\"
+#define RevitAddin25  RevitAddinFolder+"\2025\"
 #define RevitAddin24  RevitAddinFolder+"\2024\"
 #define RevitAddin23  RevitAddinFolder+"\2023\"
 #define RevitAddin22  RevitAddinFolder+"\2022\"
@@ -19,7 +21,7 @@ AppVerName={#AppName} {#AppVersion}
 AppPublisher={#AppPublisher}
 AppPublisherURL={#AppURL}
 AppSupportURL={#AppURL}
-DefaultDirName={#RevitAddin24}
+DefaultDirName={#RevitAddin26}
 DisableDirPage=yes
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
@@ -33,13 +35,31 @@ WizardImageFile={#Repository}\Installer\InstallerAssets\banner.bmp
 ChangesAssociations=yes
 
 [Components]
+Name: revit26; Description: Addin for Autodesk Revit 2026;  Types: full
+Name: revit25; Description: Addin for Autodesk Revit 2025;  Types: full
 Name: revit24; Description: Addin for Autodesk Revit 2024;  Types: full
 Name: revit23; Description: Addin for Autodesk Revit 2023;  Types: full
 Name: revit22; Description: Addin for Autodesk Revit 2022;  Types: full
 Name: revit21; Description: Addin for Autodesk Revit 2021;  Types: full
-Name: navisworks; Description: Addin for Autodesk Navisworks 2021 - 2024;  Types: full
+Name: navisworks; Description: Addin for Autodesk Navisworks 2021 - 2026;  Types: full
 
 [Files]
+
+;REVIT 2026
+Source: "{#Repository}\RevitPlugin\Release-2026\IPA.Bcfier.Revit.addin"; DestDir: "{#RevitAddin26}"; Flags: ignoreversion; Components: revit26
+Source: "{#Repository}\RevitPlugin\Release-2026\DecimalEx.dll"; DestDir: "{#RevitAddin26}\Ipa.BCFier"; Flags: ignoreversion; Components: revit26
+Source: "{#Repository}\RevitPlugin\Release-2026\Dangl.BCF.dll"; DestDir: "{#RevitAddin26}\Ipa.BCFier"; Flags: ignoreversion; Components: revit26
+Source: "{#Repository}\RevitPlugin\Release-2026\IPA.Bcfier.dll"; DestDir: "{#RevitAddin26}\Ipa.BCFier"; Flags: ignoreversion; Components: revit26
+Source: "{#Repository}\RevitPlugin\Release-2026\IPA.Bcfier.Revit.dll"; DestDir: "{#RevitAddin26}\Ipa.BCFier"; Flags: ignoreversion; Components: revit26
+Source: "{#Repository}\Installer\bcfier-app\*"; DestDir: "{#RevitAddin26}\Ipa.BCFier\ipa-bcfier-app"; Flags: ignoreversion recursesubdirs; Components: revit26
+
+;REVIT 2025
+Source: "{#Repository}\RevitPlugin\Release-2025\IPA.Bcfier.Revit.addin"; DestDir: "{#RevitAddin25}"; Flags: ignoreversion; Components: revit25
+Source: "{#Repository}\RevitPlugin\Release-2025\DecimalEx.dll"; DestDir: "{#RevitAddin25}\Ipa.BCFier"; Flags: ignoreversion; Components: revit25
+Source: "{#Repository}\RevitPlugin\Release-2025\Dangl.BCF.dll"; DestDir: "{#RevitAddin25}\Ipa.BCFier"; Flags: ignoreversion; Components: revit25
+Source: "{#Repository}\RevitPlugin\Release-2025\IPA.Bcfier.dll"; DestDir: "{#RevitAddin25}\Ipa.BCFier"; Flags: ignoreversion; Components: revit25
+Source: "{#Repository}\RevitPlugin\Release-2025\IPA.Bcfier.Revit.dll"; DestDir: "{#RevitAddin25}\Ipa.BCFier"; Flags: ignoreversion; Components: revit25
+Source: "{#Repository}\Installer\bcfier-app\*"; DestDir: "{#RevitAddin25}\Ipa.BCFier\ipa-bcfier-app"; Flags: ignoreversion recursesubdirs; Components: revit25
 
 ;REVIT 2024
 Source: "{#Repository}\RevitPlugin\Release-2024\IPA.Bcfier.Revit.addin"; DestDir: "{#RevitAddin24}"; Flags: ignoreversion; Components: revit24

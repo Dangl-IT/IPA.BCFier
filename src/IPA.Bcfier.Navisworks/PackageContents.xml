@@ -16,4 +16,12 @@
     <RuntimeRequirements OS="Win64" Platform="NAVMAN|NAVSIM" SeriesMin="Nw21" SeriesMax="Nw21" />
     <ComponentEntry AppName="IPA.BCFier" AppType="ManagedPlugin" ModuleName="./Release-2024/IPA.Bcfier.Navisworks.dll" />
   </Components>
+  <Components Description="Navisworks 2025 parts">
+    <RuntimeRequirements OS="Win64" Platform="NAVMAN|NAVSIM" SeriesMin="Nw21" SeriesMax="Nw21" />
+    <ComponentEntry AppName="IPA.BCFier" AppType="ManagedPlugin" ModuleName="./Release-2025/IPA.Bcfier.Navisworks.dll" />
+  </Components>
+  <Components Description="Navisworks 2026 parts">
+    <RuntimeRequirements OS="Win64" Platform="NAVMAN|NAVSIM" SeriesMin="Nw21" SeriesMax="Nw21" />
+    <ComponentEntry AppName="IPA.BCFier" AppType="ManagedPlugin" ModuleName="./Release-2026/IPA.Bcfier.Navisworks.dll" />
+  </Components>
 </ApplicationPackage>

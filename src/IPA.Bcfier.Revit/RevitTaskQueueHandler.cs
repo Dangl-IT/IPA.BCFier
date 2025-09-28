@@ -127,6 +127,7 @@ namespace IPA.Bcfier.Revit
 
         private void HandleOpenBcfFileCallback(Func<string, Task> callback)
         {
+#if !REVIT_2025 && !REVIT_2026
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "BCF Files (*.bcf, *.bcfzip)|*.bcf;*.bcfzip"
@@ -138,6 +139,17 @@ namespace IPA.Bcfier.Revit
             }
 
             var bcfFilePath = openFileDialog.FileName;
+#else
+            var openFileDialog = new FileOpenDialog("BCF Files (*.bcf, *.bcfzip)|*.bcf;*.bcfzip");
+            var dialogResult = openFileDialog.Show();
+
+            if (dialogResult != ItemSelectionDialogResult.Confirmed || openFileDialog.GetSelectedModelPath()?.CentralServerPath == null)
+            {
+                return;
+            }
+
+            var bcfFilePath = openFileDialog.GetSelectedModelPath().CentralServerPath;
+#endif
             Task.Run(async () =>
             {
                 var bcfFileName = Path.GetFileName(bcfFilePath);

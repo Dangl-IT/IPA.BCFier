@@ -97,7 +97,7 @@ class Build : NukeBuild
             .SetInformationalVersion(GitVersion.InformationalVersion)
             .EnableNoRestore());
     }
-    
+
     private void WriteFileVersionProvider()
     {
         var fileVersionPath = RootDirectory / "src" / "IPA.BCFier" / "FileVersionProvider.cs";
@@ -254,6 +254,8 @@ export const version = {{
 
             var configurations = new[]
             {
+                "Release-2026",
+                "Release-2025",
                 "Release-2024",
                 "Release-2023",
                 "Release-2022",
