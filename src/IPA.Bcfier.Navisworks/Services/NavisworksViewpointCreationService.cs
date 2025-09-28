@@ -275,7 +275,7 @@ namespace IPA.Bcfier.Navisworks.Services
                     {
                         continue;
                     }
-#if !NAVISWORKS_2025 && !NAVISWORKS_2026
+#if !NAVISWORKS_2026
                     instance.SetCurrentIssueFromSavedItem(result, 0, false);
 #else
                     instance.SetCurrentIssueFromSavedItem(result, 0, false, false);
@@ -322,7 +322,7 @@ namespace IPA.Bcfier.Navisworks.Services
                         continue;
                     }
 
-#if !NAVISWORKS_2025 && !NAVISWORKS_2026
+#if !NAVISWORKS_2026
                     instance.SetCurrentIssueFromSavedItem(resultGroup, 0, false);
 #else
                     instance.SetCurrentIssueFromSavedItem(resultGroup, 0, false, false);
