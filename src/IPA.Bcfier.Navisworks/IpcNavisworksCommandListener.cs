@@ -166,31 +166,6 @@ namespace IPA.Bcfier.Navisworks
                                 await HandleSelectElementAsync(ipcMessage);
                                 break;
 
-                            case IpcMessageCommand.GroupClashes:
-                                var clashGroupingData = JsonConvert.DeserializeObject<NavisworksClashGroupingData>(ipcMessage.Data!)!;
-                                var clashGroupingResult = NavisworksClashGroupingService.GroupClashes(clashGroupingData);
-                                await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
-                                {
-                                    CorrelationId = ipcMessage.CorrelationId,
-                                    Command = IpcMessageCommand.GroupClashesResult,
-                                    Data = JsonConvert.SerializeObject(clashGroupingResult)
-                                }));
-                                break;
-
-                            case IpcMessageCommand.ShowGroupedClashes:
-                                var clashIds = JsonConvert.DeserializeObject<List<Guid>>(ipcMessage.Data!)!;
-                                var result = NavisworksClashGroupingService.GroupClashesInClashDetective(clashIds);
-                                _navisworksTaskHandler.CreateNavisworksViewpointCallbacks.Enqueue(async (data) =>
-                                {
-                                    await _ipcHandler.SendMessageAsync(JsonConvert.SerializeObject(new IpcMessage
-                                    {
-                                        CorrelationId = ipcMessage.CorrelationId,
-                                        Command = IpcMessageCommand.GroupedClashesShown,
-                                        Data = result.ToString()
-                                    }));
-                                });
-                                break;
-
                             default:
                                 // TODO
                                 throw new NotImplementedException();

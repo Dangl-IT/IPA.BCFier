@@ -89,24 +89,6 @@
     >
       Add Viewpoint
     </button>
-    <div class="clashes-btn-container">
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="openGroupingDialog()"
-        class="full-width-button"
-      >
-        Auto Group Clashes
-      </button>
-      <button
-        mat-raised-button
-        color="warn"
-        (click)="ungroupClashes()"
-        class="full-width-button"
-      >
-        Ungroup Clashes
-      </button>
-    </div>
     <div>
       @for (viewpoint of topic.viewpoints; track viewpoint) {
       <div>
