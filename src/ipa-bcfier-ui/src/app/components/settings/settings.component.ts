@@ -36,10 +36,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private settingsClient = inject(SettingsClient);
   private appConfigService = inject(AppConfigService);
 
-
   username: string = '';
   mainDatabaseSaveLocation: string = '';
   public isInAdminMode = false;
+  public isInNavisworksMode =
+    this.appConfigService.getFrontendConfig().isConnectedToNavisworks;
 
   private destroyed$ = new Subject<void>();
 

@@ -1,6 +1,6 @@
 <mat-tab-group mat-stretch-tabs="false" backgroundColor="primary" dynamicHeight>
-  @if (isInAdminMode && (settingsMessengerService.settings |
-  async)?.mainDatabaseLocation) {
+  @if ((isInNavisworksMode || isInAdminMode) &&
+  (settingsMessengerService.settings | async)?.mainDatabaseLocation) {
   <mat-tab label="Projects"
     ><bcfier-projects-table></bcfier-projects-table
   ></mat-tab>
