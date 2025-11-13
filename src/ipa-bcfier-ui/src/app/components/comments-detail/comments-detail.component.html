@@ -2,17 +2,6 @@
   @if (viewpoint) {
   <mat-card-title class="image">
     <div class="image-wrapper">
-      <div
-        class="image-elements"
-        [class.list-elements]="viewpointElements.length > 1"
-      >
-        @if(viewpointElements.length > 0) {
-        <bcfier-elements-viewpoint
-          [viewpointElements]="viewpointElements"
-          (selectedElement)="trySelectElement($event)"
-        ></bcfier-elements-viewpoint>
-        }
-      </div>
       <div class="image-viewpoint">
         <img
           class="viewpoint"
