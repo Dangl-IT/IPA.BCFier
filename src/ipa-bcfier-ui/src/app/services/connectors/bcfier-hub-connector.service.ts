@@ -20,7 +20,9 @@ export class BcfierHubConnectorService {
   private ngZone = inject(NgZone);
   private loadingService = inject(LoadingService);
   private matDialog = inject(MatDialog);
-  private navisworksClashProgressMessengerService = inject(NavisworksClashProgressMessengerService);
+  private navisworksClashProgressMessengerService = inject(
+    NavisworksClashProgressMessengerService
+  );
   private revitProjectMessengerService = inject(RevitProjectMessengerService);
 
   private connection: HubConnection;

@@ -226,6 +226,8 @@ export class FilesWrapperComponent implements OnInit {
     }
   }
 
+  private hasConfirmDialogOpen = false;
+
   private findRevitProjectInDatabase(
     projectNumber: string | null,
     filePath: string
@@ -254,6 +256,12 @@ export class FilesWrapperComponent implements OnInit {
         }
 
         this.selectedProject = selectedProject;
+
+        if (this.hasConfirmDialogOpen) {
+          return;
+        }
+        this.hasConfirmDialogOpen = true;
+
         this.dialog
           .open(ConfirmDialogComponent, {
             autoFocus: false,
@@ -266,6 +274,7 @@ export class FilesWrapperComponent implements OnInit {
           })
           .afterClosed()
           .subscribe((confirm) => {
+            this.hasConfirmDialogOpen = false;
             if (confirm) {
               this.selectedProjectMessengerService.setSelectedProject(
                 this.selectedProject
