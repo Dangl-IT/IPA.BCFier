@@ -13,7 +13,6 @@ import {
 import { BackendService } from '../../services/BackendService';
 import { BcfFileAutomaticallySaveService } from '../../services/bcf-file-automaticaly-save.service';
 import { CommonModule } from '@angular/common';
-import { ElementsViewpointComponent } from '../elements-viewpoint/elements-viewpoint.component';
 import { FormsModule } from '@angular/forms';
 import { ImagePreviewComponent } from '../image-preview/image-preview.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,7 +38,6 @@ import { take } from 'rxjs';
     MatInputModule,
     ViewpointImageDirective,
     MatTooltipModule,
-    ElementsViewpointComponent,
   ],
   templateUrl: './comments-detail.component.html',
   styleUrl: './comments-detail.component.scss',
@@ -49,7 +47,9 @@ export class CommentsDetailComponent implements OnInit {
   private notificationsService = inject(NotificationsService);
   private matDialog = inject(MatDialog);
   private backendService = inject(BackendService);
-  private bcfFileAutomaticallySaveService = inject(BcfFileAutomaticallySaveService);
+  private bcfFileAutomaticallySaveService = inject(
+    BcfFileAutomaticallySaveService
+  );
   private teamsMessengerService = inject(TeamsMessengerService);
 
   @Input() comments!: BcfComment[];
