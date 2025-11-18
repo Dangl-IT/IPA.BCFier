@@ -1,6 +1,6 @@
 import {
+  MAT_DATE_FORMATS,
   MAT_DATE_LOCALE,
-  provideNativeDateAdapter,
 } from '@angular/material/core';
 
 import { AppConfigService } from './services/AppConfigService';
@@ -12,6 +12,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideToastr } from 'ngx-toastr';
 import { routes } from './app.routes';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { MY_FORMATS } from './constants/format';
 
 const frontendConfigService = new AppConfigService();
 
@@ -36,7 +38,8 @@ export const appConfig: ApplicationConfig = {
       preventDuplicates: true,
       closeButton: true,
     }),
-    { provide: MAT_DATE_LOCALE, useValue: 'en-UK' },
-    provideNativeDateAdapter(),
+    provideMomentDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'de-DE' },
+    { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
   ],
 };
