@@ -95,7 +95,9 @@ Source: "{#Repository}\Installer\bcfier-app\*"; DestDir: "{#RevitAddin21}\Ipa.BC
 
 ;NAVISWORKS
 
-Source: "{#Repository}\NavisworksPlugin\Release-2024\PackageContents.xml"; DestDir: "{#NavisworksAddinFolder}"; Flags: ignoreversion; Components: navisworks
+Source: "{#Repository}\NavisworksPlugin\Release-2026\PackageContents.xml"; DestDir: "{#NavisworksAddinFolder}"; Flags: ignoreversion; Components: navisworks
+Source: "{#Repository}\NavisworksPlugin\Release-2026\*"; DestDir: "{#NavisworksAddinFolder}\Release-2026"; Flags: ignoreversion; Components: navisworks
+Source: "{#Repository}\NavisworksPlugin\Release-2025\*"; DestDir: "{#NavisworksAddinFolder}\Release-2025"; Flags: ignoreversion; Components: navisworks
 Source: "{#Repository}\NavisworksPlugin\Release-2024\*"; DestDir: "{#NavisworksAddinFolder}\Release-2024"; Flags: ignoreversion; Components: navisworks
 Source: "{#Repository}\NavisworksPlugin\Release-2023\*"; DestDir: "{#NavisworksAddinFolder}\Release-2023"; Flags: ignoreversion; Components: navisworks
 Source: "{#Repository}\NavisworksPlugin\Release-2022\*"; DestDir: "{#NavisworksAddinFolder}\Release-2022"; Flags: ignoreversion; Components: navisworks
