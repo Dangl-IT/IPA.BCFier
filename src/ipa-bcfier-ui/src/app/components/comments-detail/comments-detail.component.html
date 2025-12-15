@@ -1,57 +1,59 @@
 <mat-card>
   @if (viewpoint) {
-  <mat-card-title class="image">
-    <div class="image-wrapper">
-      <div class="image-viewpoint">
-        <img
-          class="viewpoint"
-          [bcfierViewpointImage]="viewpoint"
-          (click)="selectViewpoint()"
+    <mat-card-title class="image">
+      <div class="image-wrapper">
+        <div class="image-viewpoint">
+          <img
+            class="viewpoint"
+            [bcfierViewpointImage]="viewpoint"
+            (click)="selectViewpoint()"
           [matTooltip]="
             viewpointElements.length === 1
               ? 'Name: ' +
                 (viewpointElements[0].name || viewpointElements[0].ifcGuid)
               : ''
           "
-        />
-      </div>
-    </div>
-    <div class="image-buttons">
-      <button mat-icon-button (click)="showImageFullScreen(viewpoint)">
-        <mat-icon>fullscreen</mat-icon>
-      </button>
-      <button mat-icon-button color="warn" (click)="deleteViewpoint(viewpoint)">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  </mat-card-title>
-  } @else {
-  <mat-card-content>
-    <div *ngFor="let comment of comments">
-      <span class="comment-header">
-        <strong class="comment-author">{{ comment.author }}</strong>
-        <span>{{ comment.creationDate | date : "dd.MM.yyyy HH:mm" }}</span>
+            />
+          </div>
+        </div>
+        <div class="image-buttons">
+          <button mat-icon-button (click)="showImageFullScreen(viewpoint)">
+            <mat-icon>fullscreen</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteViewpoint(viewpoint)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </mat-card-title>
+    } @else {
+      <mat-card-content>
+        @for (comment of comments; track comment) {
+          <div>
+            <span class="comment-header">
+              <strong class="comment-author">{{ comment.author }}</strong>
+              <span>{{ comment.creationDate | date : "dd.MM.yyyy HH:mm" }}</span>
 
-        <button mat-icon-button color="warn" (click)="removeComment(comment)">
-          <mat-icon>close</mat-icon>
-        </button>
-      </span>
-      <p>{{ comment.text }}</p>
-    </div>
-  </mat-card-content>
-  <mat-card-actions>
-    <mat-form-field class="comment-field dark-theme">
-      <mat-label>Add comment</mat-label>
-      <input matInput [(ngModel)]="newComment" />
-      <button
-        mat-icon-button
-        matSuffix
-        [disabled]="!newComment"
-        (click)="addComment()"
-      >
-        <mat-icon>send</mat-icon>
-      </button>
-    </mat-form-field>
-  </mat-card-actions>
-  }
-</mat-card>
+              <button mat-icon-button color="warn" (click)="removeComment(comment)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </span>
+            <p>{{ comment.text }}</p>
+          </div>
+        }
+      </mat-card-content>
+      <mat-card-actions>
+        <mat-form-field class="comment-field dark-theme">
+          <mat-label>Add comment</mat-label>
+          <input matInput [(ngModel)]="newComment" />
+          <button
+            mat-icon-button
+            matSuffix
+            [disabled]="!newComment"
+            (click)="addComment()"
+            >
+            <mat-icon>send</mat-icon>
+          </button>
+        </mat-form-field>
+      </mat-card-actions>
+    }
+  </mat-card>
