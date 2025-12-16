@@ -1,116 +1,118 @@
-<div class="wrapper" *ngIf="topic">
-  <mat-form-field class="top-field dark-theme">
-    <mat-label>Title</mat-label>
-    <input
-      matInput
-      [(ngModel)]="topic.title"
-      (change)="changeIssue()"
-      (keydown)="checkIsTitleChangeFirstTime(topic.title)"
-    />
-  </mat-form-field>
-
-  <div class="info-select">
-    <div>
-      @if (topic.creationDate) {
-      <span>{{ topic.creationDate | date : "dd.MM.yyyy HH:mm" }}</span>
-      } @else {
-      <span>No Date</span>
-      }
-    </div>
-
-    <mat-form-field class="dark-theme">
-      <mat-label>Status</mat-label>
-      <mat-select
-        [(value)]="topic.topicStatus"
-        (selectionChange)="changeIssue()"
-      >
-        @for (status of (issueStatuses$ | async)?.values(); track status) {
-        <mat-option [value]="status">{{ status }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field class="dark-theme">
-      <mat-label>Type</mat-label>
-      <mat-select
-        [(value)]="topic.topicTypes"
-        (selectionChange)="changeIssue()"
-        multiple
-      >
-        @for (type of (issueTypes$ | async)?.values(); track type) {
-        <mat-option [value]="type">{{ type }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field class="dark-theme">
-      <mat-label>Responsible</mat-label>
-      <mat-select
-        [(value)]="topic.assignedToList"
-        (selectionChange)="changeIssue()"
-        (opened)="refreshUsers()"
-        multiple
-      >
-        @for (user of (users$ | async)?.values(); track user.id) {
-        <mat-option [value]="user.identifier">{{ user.identifier }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field>
-      <mat-label>Due Date</mat-label>
+@if (topic) {
+  <div class="wrapper">
+    <mat-form-field class="top-field dark-theme">
+      <mat-label>Title</mat-label>
       <input
         matInput
-        [matDatepicker]="picker"
-        [(ngModel)]="topic.dueDate"
-        (ngModelChange)="changeIssue()"
-      />
-      <mat-hint>DD/MM/YYYY</mat-hint>
-      <mat-datepicker-toggle
-        matIconSuffix
-        [for]="picker"
-      ></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
-  </div>
+        [(ngModel)]="topic.title"
+        (change)="changeIssue()"
+        (keydown)="checkIsTitleChangeFirstTime(topic.title)"
+        />
+      </mat-form-field>
 
-  <mat-form-field class="top-field dark-theme">
-    <mat-label>Description</mat-label>
-    <input matInput [(ngModel)]="topic.description" (change)="changeIssue()" />
-  </mat-form-field>
-
-  <div>
-    <h3>Viewpoints</h3>
-    <button
-      mat-raised-button
-      color="primary"
-      class="full-width-button"
-      (click)="addViewpoint()"
-    >
-      Add Viewpoint
-    </button>
-    <div>
-      @for (viewpoint of topic.viewpoints; track viewpoint) {
-      <div>
-        <bcfier-comments-detail
-          [comments]="topic.comments | commentsViewpointFilter : viewpoint.id"
-          [viewpoint]="viewpoint"
-          [topic]="topic"
-        ></bcfier-comments-detail>
-      </div>
-      }
-
-      <div>
-        <h3>Comments</h3>
+      <div class="info-select">
         <div>
-          <bcfier-comments-detail
+          @if (topic.creationDate) {
+            <span>{{ topic.creationDate | date : "dd.MM.yyyy HH:mm" }}</span>
+          } @else {
+            <span>No Date</span>
+          }
+        </div>
+
+        <mat-form-field class="dark-theme">
+          <mat-label>Status</mat-label>
+          <mat-select
+            [(value)]="topic.topicStatus"
+            (selectionChange)="changeIssue()"
+            >
+            @for (status of (issueStatuses$ | async)?.values(); track status) {
+              <mat-option [value]="status">{{ status }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="dark-theme">
+          <mat-label>Type</mat-label>
+          <mat-select
+            [(value)]="topic.topicTypes"
+            (selectionChange)="changeIssue()"
+            multiple
+            >
+            @for (type of (issueTypes$ | async)?.values(); track type) {
+              <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="dark-theme">
+          <mat-label>Responsible</mat-label>
+          <mat-select
+            [(value)]="topic.assignedToList"
+            (selectionChange)="changeIssue()"
+            (opened)="refreshUsers()"
+            multiple
+            >
+            @for (user of (users$ | async)?.values(); track user.id) {
+              <mat-option [value]="user.identifier">{{ user.identifier }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Due Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [(ngModel)]="topic.dueDate"
+            (ngModelChange)="changeIssue()"
+            />
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field class="top-field dark-theme">
+          <mat-label>Description</mat-label>
+          <input matInput [(ngModel)]="topic.description" (change)="changeIssue()" />
+        </mat-form-field>
+
+        <div>
+          <h3>Viewpoints</h3>
+          <button
+            mat-raised-button
+            color="primary"
+            class="full-width-button"
+            (click)="addViewpoint()"
+            >
+            Add Viewpoint
+          </button>
+          <div>
+            @for (viewpoint of topic.viewpoints; track viewpoint) {
+              <div>
+                <bcfier-comments-detail
+                  [comments]="topic.comments | commentsViewpointFilter : viewpoint.id"
+                  [viewpoint]="viewpoint"
+                  [topic]="topic"
+                ></bcfier-comments-detail>
+              </div>
+            }
+
+            <div>
+              <h3>Comments</h3>
+              <div>
+                <bcfier-comments-detail
             [comments]="
               topic.comments | commentsViewpointFilter : undefined : true
             "
-            [topic]="topic"
-          ></bcfier-comments-detail>
+                  [topic]="topic"
+                ></bcfier-comments-detail>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
+    }

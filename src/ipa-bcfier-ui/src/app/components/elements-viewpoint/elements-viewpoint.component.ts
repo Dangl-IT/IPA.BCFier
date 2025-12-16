@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
 import { IfcGuidNamePair } from '../../generated-client/generated-client';
 
 @Component({
   selector: 'bcfier-elements-viewpoint',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './elements-viewpoint.component.html',
   styleUrls: ['./elements-viewpoint.component.scss'],
   standalone: true,

@@ -4,7 +4,7 @@ import {
 } from '@angular/material/core';
 
 import { AppConfigService } from './services/AppConfigService';
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { BackendService } from './services/BackendService';
 import { IMAGE_CONFIG } from '@angular/common';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -38,5 +38,6 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: MAT_DATE_LOCALE, useValue: 'en-UK' },
     provideNativeDateAdapter(),
+    provideZoneChangeDetection(),
   ],
 };
