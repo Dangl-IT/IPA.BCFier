@@ -3,24 +3,22 @@ import { TestBed } from '@angular/core/testing';
 import { BcfierHubConnectorService } from './bcfier-hub-connector.service';
 import { AppTestingModule } from '../../app.testing.module';
 import { HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
+import { vi } from 'vitest';
 
 describe('BcfierHubConnectorService', () => {
   let service: BcfierHubConnectorService;
 
   beforeEach(() => {
-    spyOn(HubConnectionBuilder.prototype, 'withAutomaticReconnect')
-      .and.callThrough();
+    vi.spyOn(HubConnectionBuilder.prototype, 'withAutomaticReconnect');
 
-    spyOn(HubConnectionBuilder.prototype, 'withUrl')
-      .and.callThrough();
+    vi.spyOn(HubConnectionBuilder.prototype, 'withUrl');
 
-    spyOn(HubConnectionBuilder.prototype, 'build')
-      .and.returnValue({
-        state: HubConnectionState.Disconnected,
-        start: jasmine.createSpy().and.returnValue(Promise.resolve()),
-        stop: jasmine.createSpy(),
-        on: jasmine.createSpy(),
-      } as any);
+    vi.spyOn(HubConnectionBuilder.prototype, 'build').mockReturnValue({
+      state: HubConnectionState.Disconnected,
+      start: vi.fn().mockReturnValue(Promise.resolve()),
+      stop: vi.fn(),
+      on: vi.fn(),
+    } as any);
   });
 
   beforeEach(() => {
