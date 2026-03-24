@@ -76,7 +76,10 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "coverage": true,
-            "coverageReporters": ["html"]
+            "coverageReporters": ["html"],
+            "reporters": [
+              ["junit", { "outputFile": "./reports/junit-report.xml" }]
+            ]
           }
         }
       }
