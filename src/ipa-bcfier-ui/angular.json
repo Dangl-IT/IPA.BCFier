@@ -78,6 +78,7 @@
             "coverage": true,
             "coverageReporters": ["html"],
             "reporters": [
+              "default",
               ["junit", { "outputFile": "./reports/junit-report.xml" }]
             ]
           }
