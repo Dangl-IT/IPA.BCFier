@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -30,6 +30,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatInputModule,
   ],
   templateUrl: './bulk-edit-topic.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bulk-edit-topic.component.scss',
 })
 export class BulkTopicEditComponent {

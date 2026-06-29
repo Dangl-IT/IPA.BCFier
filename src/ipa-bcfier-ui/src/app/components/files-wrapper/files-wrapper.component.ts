@@ -9,6 +9,7 @@ import {
   TemplateRef,
   inject,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import {
@@ -49,6 +50,7 @@ import { SelectedProjectMessengerService } from '../../services/selected-project
     AsyncPipe,
   ],
   templateUrl: './files-wrapper.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./files-wrapper.component.scss'],
 })
 export class FilesWrapperComponent implements OnInit {

@@ -5,7 +5,7 @@ import {
   LastOpenedFilesClient,
   SettingsClient,
 } from '../../generated-client/generated-client';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   Subject,
@@ -45,6 +45,7 @@ import { version } from '../../version';
         FormsModule,
     ],
     templateUrl: './top-menu.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './top-menu.component.scss'
 })
 export class TopMenuComponent implements OnDestroy, OnInit {

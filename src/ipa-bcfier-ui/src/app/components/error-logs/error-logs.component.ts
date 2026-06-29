@@ -1,6 +1,6 @@
 import { JsonPipe } from '@angular/common';
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ErrorLogsClient } from '../../generated-client/generated-client';
 import { MatButtonModule } from '@angular/material/button';
 import { NotificationsService } from '../../services/notifications.service';
@@ -9,6 +9,7 @@ import { NotificationsService } from '../../services/notifications.service';
   selector: 'bcfier-error-logs',
   imports: [JsonPipe, MatButtonModule],
   templateUrl: './error-logs.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './error-logs.component.scss',
 })
 export class ErrorLogsComponent {

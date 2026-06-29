@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -11,6 +11,7 @@ import { BcfViewpoint } from '../../generated-client/generated-client';
     selector: 'bcfier-image-preview',
     imports: [MatDialogModule, ViewpointImageDirective],
     templateUrl: './image-preview.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './image-preview.component.scss'
 })
 export class ImagePreviewComponent {  viewpoint = inject<BcfViewpoint>(MAT_DIALOG_DATA);

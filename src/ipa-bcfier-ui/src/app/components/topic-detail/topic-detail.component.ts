@@ -4,7 +4,7 @@ import {
   BcfTopic,
   ViewpointsClient,
 } from '../../generated-client/generated-client';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
@@ -47,6 +47,7 @@ import { ProjectUsersService } from '../../services/project-users.service';
     MatDatepickerModule,
   ],
   templateUrl: './topic-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './topic-detail.component.scss',
 })
 export class TopicDetailComponent implements OnInit {

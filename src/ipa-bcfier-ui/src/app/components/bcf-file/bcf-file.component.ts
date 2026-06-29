@@ -11,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormGroup, FormsModule } from '@angular/forms';
 import {
@@ -76,6 +77,7 @@ import { getNewRandomGuid } from '../../functions/uuid';
     SelectedEditTopicComponent,
   ],
   templateUrl: './bcf-file.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bcf-file.component.scss',
 })
 export class BcfFileComponent implements OnInit, OnDestroy {

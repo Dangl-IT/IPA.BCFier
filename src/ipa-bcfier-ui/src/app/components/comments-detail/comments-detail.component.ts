@@ -4,7 +4,7 @@ import {
   BcfViewpoint,
   IfcGuidNamePair,
 } from '../../generated-client/generated-client';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import {
   MessageType,
   TeamsMessengerService,
@@ -40,6 +40,7 @@ import { take } from 'rxjs';
     MatTooltipModule,
   ],
   templateUrl: './comments-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './comments-detail.component.scss',
 })
 export class CommentsDetailComponent implements OnInit {

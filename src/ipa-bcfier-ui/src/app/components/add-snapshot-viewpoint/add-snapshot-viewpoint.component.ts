@@ -2,7 +2,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { BcfViewpoint } from '../../generated-client/generated-client';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDropzone } from '@ngx-dropzone/material';
@@ -25,6 +25,7 @@ import { FileInputDirective } from '@ngx-dropzone/cdk';
     FileInputDirective
   ],
   templateUrl: './add-snapshot-viewpoint.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-snapshot-viewpoint.component.scss',
 })
 export class AddSnapshotViewpointComponent {

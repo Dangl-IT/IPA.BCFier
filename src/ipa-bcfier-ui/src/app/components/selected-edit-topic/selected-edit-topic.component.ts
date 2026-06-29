@@ -9,6 +9,7 @@ import {
   OnDestroy,
   OnInit,
   inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Subject, map, takeUntil } from 'rxjs';
@@ -40,6 +41,7 @@ import { SelectedTopicListMessengerService } from '../../services/messengers/sel
     MatButtonModule,
   ],
   templateUrl: './selected-edit-topic.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './selected-edit-topic.component.scss',
 })
 export class SelectedEditTopicComponent implements OnInit, OnDestroy {

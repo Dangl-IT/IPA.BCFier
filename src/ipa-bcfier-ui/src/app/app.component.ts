@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { filter, take } from 'rxjs';
 
 import { AppConfigService } from './services/AppConfigService';
@@ -16,6 +16,7 @@ import { version } from './version';
   standalone: true,
   imports: [MatToolbarModule, TopMenuComponent, FilesWrapperComponent],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.scss',
 })
 export class AppComponent {

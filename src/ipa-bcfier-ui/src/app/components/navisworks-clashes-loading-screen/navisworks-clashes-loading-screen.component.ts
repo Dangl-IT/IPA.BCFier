@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,7 @@ import { NavisworksClashProgressMessengerService } from '../../services/messenge
     selector: 'bcfier-navisworks-clashes-loading-screen',
     imports: [MatProgressSpinnerModule, MatDialogModule, MatButtonModule],
     templateUrl: './navisworks-clashes-loading-screen.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './navisworks-clashes-loading-screen.component.scss'
 })
 export class NavisworksClashesLoadingScreenComponent
