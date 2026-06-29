@@ -39,7 +39,7 @@
     </mat-checkbox>
   </div>
   <div class="project-name">
-    <span>{{ (selectedProject$ | async)?.name | uppercase }}</span>
+    <span>{{ $safeNavigationMigration((selectedProject$ | async)?.name) | uppercase }}</span>
   </div>
   <div>
     <span class="version-label">

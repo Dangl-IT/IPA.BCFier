@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
     selector: 'bcfier-add-string-value',
     imports: [MatInputModule, FormsModule, MatDialogModule, MatButtonModule],
     templateUrl: './add-string-value.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './add-string-value.component.scss'
 })
 export class AddStringValueComponent {

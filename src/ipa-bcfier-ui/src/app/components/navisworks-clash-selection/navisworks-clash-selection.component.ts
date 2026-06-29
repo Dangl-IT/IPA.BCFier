@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import {
   NavisworksClashSelection,
@@ -25,6 +25,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         MatTooltipModule,
     ],
     templateUrl: './navisworks-clash-selection.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './navisworks-clash-selection.component.scss'
 })
 export class NavisworksClashSelectionComponent {
